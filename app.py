@@ -251,6 +251,15 @@ def download(filename):
         logger.error(f"Error downloading file {filename}: {e}")
         return jsonify({'error': 'Fichier non trouvé'}), 404
 
+@app.route('/download-game')
+def download_game():
+    """Download the complete game archive"""
+    try:
+        return send_from_directory('.', 'chroniques_medievales_complete.tar.gz', as_attachment=True)
+    except Exception as e:
+        logger.error(f"Error downloading game archive: {e}")
+        return jsonify({'error': 'Archive non trouvée'}), 404
+
 @app.route('/cards')
 def cards():
     """Get available cards"""
