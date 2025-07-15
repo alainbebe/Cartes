@@ -8,6 +8,18 @@ This is a Flask-based web application that implements a collaborative narrative 
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### July 15, 2025 - Firefox Compatibility Fix
+- **Issue**: Game displayed empty page on Firefox while working correctly on Chrome
+- **Solution**: Replaced modern JavaScript features with Firefox-compatible alternatives
+  - Changed `let`/`const` declarations to `var` for better compatibility
+  - Replaced `fetch()` API with `XMLHttpRequest` for HTTP requests
+  - Added DOM element validation before initialization
+  - Improved error handling with more robust JSON parsing
+- **Impact**: Game now works consistently across Chrome and Firefox browsers
+- **Status**: ✅ Completed - User confirmed functionality restored
+
 ## System Architecture
 
 ### Backend Architecture
