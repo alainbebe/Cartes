@@ -1,5 +1,5 @@
 // Global game state
-let gameState = {
+var gameState = {
     playerName: '',
     playerRole: '',
     isActive: false,
@@ -8,20 +8,28 @@ let gameState = {
 };
 
 // DOM elements
-const playerForm = document.getElementById('player-form');
-const playerNameInput = document.getElementById('player-name');
-const playerRoleSelect = document.getElementById('player-role');
-const cardNumberInput = document.getElementById('card-number');
-const storyContainer = document.getElementById('story-container');
-const currentScoreSpan = document.getElementById('current-score');
-const cardsProgressBar = document.getElementById('cards-progress');
-const cardsPlayedSpan = document.getElementById('cards-played');
-const totalCardsSpan = document.getElementById('total-cards');
-const activePlayersDiv = document.getElementById('active-players');
-const availableCardsDiv = document.getElementById('available-cards');
+var playerForm = document.getElementById('player-form');
+var playerNameInput = document.getElementById('player-name');
+var playerRoleSelect = document.getElementById('player-role');
+var cardNumberInput = document.getElementById('card-number');
+var storyContainer = document.getElementById('story-container');
+var currentScoreSpan = document.getElementById('current-score');
+var cardsProgressBar = document.getElementById('cards-progress');
+var cardsPlayedSpan = document.getElementById('cards-played');
+var totalCardsSpan = document.getElementById('total-cards');
+var activePlayersDiv = document.getElementById('active-players');
+var availableCardsDiv = document.getElementById('available-cards');
 
 // Initialize game
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if all elements are loaded
+    if (!playerForm || !playerNameInput || !playerRoleSelect || !cardNumberInput || 
+        !storyContainer || !currentScoreSpan || !cardsProgressBar || !cardsPlayedSpan || 
+        !totalCardsSpan || !activePlayersDiv || !availableCardsDiv) {
+        console.error('Some DOM elements are missing');
+        return;
+    }
+    
     setupEventListeners();
     startRefreshInterval();
     loadAvailableCards();
@@ -61,12 +69,12 @@ function loadPlayerInfo() {
     }
 }
 
-async function handleCardPlay(event) {
+function handleCardPlay(event) {
     event.preventDefault();
     
-    const playerName = playerNameInput.value.trim();
-    const playerRole = playerRoleSelect.value;
-    const cardNumber = cardNumberInput.value.trim();
+    var playerName = playerNameInput.value.trim();
+    var playerRole = playerRoleSelect.value;
+    var cardNumber = cardNumberInput.value.trim();
     
     if (!playerName || !playerRole) {
         showAlert('Veuillez entrer votre nom et choisir un rôle.', 'warning');
@@ -78,59 +86,72 @@ async function handleCardPlay(event) {
         return;
     }
     
-    try {
-        const response = await fetch('/envoyer', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                player_name: playerName,
-                player_role: playerRole,
-                prompt: cardNumber
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            showAlert(data.message, 'success');
-            cardNumberInput.value = '';
-            
-            // Refresh immediately after playing
-            await refreshGameState();
-        } else {
-            showAlert(data.error || 'Erreur lors du jeu de la carte', 'danger');
+    // Use XMLHttpRequest for better Firefox compatibility
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/envoyer', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                var data = JSON.parse(xhr.responseText);
+                
+                if (xhr.status === 200) {
+                    showAlert(data.message, 'success');
+                    cardNumberInput.value = '';
+                    
+                    // Refresh immediately after playing
+                    refreshGameState();
+                } else {
+                    showAlert(data.error || 'Erreur lors du jeu de la carte', 'danger');
+                }
+            } catch (error) {
+                console.error('Error parsing response:', error);
+                showAlert('Erreur de traitement de la réponse', 'danger');
+            }
         }
-    } catch (error) {
-        console.error('Error playing card:', error);
+    };
+    
+    xhr.onerror = function() {
+        console.error('Error playing card');
         showAlert('Erreur de connexion au serveur', 'danger');
-    }
+    };
+    
+    xhr.send(JSON.stringify({
+        player_name: playerName,
+        player_role: playerRole,
+        prompt: cardNumber
+    }));
 }
 
-async function refreshGameState() {
-    try {
-        const response = await fetch('/refresh', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                player_name: gameState.playerName,
-                player_role: gameState.playerRole
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            updateGameDisplay(data);
-        } else {
-            console.error('Error refreshing game state:', data.error);
+function refreshGameState() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/refresh', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    updateGameDisplay(data);
+                } else {
+                    console.error('Error refreshing game state:', xhr.status);
+                }
+            } catch (error) {
+                console.error('Error parsing refresh response:', error);
+            }
         }
-    } catch (error) {
-        console.error('Error refreshing game state:', error);
-    }
+    };
+    
+    xhr.onerror = function() {
+        console.error('Error refreshing game state');
+    };
+    
+    xhr.send(JSON.stringify({
+        player_name: gameState.playerName,
+        player_role: gameState.playerRole
+    }));
 }
 
 function updateGameDisplay(data) {
@@ -244,18 +265,31 @@ function selectCard(cardNumber) {
     cardNumberInput.focus();
 }
 
-async function loadAvailableCards() {
-    try {
-        const response = await fetch('/cards');
-        const cards = await response.json();
-        
-        if (response.ok) {
-            gameState.availableCards = cards;
-            updateAvailableCardsDisplay([]);
+function loadAvailableCards() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/cards', true);
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                if (xhr.status === 200) {
+                    var cards = JSON.parse(xhr.responseText);
+                    gameState.availableCards = cards;
+                    updateAvailableCardsDisplay([]);
+                } else {
+                    console.error('Error loading cards:', xhr.status);
+                }
+            } catch (error) {
+                console.error('Error parsing cards response:', error);
+            }
         }
-    } catch (error) {
-        console.error('Error loading cards:', error);
-    }
+    };
+    
+    xhr.onerror = function() {
+        console.error('Error loading cards');
+    };
+    
+    xhr.send();
 }
 
 function startRefreshInterval() {
@@ -270,66 +304,82 @@ function stopRefreshInterval() {
     }
 }
 
-async function resetGame() {
-    try {
-        const response = await fetch('/reset', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+function resetGame() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/reset', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                var data = JSON.parse(xhr.responseText);
+                
+                if (xhr.status === 200) {
+                    showAlert(data.message, 'success');
+                    
+                    // Clear form
+                    cardNumberInput.value = '';
+                    
+                    // Refresh immediately
+                    refreshGameState();
+                    
+                    // Close modal if open
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('gameEndModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                } else {
+                    showAlert(data.error || 'Erreur lors de la réinitialisation', 'danger');
+                }
+            } catch (error) {
+                console.error('Error parsing reset response:', error);
+                showAlert('Erreur de traitement de la réponse', 'danger');
             }
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            showAlert(data.message, 'success');
-            
-            // Clear form
-            cardNumberInput.value = '';
-            
-            // Refresh immediately
-            await refreshGameState();
-            
-            // Close modal if open
-            const modal = bootstrap.Modal.getInstance(document.getElementById('gameEndModal'));
-            if (modal) {
-                modal.hide();
-            }
-        } else {
-            showAlert(data.error || 'Erreur lors de la réinitialisation', 'danger');
         }
-    } catch (error) {
-        console.error('Error resetting game:', error);
+    };
+    
+    xhr.onerror = function() {
+        console.error('Error resetting game');
         showAlert('Erreur de connexion au serveur', 'danger');
-    }
+    };
+    
+    xhr.send('{}');
 }
 
-async function saveGame() {
-    try {
-        const response = await fetch('/sauver', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+function saveGame() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sauver', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                var data = JSON.parse(xhr.responseText);
+                
+                if (xhr.status === 200) {
+                    showAlert('Jeu sauvegardé avec succès!', 'success');
+                    
+                    // Create download link
+                    var link = document.createElement('a');
+                    link.href = '/download/' + data.filename;
+                    link.download = data.filename;
+                    link.click();
+                } else {
+                    showAlert(data.error || 'Erreur lors de la sauvegarde', 'danger');
+                }
+            } catch (error) {
+                console.error('Error parsing save response:', error);
+                showAlert('Erreur de traitement de la réponse', 'danger');
             }
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            showAlert('Jeu sauvegardé avec succès!', 'success');
-            
-            // Create download link
-            const link = document.createElement('a');
-            link.href = `/download/${data.filename}`;
-            link.download = data.filename;
-            link.click();
-        } else {
-            showAlert(data.error || 'Erreur lors de la sauvegarde', 'danger');
         }
-    } catch (error) {
-        console.error('Error saving game:', error);
+    };
+    
+    xhr.onerror = function() {
+        console.error('Error saving game');
         showAlert('Erreur de connexion au serveur', 'danger');
-    }
+    };
+    
+    xhr.send('{}');
 }
 
 function showGameEndModal(score) {
