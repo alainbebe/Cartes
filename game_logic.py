@@ -26,8 +26,8 @@ class GameState:
         self.last_activity = datetime.now()
         
     def get_active_players(self) -> List[Dict]:
-        """Get list of active players (seen within last 30 seconds)"""
-        cutoff_time = datetime.now() - timedelta(seconds=30)
+        """Get list of active players (seen within last 5 seconds)"""
+        cutoff_time = datetime.now() - timedelta(seconds=5)
         active = []
         
         for player_name, player_info in self.active_players.items():
