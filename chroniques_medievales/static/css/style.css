@@ -1,0 +1,389 @@
+/* Medieval Fantasy Theme */
+:root {
+    --primary-color: #8B4513;
+    --secondary-color: #2F4F4F;
+    --accent-color: #DAA520;
+    --background-color: #1a1a1a;
+    --card-background: #2a2a2a;
+    --text-color: #f0f0f0;
+    --border-color: #444;
+    --success-color: #228B22;
+    --danger-color: #DC143C;
+    --warning-color: #FF8C00;
+}
+
+body {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: var(--text-color);
+    font-family: 'Times New Roman', serif;
+    min-height: 100vh;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23333" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23333" opacity="0.3"/><circle cx="50" cy="10" r="1" fill="%23333" opacity="0.2"/><circle cx="10" cy="60" r="1" fill="%23333" opacity="0.2"/><circle cx="90" cy="40" r="1" fill="%23333" opacity="0.2"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Header Styling */
+.game-header {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 2px solid var(--accent-color);
+}
+
+.game-header h1 {
+    color: var(--accent-color);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    font-weight: bold;
+    margin: 0;
+}
+
+.game-header .lead {
+    color: var(--text-color);
+    opacity: 0.9;
+    font-style: italic;
+}
+
+/* Game Status Bar */
+.game-status-bar {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.score-display {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.score-display i {
+    margin-right: 8px;
+}
+
+.progress {
+    height: 25px;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+}
+
+.progress-bar {
+    background: linear-gradient(45deg, var(--success-color), var(--accent-color));
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+/* Cards Styling */
+.card {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+.card-header h5, .card-header h6 {
+    margin: 0;
+    color: var(--accent-color);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Form Styling */
+.form-control, .form-select {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 6px;
+}
+
+.form-control:focus, .form-select:focus {
+    background: var(--background-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(218, 165, 32, 0.25);
+    color: var(--text-color);
+}
+
+.form-label {
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+/* Button Styling */
+.btn {
+    border-radius: 6px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border: 1px solid var(--accent-color);
+    color: var(--text-color);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+    border-color: var(--accent-color);
+    color: var(--text-color);
+}
+
+.btn-success {
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    border-color: var(--warning-color);
+    color: white;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* Story Panel */
+.story-panel {
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.story-entry {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-color);
+    background: linear-gradient(135deg, var(--card-background), var(--background-color));
+    position: relative;
+}
+
+.story-entry.intro {
+    border-left-color: var(--secondary-color);
+    background: linear-gradient(135deg, var(--secondary-color), var(--background-color));
+}
+
+.story-entry.positive {
+    border-left-color: var(--success-color);
+    background: linear-gradient(135deg, rgba(34, 139, 34, 0.1), var(--background-color));
+}
+
+.story-entry.negative {
+    border-left-color: var(--danger-color);
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1), var(--background-color));
+}
+
+.story-content {
+    line-height: 1.6;
+}
+
+.story-content p {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.story-meta {
+    font-size: 0.9em;
+    color: var(--accent-color);
+    margin-top: 8px;
+    opacity: 0.8;
+}
+
+/* Player Role Badges */
+.role-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.role-badge.soldat {
+    background: #8B0000;
+    color: white;
+}
+
+.role-badge.moine {
+    background: #4169E1;
+    color: white;
+}
+
+.role-badge.sorciere {
+    background: #8A2BE2;
+    color: white;
+}
+
+.role-badge.forgeron {
+    background: #B8860B;
+    color: white;
+}
+
+/* Available Cards Grid */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.card-item {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9em;
+}
+
+.card-item:hover {
+    background: var(--primary-color);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.card-item.played {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--background-color);
+}
+
+.card-item.played:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.card-number {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.card-word {
+    font-size: 0.8em;
+    color: var(--text-color);
+    margin-top: 4px;
+}
+
+/* Active Players */
+.player-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    margin-bottom: 5px;
+    background: var(--background-color);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.player-name {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.player-role {
+    font-size: 0.9em;
+    color: var(--accent-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .game-status-bar .row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .story-panel {
+        height: auto;
+        max-height: 400px;
+    }
+    
+    .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Modal Styling */
+.modal-content {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
