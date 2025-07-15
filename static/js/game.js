@@ -189,7 +189,7 @@ function updateStoryDisplay(story) {
     
     story.forEach(entry => {
         const storyEntry = document.createElement('div');
-        storyEntry.className = 'story-entry fade-in';
+        storyEntry.className = 'story-entry';
         
         // Add effect class
         if (entry.effect === '+') {
