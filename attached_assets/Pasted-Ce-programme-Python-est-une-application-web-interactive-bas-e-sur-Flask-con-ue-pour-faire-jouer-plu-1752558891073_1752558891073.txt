@@ -1,0 +1,86 @@
+Ce programme Python est une application web interactive basée sur Flask, conçue pour faire jouer plusieurs personnes à un **jeu de cartes narratif collaboratif** dans un **univers médiéval-fantastique**. Voici une explication claire de ses principales fonctionnalités :
+
+---
+
+### 🧩 **But du jeu**
+
+Créer une **histoire collective** cohérente à partir d’un scénario de départ en **jouant des cartes à tour de rôle**, chaque carte influençant l’histoire de manière **positive** ou **négative** selon le rôle du joueur.
+
+---
+
+### 🎮 **Fonctionnement général**
+
+1. **Interface Web (HTML/CSS/JS)** :
+
+   * Permet aux joueurs de :
+
+     * Saisir leur pseudo et rôle (Soldat, Moine, Sorcière, Forgeron).
+     * Envoyer un "prompt" (soit un message, soit un numéro de carte).
+     * Voir le déroulé de l’histoire, le score, les cartes jouées, etc.
+     * Sauvegarder ou réinitialiser la partie.
+
+2. **Serveur Flask (Backend)** :
+
+   * Fournit la page web (route `/`).
+   * Gère les requêtes comme :
+
+     * `/envoyer` : traitement de la carte jouée → envoie l’effet narratif via l’API **Mistral AI**.
+     * `/refresh` : rafraîchit l’état du jeu et détecte les joueurs actifs.
+     * `/reset` et `/sauver` : pour relancer ou sauvegarder la partie.
+     * `/download/<filename>` : téléchargement d'une sauvegarde du récit.
+
+3. **Cartes** :
+
+   * Chargées depuis `deck.json`.
+   * Chaque carte a :
+
+     * un numéro,
+     * un mot-clé,
+     * une phrase descriptive.
+   * Les **effets des cartes** (positif, négatif, neutre) selon le rôle sont dans `evaluations.json`.
+
+4. **Narration via Mistral AI** :
+
+   * À chaque carte jouée, l’API génère un court texte (20-25 mots) qui fait avancer l’histoire selon :
+
+     * le **contexte narratif**,
+     * le **rôle du joueur**,
+     * l’**effet de la carte**.
+   * À la fin du jeu, une **conclusion** est générée en fonction du score (positive ou négative).
+
+5. **Scoring et logique de jeu** :
+
+   * Le score commence à `2 × nb de joueurs`.
+   * Il augmente ou diminue selon l’effet de la carte.
+   * Le jeu se termine si :
+
+     * Le score tombe à 0.
+     * Il n’y a plus de cartes à jouer.
+     * Le joueur demande une conclusion (`prompt == 0`).
+
+---
+
+### 🕹️ Autres fonctionnalités
+
+* **Détection de joueurs actifs** via `ping` toutes les secondes.
+* **Réinitialisation automatique** après 10 minutes d’inactivité.
+* **Journalisation des parties** dans un fichier `log.txt`.
+
+---
+
+### 🔐 Clé API
+
+Le jeu utilise `Mistral` pour la génération de texte. La clé API est récupérée depuis `.env`, ce qui permet de la maintenir confidentielle.
+
+---
+
+### Exemple de flux
+
+1. Un joueur entre son pseudo et rôle.
+2. Il choisit une carte à jouer (ex : carte 5 : "Corbeau").
+3. L'effet de la carte (selon le rôle) est utilisé par Mistral pour générer une phrase de l’histoire.
+4. Le score est mis à jour.
+5. Le récit progresse jusqu’à la fin.
+
+---
+
