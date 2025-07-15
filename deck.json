@@ -1,0 +1,188 @@
+[
+    {
+        "numero": "54",
+        "mot": "Poisson",
+        "phrase": "Un poisson nage parmi les algues.",
+        "descriptif": "L'image montre un poisson de couleur rougeâtre nageant dans un environnement aquatique, entouré de plantes vertes qui ressemblent à des algues, avec un arrière-plan bleu clair évoquant l'eau, dans un style artistique."
+    },
+    {
+        "numero": "24",
+        "mot": "Cercueil",
+        "phrase": "Un cercueil repose sur un support.",
+        "descriptif": "L'image montre un cercueil noir placé sur un support, probablement dans un environnement funéraire. Le cercueil est l'élément central de l'image, et il est entouré d'une ambiance plutôt sombre et froide, évoquant un sentiment de tristesse ou de deuil."
+    },
+    {
+        "numero": "51",
+        "mot": "Épée",
+        "phrase": "Une épée brille dans les flammes.",
+        "descriptif": "L'image montre une épée dressée verticalement, avec une lame argentée et une poignée bleue, entourée de flammes vives. L'arrière-plan est dominé par des tons chauds de rouge, orange et jaune, évoquant un environnement en feu."
+    },
+    {
+        "numero": "53",
+        "mot": "maison",
+        "phrase": "Une petite maison isolée au cœur de la forêt.",
+        "descriptif": "Cette aquarelle représente une maisonnette au toit rouge nichée dans une clairière, entourée d'une forêt dense aux tons verts et bleus. Le chemin qui mène à la porte semble s'effacer parmi les arbres. L'atmosphère est paisible, presque silencieuse, évoquant une retraite simple, perdue loin de toute civilisation."
+    },
+    {
+        "numero": "4",
+        "mot": "Labyrinthe",
+        "phrase": "Labyrinthe herbeux face à l'océan.",
+        "descriptif": "Cette illustration montre un labyrinthe en spirale tracé sur une étendue verte, s'étendant vers un rivage sablonneux et un océan calme en arrière-plan. Le chemin sinueux invite à la contemplation ou à la méditation. Le contraste entre la géométrie terrestre et l'horizon marin crée une atmosphère paisible et symbolique."
+    },
+    {
+        "numero": "38",
+        "mot": "Barque",
+        "phrase": "Une barque amarrée le long d'un quai de pierre.",
+        "descriptif": "Sur une eau calme aux reflets bleutés, une barque de bois repose, solidement attachée à un vieux quai de pierre. L'ambiance paisible et silencieuse évoque l'attente ou le retour, figée dans un moment suspendu entre le départ et l'arrivée."
+    },
+    {
+        "numero": "36",
+        "mot": "Oiseau",
+        "phrase": "Un oiseau noir perché devant une croix blanche.",
+        "descriptif": "Un grand oiseau noir, au bec jaune et à l'œil rouge perçant, est figé devant un mur de pierre marqué par une croix blanche. L'ambiance austère et symbolique suggère un moment suspendu, empreint de silence, d'observation ou peut-être d'un sombre présage."
+    },
+    {
+        "numero": "25",
+        "mot": "Homme",
+        "phrase": "Un vieil homme assis, vêtu de rouge et de bleu.",
+        "descriptif": "Un homme âgé à la barbe blanche, vêtu d'un manteau rouge et d'une tunique bleue, est assis à même le sol devant un mur de pierre. Son regard semble tourné vers l'intérieur, dans une posture de repos, de réflexion ou de sagesse silencieuse."
+    },
+    {
+        "numero": "44",
+        "mot": "Meteorite",
+        "phrase": "Une météorite embrase le paysage dans un éclair fulgurant.",
+        "descriptif": "Un ciel paisible surplombe une plaine verdoyante, brusquement transpercée par une météorite flamboyante. Sa trajectoire dorée fend l'air avant de s'écraser dans une gerbe rougeoyante, embrasant le sol dans une explosion de feu et de lumière. Le calme du monde cède à la puissance d'un impact venu des cieux."
+    },
+    {
+        "numero": "7",
+        "mot": "Crucifixion",
+        "phrase": "Une figure crucifiée avec des cheveux jaunes.",
+        "descriptif": "L'image montre une figure crucifiée avec les bras étendus, les cheveux jaunes, et un corps pâle. La scène se déroule dans un environnement extérieur avec des arbres verts et un ciel bleu, évoquant une ambiance paisible malgré le thème dramatique."
+    },
+    {
+        "numero": "5",
+        "mot": "Blessure",
+        "phrase": "Un homme blessé avec des couteaux plantés dans sa poitrine.",
+        "descriptif": "L'image montre un homme avec une expression de douleur, les cheveux noirs et une moustache. Il a deux couteaux plantés dans sa poitrine, d'où s'écoule du sang. L'arrière-plan est dominé par des tons chauds de jaune et d'orange, ce qui contraste avec la scène violente."
+    },
+    {
+        "numero": "15",
+        "mot": "Cuisine",
+        "phrase": "Une femme tient un bol dans une cuisine.",
+        "descriptif": "L'image montre une femme avec des cheveux courts et roux, vêtue d'un tablier blanc et d'une robe bleue, tenant un bol dans ses mains. Elle se trouve dans une cuisine avec des meubles en bois et un mur vert, évoquant une ambiance chaleureuse et domestique."
+    },
+    {
+        "numero": "13",
+        "mot": "Guerrière",
+        "phrase": "Une femme guerrière avec une couronne et une épée.",
+        "descriptif": "L'image montre une femme guerrière avec des yeux perçants et une couronne colorée sur la tête, tenant une épée. Son expression est intense et déterminée, évoquant la force et le courage."
+    },
+    {
+        "numero": "9",
+        "mot": "Couchant",
+        "phrase": "Un coucher de soleil sur l'eau.",
+        "descriptif": "L'image montre un coucher de soleil avec des couleurs vives allant du jaune au violet, se reflétant sur une surface d'eau calme. Le soleil est partiellement caché sous l'horizon, créant une scène paisible et sereine."
+    },
+    {
+        "numero": "20",
+        "mot": "Cascade",
+        "phrase": "Une cascade tombant sur des rochers.",
+        "descriptif": "L'image montre une cascade d'eau bleue tombant sur des rochers bruns, entourée de feuillages colorés. Les couleurs vives et le mouvement de l'eau créent une scène naturelle et dynamique."
+    },
+    {
+        "numero": "52",
+        "mot": "Arbre",
+        "phrase": "Un grand arbre avec un feuillage dense.",
+        "descriptif": "L'image montre un grand arbre avec un tronc robuste et un feuillage vert dense, se tenant dans un paysage verdoyant avec des collines en arrière-plan."
+    },
+    {
+        "numero": "12",
+        "mot": "Canyon",
+        "phrase": "Un canyon avec une rivière sinueuse.",
+        "descriptif": "L'image montre un canyon aux parois rocheuses et colorées, avec une rivière sinueuse qui serpente à travers le paysage verdoyant en contrebas."
+    },
+    {
+        "numero": "40",
+        "mot": "Plume",
+        "phrase": "Une plume blanche sur un fond bleu.",
+        "descriptif": "L'image montre une plume blanche avec des détails fins, posée sur un fond bleu qui évoque un ciel nuageux."
+    },
+    {
+        "numero": "29",
+        "mot": "Coupe",
+        "phrase": "Une coupe décorée sur un fond jaune.",
+        "descriptif": "L'image montre une coupe dorée décorée de pierres colorées, posée sur un fond jaune vif, avec une base rose."
+    },
+    {
+        "numero": "1",
+        "mot": "Parchemin",
+        "phrase": "Un parchemin avec une écriture ancienne et un sceau rouge.",
+        "descriptif": "L'image montre un parchemin avec une écriture ancienne et un sceau rouge en bas, posé sur un fond bleu, évoquant un document historique ou une lettre ancienne."
+    },
+    {
+        "numero": "2",
+        "mot": "Mariée",
+        "phrase": "Une femme en robe de mariée avec une couronne de fleurs.",
+        "descriptif": "L'image montre une femme en robe de mariée blanche, avec une couronne de fleurs sur la tête, debout sur un fond vert uni."
+    },
+    {
+        "numero": "19",
+        "mot": "Flamme",
+        "phrase": "Une flamme vive sur un fond jaune et gris.",
+        "descriptif": "L'image montre une flamme rouge et jaune intense, avec une mèche de bougie en bas, sur un fond qui mélange des tons jaunes et gris."
+    },
+    {
+        "numero": "42",
+        "mot": "Marteau",
+        "phrase": "Un marteau posé sur une souche dans un champ.",
+        "descriptif": "L'image montre un marteau avec un manche en bois et une tête métallique, posé sur une souche de bois dans un champ vert. En arrière-plan, on voit des tas de différentes textures, évoquant des matériaux comme du bois et du foin, sous un ciel clair."
+    },
+    {
+        "numero": "35",
+        "mot": "Désert",
+        "phrase": "Un paysage désertique avec des rochers et des cactus.",
+        "descriptif": "L'image montre un paysage désertique avec des rochers rouges et des cactus bleus, sous un ciel jaune et orange, évoquant un coucher de soleil."
+    },
+    {
+        "numero": "31",
+        "mot": "Bouteille",
+        "phrase": "Une bouteille bleue avec un bouchon décoratif sur un fond rayé.",
+        "descriptif": "L'image montre une bouteille bleue avec un bouchon décoratif, posée sur une surface rose devant un fond rayé orange et blanc. La bouteille est au centre de l'image, avec des reflets de lumière qui accentuent sa couleur bleue."
+    },
+    {
+        "numero": "55",
+        "mot": "Arbres",
+        "phrase": "Un trou mystérieux dans un arbre au milieu d'une forêt.",
+        "descriptif": "L'image montre une scène de forêt avec des arbres aux troncs épais et un trou mystérieux dans l'un d'eux. Le trou est sombre et semble profond, entouré de mousse verte et de végétation dense. La lumière du soleil filtre à travers les arbres, créant une ambiance à la fois paisible et intrigante."
+    },
+    {
+        "numero": "6",
+        "mot": "Mythologique",
+        "phrase": "Une créature mythologique avec des ailes et une tête de lion.",
+        "descriptif": "L'image montre une créature mythologique avec des ailes, une tête de lion, et un corps partiellement humain. Elle est représentée dans un environnement aquatique, avec des couleurs vives et un style artistique unique."
+    },
+    {
+        "numero": "3",
+        "mot": "Illustration",
+        "phrase": "Un homme à deux têtes dans un environnement naturel.",
+        "descriptif": "L'image montre un homme avec deux têtes, l'une masculine avec une barbe et l'autre féminine aux cheveux blonds. Il porte une tenue bleue et tient des outils dans ses mains. L'arrière-plan est un paysage naturel avec des arbres verts, évoquant une scène fantastique ou mythologique."
+    },
+    {
+        "numero": "33",
+        "mot": "Grenouille",
+        "phrase": "Une grenouille jaune sur une surface rocheuse.",
+        "descriptif": "L'image montre une grenouille jaune vif posée sur une surface rocheuse grise. La grenouille est représentée de profil, avec des détails sur ses pattes et son corps, et se trouve dans un environnement qui semble être un habitat naturel, avec des nuances de vert et de bleu en arrière-plan."
+    },
+    {
+        "numero": "45",
+        "mot": "Reine",
+        "phrase": "Un portrait d'une reine avec une couronne et un collier.",
+        "descriptif": "L'image montre un portrait d'une femme avec une couronne dorée incrustée de pierres colorées, portant un collier et une robe blanche. Elle a les cheveux roux et les yeux bleus, et se tient devant un fond rouge et bleu, évoquant une ambiance royale et majestueuse."
+    },
+    {
+        "numero": "14",
+        "mot": "Hibou",
+        "phrase": "Un hibou stylisé avec des yeux bleus sur un fond bleu.",
+        "descriptif": "L'image montre un hibou stylisé avec des yeux bleus et un plumage marron et jaune. Il est perché sur une branche, avec un fond bleu qui met en valeur ses couleurs vives et son expression calme et sage."
+    }
+]

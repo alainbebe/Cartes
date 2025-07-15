@@ -1,0 +1,102 @@
+# Chroniques Médiévales - Collaborative Card Game
+
+## Overview
+
+This is a Flask-based web application that implements a collaborative narrative card game set in a medieval fantasy universe. Players take turns playing cards to create a collective story, with each card having different effects based on the player's role. The game uses Mistral AI to generate narrative text and maintains real-time game state across multiple players.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Backend Architecture
+- **Framework**: Flask web application with Python
+- **Structure**: Single-file main application (`app.py`) with separated game logic (`game_logic.py`)
+- **Session Management**: Uses Flask sessions with configurable secret key
+- **Logging**: Comprehensive logging system for debugging and monitoring
+- **Configuration**: Environment variables loaded via python-dotenv
+
+### Frontend Architecture
+- **Template Engine**: Jinja2 templates with Bootstrap 5 for responsive UI
+- **JavaScript**: Vanilla JavaScript for real-time updates and user interactions
+- **CSS**: Custom medieval fantasy theme with CSS variables
+- **Real-time Updates**: Client-side polling for game state synchronization
+
+### Data Storage
+- **Card Deck**: JSON file (`deck.json`) containing card data with numbers, keywords, phrases, and descriptions
+- **Card Evaluations**: JSON file (`evaluations.json`) mapping cards to positive/negative/neutral effects per player role
+- **Game State**: In-memory storage using Python classes (no persistent database)
+- **Player Sessions**: Browser localStorage for player information persistence
+
+## Key Components
+
+### Game Logic (`game_logic.py`)
+- **GameState Class**: Manages story progression, scoring, played cards, and player activity
+- **Player Management**: Tracks active players with role-based permissions
+- **Auto-reset**: Automatic game reset after 10 minutes of inactivity
+- **Activity Tracking**: 30-second window for active player detection
+
+### Card System
+- **Deck Management**: 55 cards total with medieval fantasy themes
+- **Role-based Effects**: Different card effects for Soldat, Moine, Sorcière, Forgeron roles
+- **Evaluation System**: Predefined positive/negative outcomes per role-card combination
+
+### API Integration
+- **Mistral AI**: External API for generating narrative text (20-25 words per card play)
+- **Story Generation**: Context-aware story progression based on player actions
+- **Conclusion Generation**: End-game narrative based on final score
+
+### Web Interface
+- **Player Registration**: Name and role selection with localStorage persistence
+- **Card Playing**: Input validation and real-time feedback
+- **Story Display**: Chronological story progression with player attribution
+- **Game Controls**: Reset, save, and download functionality
+
+## Data Flow
+
+1. **Player Joins**: Sets name and role, stored in localStorage and server memory
+2. **Card Play**: Player submits card number → validation → effect calculation → Mistral AI call → story update
+3. **State Synchronization**: Client polls server every few seconds for updates
+4. **Scoring**: Card effects modify score based on role-specific evaluations
+5. **Game End**: Automatic conclusion generation when all cards played or manually triggered
+
+## External Dependencies
+
+### Required APIs
+- **Mistral AI**: For narrative text generation (requires API key)
+- **Bootstrap 5**: CDN for responsive UI components
+- **Font Awesome**: CDN for icons
+
+### Python Packages
+- **Flask**: Web framework
+- **python-dotenv**: Environment variable management
+- **requests**: HTTP client for API calls
+
+### Browser Dependencies
+- **localStorage**: Client-side data persistence
+- **Fetch API**: AJAX requests for real-time updates
+- **ES6 Features**: Modern JavaScript functionality
+
+## Deployment Strategy
+
+### Environment Configuration
+- **Development**: Debug mode enabled with detailed logging
+- **Production**: Requires proper secret key and Mistral API key configuration
+- **Host Configuration**: Defaults to 0.0.0.0:5000 for container deployment
+
+### File Structure
+- **Static Assets**: CSS and JavaScript served from `/static/` directory
+- **Templates**: HTML templates in `/templates/` directory
+- **Data Files**: JSON files in root directory (deck.json, evaluations.json)
+
+### Scaling Considerations
+- **Single Instance**: Current architecture uses global state (not horizontally scalable)
+- **Memory Usage**: Game state stored in memory, resets on application restart
+- **Session Handling**: Client-side storage reduces server session overhead
+
+### Security Notes
+- **API Key**: Mistral AI key must be properly secured in environment variables
+- **Session Secret**: Should be randomized in production
+- **Input Validation**: Card numbers validated against available deck
+- **Rate Limiting**: No built-in rate limiting (consider adding for production)
