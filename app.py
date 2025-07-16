@@ -42,8 +42,7 @@ except FileNotFoundError:
     EVALUATIONS = {}
 
 # Mistral AI configuration
-MISTRAL_API_KEY = "LitWrNYT5QRHowvd3W8H62GZkF796jSJ"
-#os.environ.get("MISTRAL_API_KEY", "")
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
 MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 
 
