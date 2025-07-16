@@ -71,10 +71,11 @@ def call_mistral_ai(prompt, max_tokens=50):
     }
 
     try:
-        response = requests.post(MISTRAL_API_URL,
-                                 headers=headers,
-                                 json=data,
-                                 timeout=10)
+        response = requests.post(
+            MISTRAL_API_URL,
+            headers=headers,
+            json=data,
+        )
         response.raise_for_status()
         result = response.json()
 

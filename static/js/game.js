@@ -42,6 +42,14 @@ function setupEventListeners() {
     playerNameInput.addEventListener('change', savePlayerInfo);
     playerRoleSelect.addEventListener('change', savePlayerInfo);
     
+    // Add Enter key event to card number input
+    cardNumberInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleCardPlay(event);
+        }
+    });
+    
     // Load saved player info
     loadPlayerInfo();
 }
