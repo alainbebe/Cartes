@@ -42,6 +42,9 @@
                         </div>
                         <div class="col-md-3">
                             <div class="game-actions">
+                                <button class="btn btn-info btn-sm" onclick="showRules()">
+                                    <i class="fas fa-book"></i> Règles
+                                </button>
                                 <button class="btn btn-warning btn-sm" onclick="resetGame()">
                                     <i class="fas fa-redo"></i> Réinitialiser
                                 </button>
@@ -133,6 +136,70 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div class="modal fade" id="rulesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-book"></i> Règles du Jeu
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="rules-content">
+                        <h6><i class="fas fa-bullseye"></i> Objectif du Jeu</h6>
+                        <p>Le but du jeu est de faire une histoire qui se termine bien à partir d'une énigme posée au début du jeu.</p>
+                        
+                        <h6><i class="fas fa-gamepad"></i> Déroulement</h6>
+                        <ul>
+                            <li>Chaque joueur reçoit des cartes et les joue à tour de rôle</li>
+                            <li>Il tire une carte à la fin de son tour</li>
+                            <li>Chaque carte a une influence positive ou négative dans l'histoire (pré-calculée par Mistral en fonction de l'histoire et du rôle)</li>
+                        </ul>
+                        
+                        <h6><i class="fas fa-trophy"></i> Conditions de Victoire</h6>
+                        <ul>
+                            <li>L'histoire est <strong>positive</strong> si le score est supérieur au score initial</li>
+                            <li>L'histoire est <strong>négative</strong> si le score est inférieur au score initial</li>
+                            <li>Le jeu s'arrête si le score tombe à zéro ou après un certain nombre de tours</li>
+                        </ul>
+                        
+                        <h6><i class="fas fa-cogs"></i> Mise en Place</h6>
+                        <ul>
+                            <li>Chaque joueur reçoit <strong>5 cartes</strong></li>
+                            <li>Le score de base est <strong>deux fois le nombre de joueurs</strong></li>
+                            <li>Une partie se fait en <strong>trois tours</strong></li>
+                        </ul>
+                        
+                        <h6><i class="fas fa-users"></i> Rôles Disponibles</h6>
+                        <div class="roles-grid">
+                            <div class="role-item">
+                                <span class="role-badge soldat">⚔️ Soldat</span>
+                                <small>Spécialiste du combat et de la tactique</small>
+                            </div>
+                            <div class="role-item">
+                                <span class="role-badge moine">🙏 Moine</span>
+                                <small>Maître de la spiritualité et de la guérison</small>
+                            </div>
+                            <div class="role-item">
+                                <span class="role-badge sorciere">🔮 Sorcière</span>
+                                <small>Experte en magie et mystères</small>
+                            </div>
+                            <div class="role-item">
+                                <span class="role-badge forgeron">🔨 Forgeron</span>
+                                <small>Artisan des armes et outils</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Compris !</button>
                 </div>
             </div>
         </div>
