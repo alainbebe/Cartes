@@ -42,7 +42,8 @@ except FileNotFoundError:
     EVALUATIONS = {}
 
 # Mistral AI configuration
-MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
+MISTRAL_API_KEY = "LitWrNYT5QRHowvd3W8H62GZkF796jSJ"
+#os.environ.get("MISTRAL_API_KEY", "")
 MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 
 
@@ -63,8 +64,8 @@ def call_mistral_ai(prompt, max_tokens=50):
             "role": "user",
             "content": prompt
         }],
-        "max_tokens": max_tokens,
-        "temperature": 0.7
+        #"max_tokens": max_tokens,
+        #"temperature": 0.7
     }
 
     try:
@@ -112,7 +113,8 @@ def envoyer():
             if len(game_state.story) > 0:
                 conclusion_prompt = get_story_prompt(game_state.story,
                                                      game_state.score,
-                                                     is_conclusion=True)
+                                                     is_conclusion=True,
+                                                     story_history=game_state.story_history)
                 conclusion = call_mistral_ai(conclusion_prompt, max_tokens=100)
                 game_state.story.append({
                     'player': 'Narrateur',
@@ -145,7 +147,8 @@ def envoyer():
 
         # Generate story text
         story_prompt = get_story_prompt(game_state.story, game_state.score,
-                                        card, player_role, effect)
+                                        card, player_role, effect,
+                                        story_history=game_state.story_history)
         story_text = call_mistral_ai(story_prompt, max_tokens=30)
 
         # Update game state
@@ -158,6 +161,9 @@ def envoyer():
             'effect': effect,
             'timestamp': datetime.now().isoformat()
         })
+        
+        # Add to story history
+        game_state.add_to_story_history(story_text)
 
         # Update score
         if effect == '+':

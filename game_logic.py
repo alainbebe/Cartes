@@ -16,6 +16,11 @@ class GameState:
         self.game_ended: bool = False
         self.last_activity: datetime = datetime.now()
         self.game_start_time: datetime = datetime.now()
+        self.story_history: str = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
+    
+    def add_to_story_history(self, story_text: str):
+        """Add a story segment to the history"""
+        self.story_history += " " + story_text
         
     def update_player_activity(self, player_name: str, player_role: str):
         """Update player activity timestamp"""
@@ -57,6 +62,7 @@ class GameState:
         self.game_ended = False
         self.last_activity = datetime.now()
         self.game_start_time = datetime.now()
+        self.story_history = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
         
     def log_action(self, action: str):
         """Log game action to file"""
@@ -82,47 +88,49 @@ def evaluate_card_effect(card_number: int, player_role: str, evaluations: Dict) 
 
 def get_story_prompt(story: List[Dict], score: int, card: Optional[Dict] = None, 
                     player_role: Optional[str] = None, effect: Optional[str] = None, 
-                    is_conclusion: bool = False) -> str:
+                    is_conclusion: bool = False, story_history: str = "") -> str:
     """Generate a prompt for the AI story generation"""
     
     if is_conclusion:
-        story_context = " ".join([entry['text'] for entry in story[-3:]])  # Last 3 entries
+        histoire_str = story_history if story_history else " ".join([entry['text'] for entry in story[-3:]])
         if score > 5:
-            return f"Histoire: {story_context}. Écris une conclusion positive et épique en 30 mots maximum dans un style médiéval-fantastique."
+            return f"Histoire: {histoire_str}. Écris une conclusion positive et épique en 30 mots maximum dans un style médiéval-fantastique."
         else:
-            return f"Histoire: {story_context}. Écris une conclusion tragique et dramatique en 30 mots maximum dans un style médiéval-fantastique."
+            return f"Histoire: {histoire_str}. Écris une conclusion tragique et dramatique en 30 mots maximum dans un style médiéval-fantastique."
     
     if not card:
         return "Raconte une histoire médiéval-fantastique en 20 mots maximum."
     
-    # Build context from recent story
-    context = ""
-    if story:
-        recent_entries = story[-2:]  # Last 2 entries for context
-        context = " ".join([entry['text'] for entry in recent_entries])
+    # Use the complete story history
+    histoire_str = story_history if story_history else " ".join([entry['text'] for entry in story])
     
-    # Create effect description
-    effect_desc = ""
+    # Convert effect to note format
     if effect == "+":
-        effect_desc = "de manière positive et héroïque"
+        note = "positif"
     elif effect == "-":
-        effect_desc = "de manière négative et dramatique"
+        note = "négatif"
     else:
-        effect_desc = "de manière neutre"
+        note = "neutre"
     
-    # Role-based narrative style
-    role_styles = {
-        "Soldat": "avec courage et bravoure",
-        "Moine": "avec sagesse et spiritualité",
-        "Sorcière": "avec magie et mystère",
-        "Forgeron": "avec force et habileté"
-    }
-    
-    role_style = role_styles.get(player_role, "")
-    
-    prompt = f"""Contexte: {context}
-    
-Continue cette histoire médiéval-fantastique en intégrant l'élément "{card['mot']}" ({card['phrase']}) {effect_desc} {role_style}.
-Réponds en exactement 20-25 mots maximum dans un style narratif fluide."""
+    # Build the new prompt format
+    prompt = f"""Tu es un narrateur qui raconte une histoire dans un univers médiéval-fantastique.
+
+Contexte actuel :
+[HISTOIRE]
+{histoire_str}
+[/HISTOIRE]
+
+Nouveau rôle :
+[ROLE]
+{player_role}
+[/ROLE]
+
+Carte jouée :
+[CLEF]
+{card['phrase']} (effet {note})
+[/CLEF]
+
+Consigne :
+Fais avancer l'histoire de manière subtile en incorporant la carte comme un élément narratif. Ne cite jamais le mot "carte" ni le nom de la carte directement. Garde le mystère. Marque bien l'effet. La sortie doit faire 20-25 mots."""
     
     return prompt
