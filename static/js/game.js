@@ -332,12 +332,6 @@ function resetGame() {
                     
                     // Refresh immediately
                     refreshGameState();
-                    
-                    // Close modal if open
-                    var modal = bootstrap.Modal.getInstance(document.getElementById('gameEndModal'));
-                    if (modal) {
-                        modal.hide();
-                    }
                 } else {
                     showAlert(data.error || 'Erreur lors de la réinitialisation', 'danger');
                 }
@@ -392,30 +386,7 @@ function saveGame() {
     xhr.send('{}');
 }
 
-function showGameEndModal(score) {
-    const modal = new bootstrap.Modal(document.getElementById('gameEndModal'));
-    const message = document.getElementById('game-end-message');
-    
-    if (score > 5) {
-        message.innerHTML = `
-            <div class="text-center">
-                <i class="fas fa-trophy text-warning" style="font-size: 3em;"></i>
-                <h4 class="mt-3">Victoire Épique!</h4>
-                <p>Votre histoire s'est terminée de manière glorieuse avec un score de ${score} points!</p>
-            </div>
-        `;
-    } else {
-        message.innerHTML = `
-            <div class="text-center">
-                <i class="fas fa-skull text-danger" style="font-size: 3em;"></i>
-                <h4 class="mt-3">Fin Tragique</h4>
-                <p>Votre aventure s'est terminée dans les ténèbres avec un score de ${score} points.</p>
-            </div>
-        `;
-    }
-    
-    modal.show();
-}
+
 
 function showRules() {
     var rulesModal = new bootstrap.Modal(document.getElementById('rulesModal'));

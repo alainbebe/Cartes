@@ -49,7 +49,7 @@ MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
 MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 
 
-def call_mistral_ai(prompt, max_tokens=50):
+def call_mistral_ai(prompt):
     """Call Mistral AI API to generate story text"""
     if not MISTRAL_API_KEY:
         logger.warning("No Mistral API key found, returning placeholder text")
@@ -66,8 +66,7 @@ def call_mistral_ai(prompt, max_tokens=50):
             "role": "user",
             "content": prompt
         }],
-        #"max_tokens": max_tokens,
-        #"temperature": 0.7
+        "temperature": 0.7
     }
 
     try:
@@ -88,6 +87,34 @@ def call_mistral_ai(prompt, max_tokens=50):
     except requests.exceptions.RequestException as e:
         logger.error(f"Error calling Mistral API: {e}")
         return "L'histoire continue dans l'ombre..."
+
+
+def generate_game_conclusion(score_final, score_initial, story_history):
+    """Generate game conclusion based on score comparison"""
+    if score_final >= score_initial:
+        # Victory
+        prompt = f"""
+[HISTOIRE]: {story_history}
+
+[RESULTAT]: VICTOIRE - Score final ({score_final}) >= Score initial ({score_initial})
+
+Génère une conclusion positive et victorieuse pour cette aventure médiévale fantastique. 
+Le groupe a réussi à surmonter les épreuves et a terminé avec un score égal ou supérieur au début.
+Conclusion en 30-40 mots maximum, ton dramatique et épique.
+"""
+    else:
+        # Defeat
+        prompt = f"""
+[HISTOIRE]: {story_history}
+
+[RESULTAT]: DÉFAITE - Score final ({score_final}) < Score initial ({score_initial})
+
+Génère une conclusion tragique et sombre pour cette aventure médiévale fantastique. 
+Le groupe a échoué dans sa quête et a terminé avec un score inférieur au début.
+Conclusion en 30-40 mots maximum, ton dramatique et mélancolique.
+"""
+    
+    return call_mistral_ai(prompt)
 
 
 @app.route('/')
@@ -156,7 +183,7 @@ def envoyer():
                                         player_role,
                                         effect,
                                         story_history=game_state.story_history)
-        story_text = call_mistral_ai(story_prompt, max_tokens=30)
+        story_text = call_mistral_ai(story_prompt)
 
         # Update game state
         game_state.played_cards.add(card_number)
@@ -164,7 +191,8 @@ def envoyer():
         # Mark game as started on first card
         if not game_state.jeu_commence:
             game_state.jeu_commence = True
-            game_state.log_action("Jeu commencé - Première carte jouée")
+            game_state.score_initial = game_state.score
+            game_state.log_action(f"Jeu commencé - Première carte jouée - Score initial: {game_state.score_initial}")
 
         game_state.story.append({
             'player': player_name,
@@ -188,9 +216,29 @@ def envoyer():
         if game_state.score <= 0:
             game_state.game_ended = True
             game_state.log_action(f"Jeu terminé - Score atteint 0")
+            # Generate conclusion
+            conclusion_text = generate_game_conclusion(game_state.score, game_state.score_initial, game_state.story_history)
+            game_state.story.append({
+                'player': 'Narrateur',
+                'role': 'Narrateur',
+                'text': conclusion_text,
+                'card': None,
+                'effect': None,
+                'timestamp': datetime.now().isoformat()
+            })
         elif len(game_state.played_cards) >= len(CARD_DECK):
             game_state.game_ended = True
             game_state.log_action(f"Jeu terminé - Toutes les cartes jouées")
+            # Generate conclusion
+            conclusion_text = generate_game_conclusion(game_state.score, game_state.score_initial, game_state.story_history)
+            game_state.story.append({
+                'player': 'Narrateur',
+                'role': 'Narrateur',
+                'text': conclusion_text,
+                'card': None,
+                'effect': None,
+                'timestamp': datetime.now().isoformat()
+            })
 
         game_state.log_action(
             f"{player_name} ({player_role}) a joué la carte {card_number} - {card['mot']}"
