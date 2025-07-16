@@ -211,9 +211,12 @@ function updateStoryDisplay(story) {
         const roleBadge = getRoleBadge(entry.role);
         const cardInfo = entry.card ? ` - ${entry.card.mot}` : '';
         
+        // Apply white color for Narrateur entries (conclusions)
+        const textStyle = entry.player === 'Narrateur' ? 'style="color: white;"' : '';
+        
         storyEntry.innerHTML = `
             <div class="story-content">
-                <p><strong>${entry.player}</strong>${roleBadge}: ${entry.text}</p>
+                <p ${textStyle}><strong>${entry.player}</strong>${roleBadge}: ${entry.text}</p>
                 ${cardInfo ? `<div class="story-meta">Carte: ${cardInfo}</div>` : ''}
             </div>
         `;
