@@ -109,8 +109,11 @@
                     <div class="card mt-3">
                         <div class="card-header">
                             <h6><i class="fas fa-cards-blank"></i> Cartes disponibles</h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="toggle-cards-btn" onclick="toggleAvailableCards()">
+                                <i class="fas fa-eye"></i> Afficher
+                            </button>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body" id="available-cards-container" style="display: none;">
                             <div id="available-cards" class="cards-grid">
                                 <!-- Cards will be populated by JavaScript -->
                             </div>
