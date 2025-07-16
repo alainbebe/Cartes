@@ -161,7 +161,7 @@ def envoyer():
         except ValueError:
             return jsonify({'error': 'Numéro de carte invalide'}), 400
 
-        # Find card in deck
+        # Find card i -n deck
         card = next((c for c in CARD_DECK if int(c['numero']) == card_number),
                     None)
         if not card:
