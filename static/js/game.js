@@ -94,6 +94,9 @@ function handleCardPlay(event) {
         return;
     }
     
+    // Clear the input field immediately when sending
+    cardNumberInput.value = '';
+    
     // Use XMLHttpRequest for better Firefox compatibility
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/envoyer', true);
@@ -106,12 +109,13 @@ function handleCardPlay(event) {
                 
                 if (xhr.status === 200) {
                     showAlert(data.message, 'success');
-                    cardNumberInput.value = '';
                     
                     // Refresh immediately after playing
                     refreshGameState();
                 } else {
                     showAlert(data.error || 'Erreur lors du jeu de la carte', 'danger');
+                    // Restore the card number if there was an error
+                    cardNumberInput.value = cardNumber;
                 }
             } catch (error) {
                 console.error('Error parsing response:', error);
