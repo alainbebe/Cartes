@@ -58,7 +58,7 @@ def call_mistral_ai(prompt, max_tokens=50):
     }
 
     data = {
-        "model": "mistral-tiny",
+        "model": "mistral-large-latest",
         "messages": [{
             "role": "user",
             "content": prompt
@@ -110,10 +110,11 @@ def envoyer():
         # Handle conclusion request
         if prompt == '0':
             if len(game_state.story) > 0:
-                conclusion_prompt = get_story_prompt(game_state.story,
-                                                     game_state.score,
-                                                     is_conclusion=True,
-                                                     story_history=game_state.story_history)
+                conclusion_prompt = get_story_prompt(
+                    game_state.story,
+                    game_state.score,
+                    is_conclusion=True,
+                    story_history=game_state.story_history)
                 conclusion = call_mistral_ai(conclusion_prompt, max_tokens=100)
                 game_state.story.append({
                     'player': 'Narrateur',
@@ -145,19 +146,22 @@ def envoyer():
         effect = evaluate_card_effect(card_number, player_role, EVALUATIONS)
 
         # Generate story text
-        story_prompt = get_story_prompt(game_state.story, game_state.score,
-                                        card, player_role, effect,
+        story_prompt = get_story_prompt(game_state.story,
+                                        game_state.score,
+                                        card,
+                                        player_role,
+                                        effect,
                                         story_history=game_state.story_history)
         story_text = call_mistral_ai(story_prompt, max_tokens=30)
 
         # Update game state
         game_state.played_cards.add(card_number)
-        
+
         # Mark game as started on first card
         if not game_state.jeu_commence:
             game_state.jeu_commence = True
             game_state.log_action("Jeu commencé - Première carte jouée")
-        
+
         game_state.story.append({
             'player': player_name,
             'role': player_role,
@@ -166,7 +170,7 @@ def envoyer():
             'effect': effect,
             'timestamp': datetime.now().isoformat()
         })
-        
+
         # Add to story history
         game_state.add_to_story_history(story_text)
 
@@ -214,10 +218,14 @@ def refresh():
         # Update score based on active players if game hasn't started
         if not game_state.jeu_commence:
             active_players = game_state.get_active_players()
-            new_score = max(2, len(active_players) * 2)  # 2 points per active player, minimum 2
+            new_score = max(2,
+                            len(active_players) *
+                            2)  # 2 points per active player, minimum 2
             if new_score != game_state.score:
                 game_state.score = new_score
-                game_state.log_action(f"Score ajusté à {new_score} pour {len(active_players)} joueurs actifs")
+                game_state.log_action(
+                    f"Score ajusté à {new_score} pour {len(active_players)} joueurs actifs"
+                )
 
         # Check for auto-reset
         if game_state.should_auto_reset():
@@ -316,3 +324,4 @@ def cards():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+    game_state.log_action("Début")
