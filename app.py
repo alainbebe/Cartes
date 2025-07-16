@@ -11,6 +11,9 @@ from game_logic import GameState, evaluate_card_effect, get_story_prompt
 # Load environment variables
 load_dotenv()
 
+# Game configuration
+MAX_CARDS_TO_PLAY = 8  # Maximum number of cards before game ends
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -224,7 +227,7 @@ def envoyer():
                 'effect': None,
                 'timestamp': datetime.now().isoformat()
             })
-        elif len(game_state.played_cards) >= len(CARD_DECK):
+        elif len(game_state.played_cards) >= MAX_CARDS_TO_PLAY:
             game_state.game_ended = True
             game_state.log_action(f"Jeu terminé - Toutes les cartes jouées")
             # Generate conclusion
@@ -289,7 +292,7 @@ def refresh():
             'played_cards': list(game_state.played_cards),
             'active_players': game_state.get_active_players(),
             'game_ended': game_state.game_ended,
-            'total_cards': len(CARD_DECK)
+            'total_cards': MAX_CARDS_TO_PLAY
         })
 
     except Exception as e:
