@@ -10,6 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### July 16, 2025 - Enhanced AI Prompt System with Story History
+- **Enhancement**: Implemented comprehensive story history system for Mistral AI prompts
+- **Changes**:
+  - Added `story_history` attribute to GameState class with initial medieval scenario
+  - Modified `get_story_prompt()` to use new structured prompt format with [HISTOIRE], [ROLE], [CLEF] sections
+  - Implemented `add_to_story_history()` method to maintain continuous narrative context
+  - Updated prompt generation to include complete story context instead of just recent entries
+- **Impact**: Mistral AI now receives full story context for better narrative coherence
+- **Status**: ✅ Completed - Enhanced narrative generation system
+
 ### July 15, 2025 - Firefox Compatibility Fix
 - **Issue**: Game displayed empty page on Firefox while working correctly on Chrome
 - **Solution**: Replaced modern JavaScript features with Firefox-compatible alternatives
