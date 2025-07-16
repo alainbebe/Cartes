@@ -192,11 +192,13 @@ body::before {
 }
 
 .story-entry.positive {
+    color: var(--text-color);
     border-left-color: var(--success-color);
     background: linear-gradient(135deg, rgba(34, 139, 34, 0.1), var(--background-color));
 }
 
 .story-entry.negative {
+    color: var(--text-color);
     border-left-color: var(--danger-color);
     background: linear-gradient(135deg, rgba(220, 20, 60, 0.1), var(--background-color));
 }
