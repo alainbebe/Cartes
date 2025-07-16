@@ -114,8 +114,6 @@ function handleCardPlay(event) {
                     refreshGameState();
                 } else {
                     showAlert(data.error || 'Erreur lors du jeu de la carte', 'danger');
-                    // Restore the card number if there was an error
-                    cardNumberInput.value = cardNumber;
                 }
             } catch (error) {
                 console.error('Error parsing response:', error);
