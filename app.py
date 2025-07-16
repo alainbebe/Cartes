@@ -212,6 +212,14 @@ def refresh():
         if player_name and player_role:
             game_state.update_player_activity(player_name, player_role)
 
+        # Update score based on active players if game hasn't started
+        if not game_state.jeu_commence:
+            active_players = game_state.get_active_players()
+            new_score = max(2, len(active_players) * 2)  # 2 points per active player, minimum 2
+            if new_score != game_state.score:
+                game_state.score = new_score
+                game_state.log_action(f"Score ajusté à {new_score} pour {len(active_players)} joueurs actifs")
+
         # Check for auto-reset
         if game_state.should_auto_reset():
             game_state.reset_game()
