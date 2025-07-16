@@ -338,10 +338,53 @@ body::before {
 }
 
 /* Animation Classes */
-
-
 .pulse {
     animation: pulse 2s infinite;
+}
+
+/* Rules Modal Styling */
+.rules-content h6 {
+    color: var(--accent-color);
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-weight: bold;
+}
+
+.rules-content h6:first-child {
+    margin-top: 0;
+}
+
+.rules-content ul {
+    padding-left: 1.5rem;
+}
+
+.rules-content li {
+    margin-bottom: 0.5rem;
+}
+
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.role-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    background: var(--card-background);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.role-item small {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 0.5rem;
+    font-style: italic;
 }
 
 @keyframes pulse {

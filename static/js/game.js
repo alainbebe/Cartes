@@ -407,25 +407,27 @@ function showGameEndModal(score) {
     modal.show();
 }
 
+function showRules() {
+    var rulesModal = new bootstrap.Modal(document.getElementById('rulesModal'));
+    rulesModal.show();
+}
+
 function showAlert(message, type) {
     // Create alert element
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    var alert = document.createElement('div');
+    alert.className = 'alert alert-' + type + ' alert-dismissible fade show';
     alert.style.position = 'fixed';
     alert.style.top = '20px';
     alert.style.right = '20px';
     alert.style.zIndex = '9999';
     alert.style.minWidth = '300px';
     
-    alert.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
+    alert.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
     
     document.body.appendChild(alert);
     
     // Auto-remove after 5 seconds
-    setTimeout(() => {
+    setTimeout(function() {
         if (alert.parentNode) {
             alert.parentNode.removeChild(alert);
         }
