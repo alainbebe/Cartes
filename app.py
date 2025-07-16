@@ -22,6 +22,9 @@ app.secret_key = os.environ.get("SESSION_SECRET",
 
 # Global game state
 game_state = GameState()
+# Log initial action - Game start
+logger.info("Début de la partie")
+game_state.log_action("Début")
 
 # Load card deck
 try:
@@ -324,4 +327,3 @@ def cards():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-    game_state.log_action("Début")
