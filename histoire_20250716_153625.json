@@ -1,0 +1,23 @@
+{
+  "timestamp": "20250716_153625",
+  "story": [
+    {
+      "player": "Alain",
+      "role": "Soldat",
+      "text": "La nuit tombe, teintant le ciel d'une lueur orangée. Les reflets dansent sur le ruisseau, mais une ombre sinistre se profile. Les bruits étranges semblent amplifiés, et la peur s'installe. Un autre enfant manque à l'appel.",
+      "card": {
+        "numero": "9",
+        "mot": "Couchant",
+        "phrase": "Un coucher de soleil sur l'eau.",
+        "descriptif": "L'image montre un coucher de soleil avec des couleurs vives allant du jaune au violet, se reflétant sur une surface d'eau calme. Le soleil est partiellement caché sous l'horizon, créant une scène paisible et sereine."
+      },
+      "effect": "-",
+      "timestamp": "2025-07-16T15:36:17.072712"
+    }
+  ],
+  "score": 1,
+  "played_cards": [
+    9
+  ],
+  "game_ended": false
+}

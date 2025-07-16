@@ -12,7 +12,7 @@ from game_logic import GameState, evaluate_card_effect, get_story_prompt
 load_dotenv()
 
 # Game configuration
-MAX_CARDS_TO_PLAY = 8  # Maximum number of cards before game ends
+MAX_CARDS_TO_PLAY = 2  # Maximum number of cards before game ends
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -116,7 +116,7 @@ Génère une conclusion tragique et sombre pour cette aventure médiévale fanta
 Le groupe a échoué dans sa quête et a terminé avec un score inférieur au début.
 Conclusion en 30-40 mots maximum, ton dramatique et mélancolique.
 """
-    
+
     return call_mistral_ai(prompt)
 
 
@@ -145,7 +145,9 @@ def envoyer():
         if prompt == '0':
             if len(game_state.story) > 0:
                 # Generate conclusion based on score comparison
-                conclusion_text = generate_game_conclusion(game_state.score, game_state.score_initial, game_state.story_history)
+                conclusion_text = generate_game_conclusion(
+                    game_state.score, game_state.score_initial,
+                    game_state.story_history)
                 game_state.story.append({
                     'player': 'Narrateur',
                     'role': 'Narrateur',
@@ -193,7 +195,9 @@ def envoyer():
         if not game_state.jeu_commence:
             game_state.jeu_commence = True
             game_state.score_initial = game_state.score
-            game_state.log_action(f"Jeu commencé - Première carte jouée - Score initial: {game_state.score_initial}")
+            game_state.log_action(
+                f"Jeu commencé - Première carte jouée - Score initial: {game_state.score_initial}"
+            )
 
         game_state.story.append({
             'player': player_name,
@@ -218,7 +222,9 @@ def envoyer():
             game_state.game_ended = True
             game_state.log_action(f"Jeu terminé - Score atteint 0")
             # Generate conclusion
-            conclusion_text = generate_game_conclusion(game_state.score, game_state.score_initial, game_state.story_history)
+            conclusion_text = generate_game_conclusion(
+                game_state.score, game_state.score_initial,
+                game_state.story_history)
             game_state.story.append({
                 'player': 'Narrateur',
                 'role': 'Narrateur',
@@ -231,7 +237,9 @@ def envoyer():
             game_state.game_ended = True
             game_state.log_action(f"Jeu terminé - Toutes les cartes jouées")
             # Generate conclusion
-            conclusion_text = generate_game_conclusion(game_state.score, game_state.score_initial, game_state.story_history)
+            conclusion_text = generate_game_conclusion(
+                game_state.score, game_state.score_initial,
+                game_state.story_history)
             game_state.story.append({
                 'player': 'Narrateur',
                 'role': 'Narrateur',
