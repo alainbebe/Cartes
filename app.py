@@ -153,6 +153,12 @@ def envoyer():
 
         # Update game state
         game_state.played_cards.add(card_number)
+        
+        # Mark game as started on first card
+        if not game_state.jeu_commence:
+            game_state.jeu_commence = True
+            game_state.log_action("Jeu commencé - Première carte jouée")
+        
         game_state.story.append({
             'player': player_name,
             'role': player_role,
