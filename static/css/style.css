@@ -262,8 +262,8 @@ body::before {
 
 /* Story Panel */
 .story-panel {
-    height: calc(100vh - 200px);
-    overflow-y: auto;
+    height: auto;
+    overflow-y: visible;
 }
 
 .story-entry {
@@ -418,7 +418,7 @@ body::before {
     
     .story-panel {
         height: auto;
-        max-height: 400px;
+        max-height: none;
     }
     
     .cards-grid {
