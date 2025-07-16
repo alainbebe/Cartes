@@ -396,6 +396,19 @@ function showRules() {
     rulesModal.show();
 }
 
+function toggleAvailableCards() {
+    var container = document.getElementById('available-cards-container');
+    var button = document.getElementById('toggle-cards-btn');
+    
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        button.innerHTML = '<i class="fas fa-eye-slash"></i> Masquer';
+    } else {
+        container.style.display = 'none';
+        button.innerHTML = '<i class="fas fa-eye"></i> Afficher';
+    }
+}
+
 function showAlert(message, type) {
     // Create alert element
     var alert = document.createElement('div');

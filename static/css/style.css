@@ -85,6 +85,18 @@ body::before {
     margin: 0;
 }
 
+/* Card header with button */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h6 {
+    margin: 0;
+    flex-grow: 1;
+}
+
 .progress {
     height: 25px;
     background-color: var(--background-color);
