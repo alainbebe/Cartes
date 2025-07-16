@@ -141,16 +141,14 @@ def envoyer():
         # Handle conclusion request
         if prompt == '0':
             if len(game_state.story) > 0:
-                conclusion_prompt = get_story_prompt(
-                    game_state.story,
-                    game_state.score,
-                    is_conclusion=True,
-                    story_history=game_state.story_history)
-                conclusion = call_mistral_ai(conclusion_prompt, max_tokens=100)
+                # Generate conclusion based on score comparison
+                conclusion_text = generate_game_conclusion(game_state.score, game_state.score_initial, game_state.story_history)
                 game_state.story.append({
                     'player': 'Narrateur',
                     'role': 'Narrateur',
-                    'text': conclusion,
+                    'text': conclusion_text,
+                    'card': None,
+                    'effect': None,
                     'timestamp': datetime.now().isoformat()
                 })
                 game_state.game_ended = True
