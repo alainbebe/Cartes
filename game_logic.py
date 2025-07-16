@@ -14,6 +14,7 @@ class GameState:
         self.played_cards: Set[int] = set()
         self.active_players: Dict[str, Dict] = {}
         self.game_ended: bool = False
+        self.jeu_commence: bool = False
         self.last_activity: datetime = datetime.now()
         self.game_start_time: datetime = datetime.now()
         self.story_history: str = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
@@ -60,6 +61,7 @@ class GameState:
         self.score = max(2, len(self.get_active_players()) * 2)  # 2 points per active player, minimum 2
         self.played_cards = set()
         self.game_ended = False
+        self.jeu_commence = False
         self.last_activity = datetime.now()
         self.game_start_time = datetime.now()
         self.story_history = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
