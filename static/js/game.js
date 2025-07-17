@@ -60,6 +60,12 @@ function savePlayerInfo() {
     
     localStorage.setItem('playerName', gameState.playerName);
     localStorage.setItem('playerRole', gameState.playerRole);
+    
+    // Restart refresh interval when player info is saved
+    if (gameState.playerName && gameState.playerRole) {
+        stopRefreshInterval();
+        startRefreshInterval();
+    }
 }
 
 function loadPlayerInfo() {
@@ -158,10 +164,15 @@ function refreshGameState() {
         console.error('Error refreshing game state');
     };
     
-    xhr.send(JSON.stringify({
-        player_name: gameState.playerName,
-        player_role: gameState.playerRole
-    }));
+    // Only send refresh request if we have player info
+    if (gameState.playerName && gameState.playerRole) {
+        xhr.send(JSON.stringify({
+            player_name: gameState.playerName,
+            player_role: gameState.playerRole
+        }));
+    } else {
+        xhr.send(JSON.stringify({}));
+    }
 }
 
 function updateGameDisplay(data) {
@@ -312,8 +323,11 @@ function loadAvailableCards() {
 }
 
 function startRefreshInterval() {
-    // Refresh every 2 seconds
-    gameState.refreshInterval = setInterval(refreshGameState, 2000);
+    // Only start refresh if we have player info
+    if (gameState.playerName && gameState.playerRole) {
+        // Refresh every 3 seconds to reduce server load
+        gameState.refreshInterval = setInterval(refreshGameState, 3000);
+    }
 }
 
 function stopRefreshInterval() {
