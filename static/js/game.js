@@ -142,14 +142,14 @@ function refreshGameState() {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             try {
-                if (xhr.status === 200) {
+                if (xhr.status === 200 && xhr.responseText) {
                     var data = JSON.parse(xhr.responseText);
                     updateGameDisplay(data);
-                } else {
+                } else if (xhr.status !== 200) {
                     console.error('Error refreshing game state:', xhr.status);
                 }
             } catch (error) {
-                console.error('Error parsing refresh response:', error);
+                console.error('Error parsing refresh response:', error, xhr.responseText);
             }
         }
     };
