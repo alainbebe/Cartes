@@ -145,6 +145,35 @@ function setInputState(enabled, cardNumber) {
     }
 }
 
+function setInputStateForProcessing(processingPlayer, processingCard) {
+    if (processingPlayer && processingCard) {
+        // Someone is processing - disable input for ALL players
+        cardNumberInput.disabled = true;
+        cardNumberInput.style.backgroundColor = '#f8f9fa';
+        cardNumberInput.style.color = '#6c757d';
+        
+        if (processingPlayer === gameState.playerName) {
+            // Current player is processing - show their card number
+            cardNumberInput.placeholder = 'Traitement en cours...';
+            cardNumberInput.value = processingCard;
+        } else {
+            // Another player is processing - show waiting message
+            cardNumberInput.placeholder = `${processingPlayer} joue la carte ${processingCard}...`;
+            cardNumberInput.value = '';
+        }
+    } else {
+        // No one is processing - re-enable input
+        cardNumberInput.disabled = false;
+        cardNumberInput.style.backgroundColor = '';
+        cardNumberInput.style.color = '';
+        cardNumberInput.placeholder = 'Numéro de carte (1-55) ou 0 pour terminer';
+        cardNumberInput.value = '';
+        if (cardNumberInput.focus) {
+            cardNumberInput.focus();
+        }
+    }
+}
+
 function sendCardToServer(playerName, playerRole, cardNumber) {
     // Use XMLHttpRequest for better Firefox compatibility
     var xhr = new XMLHttpRequest();
@@ -416,18 +445,14 @@ function updateProcessingState(processingPlayer, processingCard) {
         `;
         processingDiv.style.display = 'block';
         
-        // If current player is processing, disable their input
-        if (processingPlayer === gameState.playerName) {
-            setInputState(false, processingCard);
-        }
+        // Disable input for ALL players during processing
+        setInputStateForProcessing(processingPlayer, processingCard);
     } else {
         // Hide processing state
         processingDiv.style.display = 'none';
         
         // Re-enable input for all players
-        if (gameState.isWaitingForResponse) {
-            setInputState(true);
-        }
+        setInputStateForProcessing(null, null);
     }
 }
 
