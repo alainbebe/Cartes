@@ -118,8 +118,11 @@ function handleCardPlay(event) {
     // Save to localStorage
     savePlayerInfo();
     
-    // Disable input and show loading state
-    setInputState(false, cardNumber);
+    // Immediately set processing state for all players
+    setInputStateForProcessing(playerName, cardNumber);
+    
+    // Show processing message immediately
+    showProcessingMessage(playerName, cardNumber);
     
     sendCardToServer(playerName, playerRole, cardNumber);
 }
@@ -174,6 +177,34 @@ function setInputStateForProcessing(processingPlayer, processingCard) {
     }
 }
 
+function showProcessingMessage(playerName, cardNumber) {
+    var processingDiv = document.getElementById('processing-status');
+    if (!processingDiv) {
+        // Create processing status div if it doesn't exist
+        processingDiv = document.createElement('div');
+        processingDiv.id = 'processing-status';
+        processingDiv.className = 'alert alert-info';
+        processingDiv.style.display = 'none';
+        
+        // Insert after the player form
+        var playerForm = document.getElementById('player-form');
+        if (playerForm && playerForm.parentNode) {
+            playerForm.parentNode.insertBefore(processingDiv, playerForm.nextSibling);
+        }
+    }
+    
+    // Show processing message immediately
+    processingDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="spinner-border spinner-border-sm me-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span><strong>${playerName}</strong> joue la carte <strong>${cardNumber}</strong>... Traitement en cours</span>
+        </div>
+    `;
+    processingDiv.style.display = 'block';
+}
+
 function sendCardToServer(playerName, playerRole, cardNumber) {
     // Use XMLHttpRequest for better Firefox compatibility
     var xhr = new XMLHttpRequest();
@@ -182,30 +213,31 @@ function sendCardToServer(playerName, playerRole, cardNumber) {
     
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
-            // Re-enable input regardless of response
-            setInputState(true);
-            
             try {
                 var data = JSON.parse(xhr.responseText);
                 
                 if (xhr.status === 200) {
                     showAlert(data.message, 'success');
                     
-                    // Refresh immediately after playing
+                    // Refresh immediately after playing to update processing state
                     refreshGameState();
                 } else {
                     showAlert(data.error || 'Erreur lors du jeu de la carte', 'danger');
+                    // Re-enable input on error
+                    setInputStateForProcessing(null, null);
                 }
             } catch (error) {
                 console.error('Error parsing response:', error);
                 showAlert('Erreur de traitement de la réponse', 'danger');
+                // Re-enable input on error
+                setInputStateForProcessing(null, null);
             }
         }
     };
     
     xhr.onerror = function() {
         // Re-enable input on error
-        setInputState(true);
+        setInputStateForProcessing(null, null);
         console.error('Error playing card');
         showAlert('Erreur de connexion au serveur', 'danger');
     };
