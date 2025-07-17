@@ -1,3 +1,10 @@
+// Configuration des délais
+var CONFIG = {
+    REFRESH_INTERVAL: 500,      // 0.5 seconde pour les rafraîchissements
+    PLAYER_TIMEOUT: 2000,       // 2 secondes pour les joueurs connectés
+    AUTO_RESET_TIMEOUT: 600000  // 10 minutes pour la réinitialisation automatique
+};
+
 // Global game state
 var gameState = {
     playerName: '',
@@ -437,8 +444,8 @@ function loadAvailableCards() {
 function startRefreshInterval() {
     // Only start refresh if we have player info
     if (gameState.playerName && gameState.playerRole) {
-        // Refresh every 3 seconds to reduce server load
-        gameState.refreshInterval = setInterval(refreshGameState, 3000);
+        // Refresh using configured interval
+        gameState.refreshInterval = setInterval(refreshGameState, CONFIG.REFRESH_INTERVAL);
     }
 }
 

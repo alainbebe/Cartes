@@ -10,6 +10,20 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### July 17, 2025 - Interface Improvements and Configuration Variables
+- **Enhancement**: Added processing state display for all players during card play
+- **Changes**:
+  - Interface grays out for ALL players when someone plays a card
+  - Added spinner and message showing "Player X joue la carte Y... Traitement en cours"
+  - Player submitting sees their card number with "Traitement en cours..."
+  - Other players see "Player joue la carte X..." in their input field
+  - Added configuration variables for timing controls:
+    - `REFRESH_INTERVAL`: 0.5 seconds for UI updates
+    - `PLAYER_TIMEOUT`: 2 seconds for active player detection
+    - `AUTO_RESET_TIMEOUT`: 10 minutes for automatic game reset
+- **Impact**: Better multiplayer experience with clear visual feedback
+- **Status**: ✅ Completed - Enhanced real-time multiplayer interface
+
 ### July 16, 2025 - Enhanced AI Prompt System with Story History
 - **Enhancement**: Implemented comprehensive story history system for Mistral AI prompts
 - **Changes**:
