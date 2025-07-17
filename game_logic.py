@@ -5,6 +5,13 @@ from typing import Dict, List, Set, Optional
 
 logger = logging.getLogger(__name__)
 
+# Configuration des délais
+CONFIG = {
+    'REFRESH_INTERVAL': 0.5,          # 0.5 seconde pour les rafraîchissements
+    'PLAYER_TIMEOUT': 2.0,            # 2 secondes pour les joueurs connectés
+    'AUTO_RESET_TIMEOUT': 600.0       # 10 minutes pour la réinitialisation automatique
+}
+
 
 class GameState:
     """Manages the global game state"""
@@ -37,8 +44,8 @@ class GameState:
         self.last_activity = datetime.now()
 
     def get_active_players(self) -> List[Dict]:
-        """Get list of active players (seen within last 7 seconds)"""
-        cutoff_time = datetime.now() - timedelta(seconds=5)
+        """Get list of active players (seen within configured timeout)"""
+        cutoff_time = datetime.now() - timedelta(seconds=CONFIG['PLAYER_TIMEOUT'])
         active = []
 
         for player_name, player_info in self.active_players.items():
@@ -61,9 +68,9 @@ class GameState:
         if len(self.get_active_players()) > 0:
             return False
 
-        # Auto-reset after 10 minutes of inactivity
+        # Auto-reset after configured timeout of inactivity
         inactive_time = datetime.now() - self.last_activity
-        return inactive_time > timedelta(minutes=10)
+        return inactive_time > timedelta(seconds=CONFIG['AUTO_RESET_TIMEOUT'])
 
     def reset_game(self):
         """Reset the game to initial state"""
