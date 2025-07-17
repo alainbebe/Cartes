@@ -45,16 +45,8 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="game-actions">
-                                <button class="btn btn-info btn-sm" onclick="showRules()">
-                                    <i class="fas fa-book"></i> Règles
-                                </button>
-                                <button class="btn btn-warning btn-sm" onclick="resetGame()">
-                                    <i class="fas fa-redo"></i> Réinitialiser
-                                </button>
-                                <button class="btn btn-success btn-sm" onclick="saveGame()">
-                                    <i class="fas fa-save"></i> Sauvegarder
-                                </button>
+                            <div class="score-display">
+                                <span id="players-count">0</span> joueurs connectés
                             </div>
                         </div>
                     </div>
@@ -111,12 +103,6 @@
 
                     <!-- Available Cards -->
                     <div class="card mt-3">
-                        <div class="card-header">
-                            <h6><i class="fas fa-cards-blank"></i> Cartes disponibles</h6>
-                            <button type="button" class="btn btn-sm btn-outline-primary" id="toggle-cards-btn" onclick="toggleAvailableCards()">
-                                <i class="fas fa-eye"></i> Afficher
-                            </button>
-                        </div>
                         <div class="card-body" id="available-cards-container" style="display: none;">
                             <div id="available-cards" class="cards-grid">
                                 <!-- Cards will be populated by JavaScript -->
@@ -143,6 +129,26 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game Actions Bar -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="game-actions-bar text-center">
+                    <button type="button" class="btn btn-outline-primary" id="toggle-cards-btn" onclick="toggleAvailableCards()">
+                        <i class="fas fa-cards-blank"></i> Cartes disponibles
+                    </button>
+                    <button class="btn btn-outline-info" onclick="showRules()">
+                        <i class="fas fa-book"></i> Règles
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="resetGame()">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                    <button class="btn btn-outline-success" onclick="saveGame()">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
                 </div>
             </div>
         </div>

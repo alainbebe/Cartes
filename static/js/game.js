@@ -183,6 +183,12 @@ function updateGameDisplay(data) {
     // Update active players
     updateActivePlayersDisplay(data.active_players);
     
+    // Update players count in status bar
+    var playersCountSpan = document.getElementById('players-count');
+    if (playersCountSpan) {
+        playersCountSpan.textContent = data.active_players.length;
+    }
+    
     // Update available cards
     updateAvailableCardsDisplay(data.played_cards);
     
@@ -402,10 +408,14 @@ function toggleAvailableCards() {
     
     if (container.style.display === 'none') {
         container.style.display = 'block';
-        button.innerHTML = '<i class="fas fa-eye-slash"></i> Masquer';
+        button.innerHTML = '<i class="fas fa-eye-slash"></i> Cartes disponibles';
+        button.classList.remove('btn-outline-primary');
+        button.classList.add('btn-primary');
     } else {
         container.style.display = 'none';
-        button.innerHTML = '<i class="fas fa-eye"></i> Afficher';
+        button.innerHTML = '<i class="fas fa-cards-blank"></i> Cartes disponibles';
+        button.classList.remove('btn-primary');
+        button.classList.add('btn-outline-primary');
     }
 }
 
