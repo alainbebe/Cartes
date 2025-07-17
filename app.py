@@ -279,17 +279,20 @@ def refresh():
         # Update score based on active players if game hasn't started
         if not game_state.jeu_commence:
             active_players = game_state.get_active_players()
-            new_score = max(2,
-                            len(active_players) *
-                            2)  # 2 points per active player, minimum 2
-            if new_score != game_state.score:
-                game_state.score = new_score
-                game_state.log_action(
-                    f"Score ajusté à {new_score} pour {len(active_players)} joueurs actifs"
-                )
+            # Only update score if there are active players
+            if active_players:
+                new_score = max(2,
+                                len(active_players) *
+                                2)  # 2 points per active player, minimum 2
+                if new_score != game_state.score:
+                    game_state.score = new_score
+                    game_state.log_action(
+                        f"Score ajusté à {new_score} pour {len(active_players)} joueurs actifs"
+                    )
 
-        # Check for auto-reset
+        # Check for auto-reset (only if there is content and no active players)
         if game_state.should_auto_reset():
+            logger.info("Auto-reset triggered due to inactivity")
             game_state.reset_game()
             game_state.log_action(
                 "Jeu réinitialisé automatiquement après inactivité")

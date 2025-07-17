@@ -51,7 +51,12 @@ class GameState:
 
     def should_auto_reset(self) -> bool:
         """Check if game should be auto-reset due to inactivity"""
-        if not self.active_players:
+        # Ne pas reset si pas de joueurs actifs ou si l'histoire n'est pas vide
+        if not self.active_players or len(self.story) == 0:
+            return False
+
+        # Ne pas reset si des joueurs sont encore actifs (connectés récemment)
+        if len(self.get_active_players()) > 0:
             return False
 
         # Auto-reset after 10 minutes of inactivity
