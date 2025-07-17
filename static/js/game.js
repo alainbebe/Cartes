@@ -31,8 +31,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     setupEventListeners();
-    startRefreshInterval();
     loadAvailableCards();
+    // Start refresh only after player info is loaded
+    setTimeout(function() {
+        if (gameState.playerName && gameState.playerRole) {
+            startRefreshInterval();
+        }
+    }, 1000);
 });
 
 function setupEventListeners() {
@@ -325,8 +330,8 @@ function loadAvailableCards() {
 function startRefreshInterval() {
     // Only start refresh if we have player info
     if (gameState.playerName && gameState.playerRole) {
-        // Refresh every 3 seconds to reduce server load
-        gameState.refreshInterval = setInterval(refreshGameState, 3000);
+        // Refresh every 5 seconds to reduce server load
+        gameState.refreshInterval = setInterval(refreshGameState, 5000);
     }
 }
 
