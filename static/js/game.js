@@ -241,23 +241,29 @@ function sendCardToServer(playerName, playerRole, cardNumber) {
                     refreshGameState();
                 } else {
                     showAlert(data.error || 'Erreur lors du jeu de la carte', 'danger');
-                    // Re-enable input on error
+                    // Re-enable input on error and clear processing state
                     setInputStateForProcessing(null, null);
+                    // Also refresh to clear server-side processing state
+                    refreshGameState();
                 }
             } catch (error) {
                 console.error('Error parsing response:', error);
                 showAlert('Erreur de traitement de la réponse', 'danger');
-                // Re-enable input on error
+                // Re-enable input on error and clear processing state
                 setInputStateForProcessing(null, null);
+                // Also refresh to clear server-side processing state
+                refreshGameState();
             }
         }
     };
     
     xhr.onerror = function() {
-        // Re-enable input on error
+        // Re-enable input on error and clear processing state
         setInputStateForProcessing(null, null);
         console.error('Error playing card');
         showAlert('Erreur de connexion au serveur', 'danger');
+        // Also refresh to clear server-side processing state
+        refreshGameState();
     };
     
     xhr.send(JSON.stringify({

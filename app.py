@@ -172,16 +172,25 @@ def envoyer():
         try:
             card_number = int(prompt)
         except ValueError:
+            # Clear processing state on error
+            game_state.processing_player = None
+            game_state.processing_card = None
             return jsonify({'error': 'Numéro de carte invalide'}), 400
 
-        # Find card i -n deck
+        # Find card in deck
         card = next((c for c in CARD_DECK if int(c['numero']) == card_number),
                     None)
         if not card:
+            # Clear processing state on error
+            game_state.processing_player = None
+            game_state.processing_card = None
             return jsonify({'error': 'Carte non trouvée'}), 404
 
         # Check if card already played
         if card_number in game_state.played_cards:
+            # Clear processing state on error
+            game_state.processing_player = None
+            game_state.processing_card = None
             return jsonify({'error': 'Carte déjà jouée'}), 400
 
         # Evaluate card effect
