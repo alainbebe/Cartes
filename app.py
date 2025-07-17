@@ -233,7 +233,7 @@ def envoyer():
                 'effect': None,
                 'timestamp': datetime.now().isoformat()
             })
-        elif len(game_state.played_cards) >= (BASE_CARDS_TO_PLAY + len(game_state.get_active_players())):
+        elif len(game_state.played_cards) >= game_state.get_total_cards(BASE_CARDS_TO_PLAY):
             game_state.game_ended = True
             game_state.log_action(f"Jeu terminé - Toutes les cartes jouées")
             # Generate conclusion
@@ -300,7 +300,7 @@ def refresh():
             'played_cards': list(game_state.played_cards),
             'active_players': game_state.get_active_players(),
             'game_ended': game_state.game_ended,
-            'total_cards': BASE_CARDS_TO_PLAY + len(game_state.get_active_players())
+            'total_cards': game_state.get_total_cards(BASE_CARDS_TO_PLAY)
         })
 
     except Exception as e:

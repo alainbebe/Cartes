@@ -20,6 +20,7 @@ class GameState:
         self.last_activity: datetime = datetime.now()
         self.game_start_time: datetime = datetime.now()
         self.story_history: str = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
+        self.total_cards_fixed: Optional[int] = None
 
     def add_to_story_history(self, story_text: str):
         """Add a story segment to the history"""
@@ -70,6 +71,14 @@ class GameState:
         self.last_activity = datetime.now()
         self.game_start_time = datetime.now()
         self.story_history = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
+        self.total_cards_fixed = None
+
+    def get_total_cards(self, base_cards: int) -> int:
+        """Get total cards to play - fixed once game starts"""
+        if self.total_cards_fixed is None:
+            # Fix the total cards when any card is played or when requested
+            self.total_cards_fixed = base_cards + len(self.get_active_players())
+        return self.total_cards_fixed
 
     def log_action(self, action: str):
         """Log game action to file"""
