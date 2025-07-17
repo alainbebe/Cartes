@@ -172,9 +172,9 @@ function setInputStateForProcessing(processingPlayer, processingCard) {
             cardNumberInput.placeholder = 'Traitement en cours...';
             cardNumberInput.value = processingCard;
         } else {
-            // Another player is processing - show waiting message
+            // Another player is processing - show waiting message in placeholder only
             cardNumberInput.placeholder = `${processingPlayer} joue la carte ${processingCard}...`;
-            cardNumberInput.value = '';
+            // Don't clear the value, let the user keep typing
         }
     } else {
         // No one is processing - re-enable input
@@ -182,7 +182,10 @@ function setInputStateForProcessing(processingPlayer, processingCard) {
         cardNumberInput.style.backgroundColor = '';
         cardNumberInput.style.color = '';
         cardNumberInput.placeholder = 'Numéro de carte (1-55) ou 0 pour terminer';
-        cardNumberInput.value = '';
+        // Only clear the value if it was set by processing, not user input
+        if (cardNumberInput.value === String(processingCard) && processingPlayer === gameState.playerName) {
+            cardNumberInput.value = '';
+        }
         if (cardNumberInput.focus) {
             cardNumberInput.focus();
         }
@@ -230,6 +233,9 @@ function sendCardToServer(playerName, playerRole, cardNumber) {
                 
                 if (xhr.status === 200) {
                     showAlert(data.message, 'success');
+                    
+                    // Clear the input only after successful submission
+                    cardNumberInput.value = '';
                     
                     // Refresh immediately after playing to update processing state
                     refreshGameState();
