@@ -75,8 +75,11 @@ class GameState:
 
     def get_total_cards(self, base_cards: int) -> int:
         """Get total cards to play - fixed once game starts"""
-        if self.total_cards_fixed is None:
-            # Fix the total cards when any card is played or when requested
+        if self.total_cards_fixed is None and len(self.played_cards) == 0:
+            # Recalculate while no cards have been played
+            return base_cards + len(self.get_active_players())
+        elif self.total_cards_fixed is None:
+            # Fix the total cards when first card is played
             self.total_cards_fixed = base_cards + len(self.get_active_players())
         return self.total_cards_fixed
 
