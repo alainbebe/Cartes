@@ -94,6 +94,11 @@ function loadPlayerInfo() {
         playerRoleSelect.value = savedRole;
         gameState.playerRole = savedRole;
     }
+    
+    // Immediately register player activity if we have player info
+    if (gameState.playerName && gameState.playerRole) {
+        refreshGameState();
+    }
 }
 
 function handleCardPlay(event) {
@@ -444,8 +449,10 @@ function loadAvailableCards() {
 function startRefreshInterval() {
     // Only start refresh if we have player info
     if (gameState.playerName && gameState.playerRole) {
-        // Refresh using configured interval
-        gameState.refreshInterval = setInterval(refreshGameState, CONFIG.REFRESH_INTERVAL);
+        // Add small random variation to prevent all clients from syncing at exact same time
+        var randomOffset = Math.random() * 100; // 0-100ms variation
+        var interval = CONFIG.REFRESH_INTERVAL + randomOffset;
+        gameState.refreshInterval = setInterval(refreshGameState, interval);
     }
 }
 
