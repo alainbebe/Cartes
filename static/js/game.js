@@ -4,7 +4,8 @@ var gameState = {
     playerRole: '',
     isActive: false,
     availableCards: [],
-    refreshInterval: null
+    refreshInterval: null,
+    isWaitingForResponse: false
 };
 
 // DOM elements
@@ -91,6 +92,11 @@ function loadPlayerInfo() {
 function handleCardPlay(event) {
     event.preventDefault();
     
+    // Prevent multiple submissions
+    if (gameState.isWaitingForResponse) {
+        return;
+    }
+    
     var playerName = playerNameInput.value.trim();
     var playerRole = playerRoleSelect.value;
     var cardNumber = cardNumberInput.value.trim();
@@ -105,9 +111,41 @@ function handleCardPlay(event) {
         return;
     }
     
-    // Clear the input field immediately when sending
-    cardNumberInput.value = '';
+    // Update player info in game state
+    gameState.playerName = playerName;
+    gameState.playerRole = playerRole;
     
+    // Save to localStorage
+    savePlayerInfo();
+    
+    // Disable input and show loading state
+    setInputState(false, cardNumber);
+    
+    sendCardToServer(playerName, playerRole, cardNumber);
+}
+
+function setInputState(enabled, cardNumber) {
+    gameState.isWaitingForResponse = !enabled;
+    
+    if (enabled) {
+        // Re-enable input
+        cardNumberInput.disabled = false;
+        cardNumberInput.style.backgroundColor = '';
+        cardNumberInput.style.color = '';
+        cardNumberInput.placeholder = 'Numéro de carte (1-55) ou 0 pour terminer';
+        cardNumberInput.value = '';
+        cardNumberInput.focus();
+    } else {
+        // Disable input and show waiting state
+        cardNumberInput.disabled = true;
+        cardNumberInput.style.backgroundColor = '#f8f9fa';
+        cardNumberInput.style.color = '#6c757d';
+        cardNumberInput.placeholder = 'Traitement en cours...';
+        cardNumberInput.value = cardNumber; // Keep the number visible
+    }
+}
+
+function sendCardToServer(playerName, playerRole, cardNumber) {
     // Use XMLHttpRequest for better Firefox compatibility
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/envoyer', true);
@@ -115,6 +153,9 @@ function handleCardPlay(event) {
     
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
+            // Re-enable input regardless of response
+            setInputState(true);
+            
             try {
                 var data = JSON.parse(xhr.responseText);
                 
@@ -134,6 +175,8 @@ function handleCardPlay(event) {
     };
     
     xhr.onerror = function() {
+        // Re-enable input on error
+        setInputState(true);
         console.error('Error playing card');
         showAlert('Erreur de connexion au serveur', 'danger');
     };
@@ -207,6 +250,9 @@ function updateGameDisplay(data) {
     
     // Update available cards
     updateAvailableCardsDisplay(data.played_cards);
+    
+    // Show processing state for all players
+    updateProcessingState(data.processing_player, data.processing_card);
     
     // Check if game ended
     if (data.game_ended) {
@@ -330,8 +376,8 @@ function loadAvailableCards() {
 function startRefreshInterval() {
     // Only start refresh if we have player info
     if (gameState.playerName && gameState.playerRole) {
-        // Refresh every 5 seconds to reduce server load
-        gameState.refreshInterval = setInterval(refreshGameState, 5000);
+        // Refresh every 3 seconds to reduce server load
+        gameState.refreshInterval = setInterval(refreshGameState, 3000);
     }
 }
 
@@ -339,6 +385,49 @@ function stopRefreshInterval() {
     if (gameState.refreshInterval) {
         clearInterval(gameState.refreshInterval);
         gameState.refreshInterval = null;
+    }
+}
+
+function updateProcessingState(processingPlayer, processingCard) {
+    var processingDiv = document.getElementById('processing-status');
+    if (!processingDiv) {
+        // Create processing status div if it doesn't exist
+        processingDiv = document.createElement('div');
+        processingDiv.id = 'processing-status';
+        processingDiv.className = 'alert alert-info';
+        processingDiv.style.display = 'none';
+        
+        // Insert after the player form
+        var playerForm = document.getElementById('player-form');
+        if (playerForm && playerForm.parentNode) {
+            playerForm.parentNode.insertBefore(processingDiv, playerForm.nextSibling);
+        }
+    }
+    
+    if (processingPlayer && processingCard) {
+        // Show processing state
+        processingDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span><strong>${processingPlayer}</strong> joue la carte <strong>${processingCard}</strong>... Traitement en cours</span>
+            </div>
+        `;
+        processingDiv.style.display = 'block';
+        
+        // If current player is processing, disable their input
+        if (processingPlayer === gameState.playerName) {
+            setInputState(false, processingCard);
+        }
+    } else {
+        // Hide processing state
+        processingDiv.style.display = 'none';
+        
+        // Re-enable input for all players
+        if (gameState.isWaitingForResponse) {
+            setInputState(true);
+        }
     }
 }
 

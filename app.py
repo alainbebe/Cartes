@@ -141,6 +141,10 @@ def envoyer():
         # Update player activity
         game_state.update_player_activity(player_name, player_role)
 
+        # Set processing state
+        game_state.processing_player = player_name
+        game_state.processing_card = int(prompt) if prompt != '0' else 0
+
         # Handle conclusion request
         if prompt == '0':
             if len(game_state.story) > 0:
@@ -158,6 +162,10 @@ def envoyer():
                 })
                 game_state.game_ended = True
                 game_state.log_action(f"Conclusion demandée par {player_name}")
+            
+            # Clear processing state
+            game_state.processing_player = None
+            game_state.processing_card = None
             return jsonify({'success': True, 'message': 'Conclusion générée'})
 
         # Handle card play
@@ -253,6 +261,10 @@ def envoyer():
             f"{player_name} ({player_role}) a joué la carte {card_number} - {card['mot']}"
         )
 
+        # Clear processing state
+        game_state.processing_player = None
+        game_state.processing_card = None
+        
         return jsonify({
             'success': True,
             'message': 'Carte jouée avec succès',
@@ -303,7 +315,9 @@ def refresh():
             'played_cards': list(game_state.played_cards),
             'active_players': game_state.get_active_players(),
             'game_ended': game_state.game_ended,
-            'total_cards': game_state.get_total_cards(BASE_CARDS_TO_PLAY)
+            'total_cards': game_state.get_total_cards(BASE_CARDS_TO_PLAY),
+            'processing_player': game_state.processing_player,
+            'processing_card': game_state.processing_card
         })
 
     except Exception as e:
