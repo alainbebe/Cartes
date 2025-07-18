@@ -10,6 +10,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### July 18, 2025 - Fixed Auto-Reset System and Score-based Conclusion Mode
+- **Bug Fix**: Fixed auto-reset system that wasn't functioning after 10 minutes of inactivity
+- **Changes**:
+  - Corrected logic in `should_auto_reset()` method to properly detect inactivity
+  - Added automatic cleanup of inactive players from stored player list
+  - Removed automatic conclusion generation when score reaches 0
+  - Added dynamic button behavior: "Play Card" becomes "Conclusion" when score ≤ 0
+  - Conclusion button automatically sends "0" regardless of input field content
+  - Added comprehensive logging and testing for auto-reset functionality
+- **Impact**: Games now properly reset after 10 minutes of inactivity, and players control when to end the game at score 0
+- **Status**: ✅ Completed - Auto-reset system and score-based conclusion mode working correctly
+
 ### July 17, 2025 - Interface Improvements and Configuration Variables
 - **Enhancement**: Added processing state display for all players during card play
 - **Changes**:

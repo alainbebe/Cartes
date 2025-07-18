@@ -303,6 +303,14 @@ def refresh():
             game_state.reset_game()
             game_state.log_action(
                 "Jeu réinitialisé automatiquement après inactivité")
+        else:
+            # Log debug info about auto-reset conditions
+            from game_logic import CONFIG
+            inactive_time = datetime.now() - game_state.last_activity
+            logger.debug(f"Auto-reset check: story_count={len(game_state.story)}, "
+                        f"active_players={len(game_state.get_active_players())}, "
+                        f"inactive_time={inactive_time.total_seconds():.1f}s/"
+                        f"{CONFIG['AUTO_RESET_TIMEOUT']}s")
 
         return jsonify({
             'story': game_state.story,
