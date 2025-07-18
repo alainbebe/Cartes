@@ -20,6 +20,7 @@ var playerForm = document.getElementById('player-form');
 var playerNameInput = document.getElementById('player-name');
 var playerRoleSelect = document.getElementById('player-role');
 var cardNumberInput = document.getElementById('card-number');
+var playButton = document.getElementById('play-button');
 var storyContainer = document.getElementById('story-container');
 var currentScoreSpan = document.getElementById('current-score');
 var cardsProgressBar = document.getElementById('cards-progress');
@@ -32,8 +33,8 @@ var availableCardsDiv = document.getElementById('available-cards');
 document.addEventListener('DOMContentLoaded', function() {
     // Check if all elements are loaded
     if (!playerForm || !playerNameInput || !playerRoleSelect || !cardNumberInput || 
-        !storyContainer || !currentScoreSpan || !cardsProgressBar || !cardsPlayedSpan || 
-        !totalCardsSpan || !activePlayersDiv || !availableCardsDiv) {
+        !playButton || !storyContainer || !currentScoreSpan || !cardsProgressBar || 
+        !cardsPlayedSpan || !totalCardsSpan || !activePlayersDiv || !availableCardsDiv) {
         console.error('Some DOM elements are missing');
         return;
     }
@@ -339,6 +340,9 @@ function updateGameDisplay(data) {
     // Show processing state for all players
     updateProcessingState(data.processing_player, data.processing_card);
     
+    // Update button and input based on score
+    updateButtonForScore(data.score, data.game_ended);
+    
     // Check if game ended
     if (data.game_ended) {
         showGameEndModal(data.score);
@@ -511,6 +515,42 @@ function updateProcessingState(processingPlayer, processingCard) {
         
         // Re-enable input for all players
         setInputStateForProcessing(null, null);
+    }
+}
+
+function updateButtonForScore(score, gameEnded) {
+    var cardLabel = document.querySelector('label[for="card-number"]');
+    
+    if (gameEnded) {
+        // Game is over - disable everything
+        playButton.disabled = true;
+        cardNumberInput.disabled = true;
+        playButton.innerHTML = '<i class="fas fa-flag-checkered"></i> Jeu terminé';
+        playButton.className = 'btn btn-secondary w-100';
+        if (cardLabel) {
+            cardLabel.textContent = 'Jeu terminé';
+        }
+        cardNumberInput.placeholder = 'Jeu terminé';
+    } else if (score <= 0) {
+        // Score is zero or negative - show conclusion button
+        playButton.innerHTML = '<i class="fas fa-flag"></i> Conclusion';
+        playButton.className = 'btn btn-warning w-100';
+        if (cardLabel) {
+            cardLabel.textContent = 'Tapez 0 pour générer la conclusion';
+        }
+        cardNumberInput.placeholder = 'Tapez 0 pour la conclusion';
+        cardNumberInput.min = '0';
+        cardNumberInput.max = '0';
+    } else {
+        // Normal game state - show play card button
+        playButton.innerHTML = '<i class="fas fa-play"></i> Jouer la carte';
+        playButton.className = 'btn btn-primary w-100';
+        if (cardLabel) {
+            cardLabel.textContent = 'Numéro de carte (ou 0 pour conclusion)';
+        }
+        cardNumberInput.placeholder = 'Ex: 12';
+        cardNumberInput.min = '0';
+        cardNumberInput.max = '55';
     }
 }
 
