@@ -161,6 +161,7 @@ def envoyer():
                     'timestamp': datetime.now().isoformat()
                 })
                 game_state.game_ended = True
+                game_state.update_card_played_timestamp()  # Update timestamp for conclusion
                 game_state.log_action(f"Conclusion demandée par {player_name}")
             
             # Clear processing state
@@ -207,6 +208,7 @@ def envoyer():
 
         # Update game state
         game_state.played_cards.add(card_number)
+        game_state.update_card_played_timestamp()
 
         # Mark game as started on first card
         if not game_state.jeu_commence:
@@ -306,10 +308,9 @@ def refresh():
         else:
             # Log debug info about auto-reset conditions
             from game_logic import CONFIG
-            inactive_time = datetime.now() - game_state.last_activity
+            inactive_time = datetime.now() - game_state.last_card_played
             logger.debug(f"Auto-reset check: story_count={len(game_state.story)}, "
-                        f"active_players={len(game_state.get_active_players())}, "
-                        f"inactive_time={inactive_time.total_seconds():.1f}s/"
+                        f"cards_inactive_time={inactive_time.total_seconds():.1f}s/"
                         f"{CONFIG['AUTO_RESET_TIMEOUT']}s")
 
         return jsonify({

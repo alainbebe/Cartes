@@ -28,13 +28,9 @@ def test_auto_reset():
     print(f"Reset immédiat: {should_reset} (devrait être False)")
     
     # Simuler l'inactivité en modifiant manuellement le timestamp
-    # Pour le test, on utilise 11 minutes d'inactivité
+    # Pour le test, on utilise 11 minutes sans cartes jouées
     test_inactive_time = timedelta(minutes=11)
-    game_state.last_activity = datetime.now() - test_inactive_time
-    
-    # Simuler aussi l'inactivité du joueur en modifiant son timestamp
-    for player_name in game_state.active_players:
-        game_state.active_players[player_name]['last_seen'] = datetime.now() - test_inactive_time
+    game_state.last_card_played = datetime.now() - test_inactive_time
     
     print(f"Simulation d'inactivité: {test_inactive_time}")
     print(f"Joueurs actifs après inactivité: {len(game_state.get_active_players())}")
