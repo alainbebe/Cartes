@@ -119,9 +119,18 @@ function handleCardPlay(event) {
         return;
     }
     
-    if (!cardNumber) {
-        showAlert('Veuillez entrer un numéro de carte.', 'warning');
-        return;
+    // Check if we're in conclusion mode (button shows "Conclusion")
+    var isConclusion = playButton.innerHTML.includes('Conclusion');
+    
+    if (isConclusion) {
+        // In conclusion mode, always send 0 regardless of input
+        cardNumber = '0';
+    } else {
+        // In normal mode, validate input
+        if (!cardNumber) {
+            showAlert('Veuillez entrer un numéro de carte.', 'warning');
+            return;
+        }
     }
     
     // Update player info in game state
@@ -535,22 +544,26 @@ function updateButtonForScore(score, gameEnded) {
         // Score is zero or negative - show conclusion button
         playButton.innerHTML = '<i class="fas fa-flag"></i> Conclusion';
         playButton.className = 'btn btn-warning w-100';
+        playButton.disabled = false;
+        cardNumberInput.disabled = false;
         if (cardLabel) {
-            cardLabel.textContent = 'Tapez 0 pour générer la conclusion';
+            cardLabel.textContent = 'Cliquez sur "Conclusion" pour terminer l\'histoire';
         }
-        cardNumberInput.placeholder = 'Tapez 0 pour la conclusion';
-        cardNumberInput.min = '0';
-        cardNumberInput.max = '0';
+        cardNumberInput.placeholder = 'Cliquez sur "Conclusion"';
+        cardNumberInput.removeAttribute('min');
+        cardNumberInput.removeAttribute('max');
     } else {
         // Normal game state - show play card button
         playButton.innerHTML = '<i class="fas fa-play"></i> Jouer la carte';
         playButton.className = 'btn btn-primary w-100';
+        playButton.disabled = false;
+        cardNumberInput.disabled = false;
         if (cardLabel) {
             cardLabel.textContent = 'Numéro de carte (ou 0 pour conclusion)';
         }
         cardNumberInput.placeholder = 'Ex: 12';
-        cardNumberInput.min = '0';
-        cardNumberInput.max = '55';
+        cardNumberInput.setAttribute('min', '0');
+        cardNumberInput.setAttribute('max', '55');
     }
 }
 
