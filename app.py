@@ -235,22 +235,7 @@ def envoyer():
             game_state.score -= 1
 
         # Check game end conditions
-        if game_state.score <= 0:
-            game_state.game_ended = True
-            game_state.log_action(f"Jeu terminé - Score atteint 0")
-            # Generate conclusion
-            conclusion_text = generate_game_conclusion(
-                game_state.score, game_state.score_initial,
-                game_state.story_history)
-            game_state.story.append({
-                'player': 'Narrateur',
-                'role': 'Narrateur',
-                'text': conclusion_text,
-                'card': None,
-                'effect': None,
-                'timestamp': datetime.now().isoformat()
-            })
-        elif len(game_state.played_cards) >= game_state.get_total_cards(BASE_CARDS_TO_PLAY):
+        if len(game_state.played_cards) >= game_state.get_total_cards(BASE_CARDS_TO_PLAY):
             game_state.game_ended = True
             game_state.log_action(f"Jeu terminé - Toutes les cartes jouées")
             # Generate conclusion
@@ -265,6 +250,7 @@ def envoyer():
                 'effect': None,
                 'timestamp': datetime.now().isoformat()
             })
+        # Note: Score reaching 0 no longer auto-ends the game
 
         game_state.log_action(
             f"{player_name} ({player_role}) a joué la carte {card_number} - {card['mot']}"
