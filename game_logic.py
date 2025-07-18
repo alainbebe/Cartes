@@ -25,6 +25,7 @@ class GameState:
         self.jeu_commence: bool = False
         self.score_initial: int = 0
         self.last_activity: datetime = datetime.now()
+        self.last_card_played: datetime = datetime.now()
         self.game_start_time: datetime = datetime.now()
         self.story_history: str = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
         self.total_cards_fixed: Optional[int] = None
@@ -34,6 +35,10 @@ class GameState:
     def add_to_story_history(self, story_text: str):
         """Add a story segment to the history"""
         self.story_history += " " + story_text
+
+    def update_card_played_timestamp(self):
+        """Update the timestamp when a card is played"""
+        self.last_card_played = datetime.now()
 
     def update_player_activity(self, player_name: str, player_role: str):
         """Update player activity timestamp"""
@@ -66,21 +71,17 @@ class GameState:
         return active
 
     def should_auto_reset(self) -> bool:
-        """Check if game should be auto-reset due to inactivity"""
+        """Check if game should be auto-reset due to inactivity (no cards played for 10 minutes)"""
         # Ne pas reset si aucune histoire n'a été commencée
         if len(self.story) == 0:
             return False
 
-        # Ne pas reset si des joueurs sont encore actifs (connectés récemment)
-        if len(self.get_active_players()) > 0:
-            return False
-
-        # Auto-reset after configured timeout of inactivity
-        inactive_time = datetime.now() - self.last_activity
+        # Auto-reset after configured timeout since last card played
+        inactive_time = datetime.now() - self.last_card_played
         should_reset = inactive_time > timedelta(seconds=CONFIG['AUTO_RESET_TIMEOUT'])
         
         if should_reset:
-            logger.info(f"Auto-reset triggered: inactive for {inactive_time.total_seconds():.1f}s (limit: {CONFIG['AUTO_RESET_TIMEOUT']}s)")
+            logger.info(f"Auto-reset triggered: no cards played for {inactive_time.total_seconds():.1f}s (limit: {CONFIG['AUTO_RESET_TIMEOUT']}s)")
         
         return should_reset
 
@@ -95,6 +96,7 @@ class GameState:
         self.jeu_commence = False
         self.score_initial = 0
         self.last_activity = datetime.now()
+        self.last_card_played = datetime.now()
         self.game_start_time = datetime.now()
         self.story_history = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
         self.total_cards_fixed = None
