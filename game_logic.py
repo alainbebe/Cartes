@@ -48,20 +48,27 @@ class GameState:
         cutoff_time = datetime.now() - timedelta(seconds=CONFIG['PLAYER_TIMEOUT'])
         active = []
 
-        for player_name, player_info in self.active_players.items():
+        # Create a copy of the keys to avoid modifying dict during iteration
+        player_names = list(self.active_players.keys())
+        
+        for player_name in player_names:
+            player_info = self.active_players[player_name]
             if player_info['last_seen'] > cutoff_time:
                 active.append({
                     'name': player_name,
                     'role': player_info['role'],
                     'last_seen': player_info['last_seen'].isoformat()
                 })
+            else:
+                # Remove inactive players from the stored list
+                del self.active_players[player_name]
 
         return active
 
     def should_auto_reset(self) -> bool:
         """Check if game should be auto-reset due to inactivity"""
-        # Ne pas reset si pas de joueurs actifs ou si l'histoire n'est pas vide
-        if not self.active_players or len(self.story) == 0:
+        # Ne pas reset si aucune histoire n'a été commencée
+        if len(self.story) == 0:
             return False
 
         # Ne pas reset si des joueurs sont encore actifs (connectés récemment)
@@ -70,7 +77,12 @@ class GameState:
 
         # Auto-reset after configured timeout of inactivity
         inactive_time = datetime.now() - self.last_activity
-        return inactive_time > timedelta(seconds=CONFIG['AUTO_RESET_TIMEOUT'])
+        should_reset = inactive_time > timedelta(seconds=CONFIG['AUTO_RESET_TIMEOUT'])
+        
+        if should_reset:
+            logger.info(f"Auto-reset triggered: inactive for {inactive_time.total_seconds():.1f}s (limit: {CONFIG['AUTO_RESET_TIMEOUT']}s)")
+        
+        return should_reset
 
     def reset_game(self):
         """Reset the game to initial state"""
