@@ -196,7 +196,8 @@ function setInputStateForProcessing(processingPlayer, processingCard) {
         if (cardNumberInput.value === String(processingCard) && processingPlayer === gameState.playerName) {
             cardNumberInput.value = '';
         }
-        if (cardNumberInput.focus) {
+        // Only focus if user is not actively typing in another field
+        if (cardNumberInput.focus && document.activeElement !== playerNameInput && document.activeElement !== playerRoleSelect) {
             cardNumberInput.focus();
         }
     }
@@ -441,7 +442,10 @@ function updateAvailableCardsDisplay(playedCards) {
 
 function selectCard(cardNumber) {
     cardNumberInput.value = cardNumber;
-    cardNumberInput.focus();
+    // Only focus if user is not actively typing in another field
+    if (document.activeElement !== playerNameInput && document.activeElement !== playerRoleSelect) {
+        cardNumberInput.focus();
+    }
 }
 
 function loadAvailableCards() {
@@ -657,7 +661,7 @@ function toggleAvailableCards() {
         button.classList.add('btn-primary');
     } else {
         container.style.display = 'none';
-        button.innerHTML = '<i class="fas fa-cards-blank"></i> Cartes disponibles';
+        button.innerHTML = '<i class="fas fa-th-large"></i> Cartes disponibles';
         button.classList.remove('btn-primary');
         button.classList.add('btn-outline-primary');
     }
