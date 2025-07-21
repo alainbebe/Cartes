@@ -151,7 +151,7 @@ def envoyer():
                 # Generate conclusion based on score comparison
                 conclusion_text = generate_game_conclusion(
                     game_state.score, game_state.score_initial,
-                    game_state.story_history)
+                    game_state.get_story_history())
                 game_state.story.append({
                     'player': 'Narrateur',
                     'role': 'Narrateur',
@@ -203,7 +203,7 @@ def envoyer():
                                         card,
                                         player_role,
                                         effect,
-                                        story_history=game_state.story_history)
+                                        story_history=game_state.get_story_history())
         story_text = call_mistral_ai(story_prompt)
 
         # Update game state
@@ -227,8 +227,7 @@ def envoyer():
             'timestamp': datetime.now().isoformat()
         })
 
-        # Add to story history
-        game_state.add_to_story_history(story_text)
+        # Story history is now automatically built from game_state.story
 
         # Update score
         if effect == '+':
@@ -243,7 +242,7 @@ def envoyer():
             # Generate conclusion
             conclusion_text = generate_game_conclusion(
                 game_state.score, game_state.score_initial,
-                game_state.story_history)
+                game_state.get_story_history())
             game_state.story.append({
                 'player': 'Narrateur',
                 'role': 'Narrateur',

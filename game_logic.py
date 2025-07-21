@@ -23,7 +23,16 @@ class GameState:
 
     def _initialize_state(self):
         """Initialize or reset all game state variables"""
-        self.story: List[Dict] = []
+        initial_story_text = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison."
+        
+        self.story: List[Dict] = [{
+            'player': 'Narrateur',
+            'role': 'Narrateur',
+            'text': initial_story_text,
+            'card': None,
+            'effect': None,
+            'timestamp': datetime.now().isoformat()
+        }]
         self.score: int = 0
         self.played_cards: Set[int] = set()
         self.game_ended: bool = False
@@ -32,14 +41,13 @@ class GameState:
         self.last_activity: datetime = datetime.now()
         self.last_card_played: datetime = datetime.now()
         self.game_start_time: datetime = datetime.now()
-        self.story_history: str = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison."
         self.total_cards_fixed: Optional[int] = None
         self.processing_player: Optional[str] = None
         self.processing_card: Optional[int] = None
 
-    def add_to_story_history(self, story_text: str):
-        """Add a story segment to the history"""
-        self.story_history += " " + story_text
+    def get_story_history(self) -> str:
+        """Get the complete story history by joining all story entries"""
+        return " ".join(entry['text'] for entry in self.story)
 
     def update_card_played_timestamp(self):
         """Update the timestamp when a card is played"""
@@ -78,8 +86,8 @@ class GameState:
 
     def should_auto_reset(self) -> bool:
         """Check if game should be auto-reset due to inactivity (no cards played for 10 minutes)"""
-        # Ne pas reset si aucune histoire n'a été commencée
-        if len(self.story) == 0:
+        # Ne pas reset si aucune histoire n'a été commencée (juste le narrateur initial)
+        if len(self.story) <= 1:
             return False
 
         # Auto-reset after configured timeout since last card played
