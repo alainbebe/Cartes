@@ -74,7 +74,8 @@ class GameState:
         self.total_cards_fixed: Optional[int] = None
         self.processing_player: Optional[str] = None
         self.processing_card: Optional[int] = None
-        # Note: special_cards_played n'est pas réinitialisé lors du reset pour garder l'historique
+        # Reset special cards list for new game
+        self.special_cards_played: List[Dict] = []
 
     def get_story_history(self) -> str:
         """Get the complete story history by joining all story entries"""
