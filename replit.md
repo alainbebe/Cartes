@@ -10,6 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### July 21, 2025 - Code Refactoring and UI Improvements
+- **Refactoring**: Eliminated code duplication between `__init__` and `reset_game` in GameState class
+- **Changes**:
+  - Created `_initialize_state()` method to centralize state initialization
+  - Simplified `reset_game()` method to reuse initialization logic
+  - Fixed UI focus issues preventing typing in player name field during refresh
+  - Corrected non-existent Font Awesome icon `fa-cards-blank` to `fa-th-large`
+- **Impact**: Cleaner, more maintainable code and better user experience
+- **Status**: ✅ Completed - Code quality improvements and UI fixes
+
 ### July 18, 2025 - Fixed Auto-Reset System and Score-based Conclusion Mode
 - **Bug Fix**: Fixed auto-reset system that wasn't functioning after 10 minutes of inactivity
 - **Clarification**: Inactivity is now correctly defined as "no cards played for 10 minutes" (not player disconnection)
