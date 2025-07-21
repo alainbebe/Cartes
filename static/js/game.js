@@ -157,7 +157,7 @@ function setInputState(enabled, cardNumber) {
         cardNumberInput.disabled = false;
         cardNumberInput.style.backgroundColor = '';
         cardNumberInput.style.color = '';
-        cardNumberInput.placeholder = 'Numéro de carte (1-55, 100+) ou 0 pour terminer';
+        cardNumberInput.placeholder = 'Carte (1-55, 100, 101 [carte]) ou 0 pour terminer';
         cardNumberInput.value = '';
         cardNumberInput.focus();
     } else {
@@ -191,7 +191,7 @@ function setInputStateForProcessing(processingPlayer, processingCard) {
         cardNumberInput.disabled = false;
         cardNumberInput.style.backgroundColor = '';
         cardNumberInput.style.color = '';
-        cardNumberInput.placeholder = 'Numéro de carte (1-55, 100+) ou 0 pour terminer';
+        cardNumberInput.placeholder = 'Carte (1-55, 100, 101 [carte]) ou 0 pour terminer';
         // Only clear the value if it was set by processing, not user input
         if (cardNumberInput.value === String(processingCard) && processingPlayer === gameState.playerName) {
             cardNumberInput.value = '';
@@ -566,8 +566,10 @@ function updateButtonForScore(score, gameEnded) {
             cardLabel.textContent = 'Numéro de carte (ou 0 pour conclusion)';
         }
         cardNumberInput.placeholder = 'Ex: 12';
-        cardNumberInput.setAttribute('min', '0');
-        cardNumberInput.removeAttribute('max'); // Permettre cartes spéciales (100+)
+        // Supprimer tous les contrôles de validation côté client
+        cardNumberInput.removeAttribute('min');
+        cardNumberInput.removeAttribute('max');
+        cardNumberInput.removeAttribute('step');
     }
 }
 
