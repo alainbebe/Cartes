@@ -7,9 +7,10 @@ logger = logging.getLogger(__name__)
 
 # Configuration des délais
 CONFIG = {
-    'REFRESH_INTERVAL': 0.5,          # 0.5 seconde pour les rafraîchissements
-    'PLAYER_TIMEOUT': 2.0,            # 2 secondes pour les joueurs connectés
-    'AUTO_RESET_TIMEOUT': 600.0       # 10 minutes pour la réinitialisation automatique
+    'REFRESH_INTERVAL': 0.5,  # 0.5 seconde pour les rafraîchissements
+    'PLAYER_TIMEOUT': 2.0,  # 2 secondes pour les joueurs connectés
+    'AUTO_RESET_TIMEOUT':
+    600.0  # 10 minutes pour la réinitialisation automatique
 }
 
 
@@ -17,17 +18,21 @@ class GameState:
     """Manages the global game state"""
 
     def __init__(self):
+        self.active_players: Dict[str, Dict] = {}
+        self._initialize_state()
+
+    def _initialize_state(self):
+        """Initialize or reset all game state variables"""
         self.story: List[Dict] = []
         self.score: int = 0
         self.played_cards: Set[int] = set()
-        self.active_players: Dict[str, Dict] = {}
         self.game_ended: bool = False
         self.jeu_commence: bool = False
         self.score_initial: int = 0
         self.last_activity: datetime = datetime.now()
         self.last_card_played: datetime = datetime.now()
         self.game_start_time: datetime = datetime.now()
-        self.story_history: str = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
+        self.story_history: str = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison."
         self.total_cards_fixed: Optional[int] = None
         self.processing_player: Optional[str] = None
         self.processing_card: Optional[int] = None
@@ -50,12 +55,13 @@ class GameState:
 
     def get_active_players(self) -> List[Dict]:
         """Get list of active players (seen within configured timeout)"""
-        cutoff_time = datetime.now() - timedelta(seconds=CONFIG['PLAYER_TIMEOUT'])
+        cutoff_time = datetime.now() - timedelta(
+            seconds=CONFIG['PLAYER_TIMEOUT'])
         active = []
 
         # Create a copy of the keys to avoid modifying dict during iteration
         player_names = list(self.active_players.keys())
-        
+
         for player_name in player_names:
             player_info = self.active_players[player_name]
             if player_info['last_seen'] > cutoff_time:
@@ -78,30 +84,22 @@ class GameState:
 
         # Auto-reset after configured timeout since last card played
         inactive_time = datetime.now() - self.last_card_played
-        should_reset = inactive_time > timedelta(seconds=CONFIG['AUTO_RESET_TIMEOUT'])
-        
+        should_reset = inactive_time > timedelta(
+            seconds=CONFIG['AUTO_RESET_TIMEOUT'])
+
         if should_reset:
-            logger.info(f"Auto-reset triggered: no cards played for {inactive_time.total_seconds():.1f}s (limit: {CONFIG['AUTO_RESET_TIMEOUT']}s)")
-        
+            logger.info(
+                f"Auto-reset triggered: no cards played for {inactive_time.total_seconds():.1f}s (limit: {CONFIG['AUTO_RESET_TIMEOUT']}s)"
+            )
+
         return should_reset
 
     def reset_game(self):
         """Reset the game to initial state"""
-        self.story = []
-        self.score = max(2,
-                         len(self.get_active_players()) *
-                         2)  # 2 points per active player, minimum 2
-        self.played_cards = set()
-        self.game_ended = False
-        self.jeu_commence = False
-        self.score_initial = 0
-        self.last_activity = datetime.now()
-        self.last_card_played = datetime.now()
-        self.game_start_time = datetime.now()
-        self.story_history = "Vous habitez un village dans les temps médiévaux, vous entendez depuis plusieurs nuits des bruits étranges comme des bêtes fouillant la terre. Une nuit, un enfant disparaît, vous trouvez un grand trou dans la cave de sa maison"
-        self.total_cards_fixed = None
-        self.processing_player = None
-        self.processing_card = None
+        # Preserve active players and reinitialize everything else
+        self._initialize_state()
+        # Set score based on active players after reset
+        self.score = max(2, len(self.get_active_players()) * 2)  # 2 points per active player, minimum 2
 
     def get_total_cards(self, base_cards: int) -> int:
         """Get total cards to play - fixed once game starts"""
@@ -110,7 +108,8 @@ class GameState:
             return base_cards + len(self.get_active_players())
         elif self.total_cards_fixed is None:
             # Fix the total cards when first card is played
-            self.total_cards_fixed = base_cards + len(self.get_active_players())
+            self.total_cards_fixed = base_cards + len(
+                self.get_active_players())
         return self.total_cards_fixed
 
     def log_action(self, action: str):
