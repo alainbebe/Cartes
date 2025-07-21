@@ -81,6 +81,80 @@ class GameState:
     def update_card_played_timestamp(self):
         """Update the timestamp when a card is played"""
         self.last_card_played = datetime.now()
+    
+    def handle_inversion_card(self, player_name: str, player_role: str) -> str:
+        """Handle the special inversion card 100 - reverses story order and replays each card"""
+        logger.info(f"Inversion card played by {player_name} ({player_role})")
+        
+        if len(self.story) <= 1:
+            return "Il n'y a pas encore assez d'histoire à inverser..."
+        
+        # Sauvegarder l'introduction (premier élément)
+        introduction = self.story[0]
+        
+        # Récupérer les entrées d'histoire (sans l'introduction)
+        story_entries = self.story[1:]
+        
+        if not story_entries:
+            return "Il n'y a pas d'événements à inverser..."
+        
+        # Inverser l'ordre des entrées
+        reversed_entries = list(reversed(story_entries))
+        
+        # Rejouer chaque carte dans l'ordre inversé
+        new_story_entries = []
+        for entry in reversed_entries:
+            if entry.get('card') and entry.get('card') != 100:  # Ne pas rejouer la carte inversion
+                # Récupérer les informations de la carte originale
+                original_card = entry['card']
+                original_player_role = entry['role']
+                original_effect = entry['effect']
+                
+                # Générer une nouvelle interprétation de cette carte
+                story_history = self.get_story_history()
+                new_prompt = get_story_prompt(
+                    self.story,
+                    self.score,
+                    original_card,
+                    original_player_role,
+                    original_effect,
+                    story_history=story_history
+                )
+                
+                new_story_text = call_mistral_ai(new_prompt + " (Rejouée dans l'ordre inversé)")
+                
+                new_entry = {
+                    'player': entry['player'],
+                    'role': entry['role'], 
+                    'text': new_story_text,
+                    'card': entry['card'],
+                    'effect': entry['effect'],
+                    'timestamp': datetime.now().isoformat()
+                }
+                new_story_entries.append(new_entry)
+        
+        # Reconstruire l'histoire : introduction + nouvelles entrées inversées
+        self.story = [introduction] + new_story_entries
+        
+        # Ajouter l'entrée pour la carte inversion elle-même
+        inversion_text = "Le temps se retourne sur lui-même. Les événements passés se rejouent sous un nouveau jour, révélant des vérités cachées et transformant le destin de tous."
+        
+        self.story.append({
+            'player': player_name,
+            'role': player_role,
+            'text': inversion_text,
+            'card': {'numero': '100', 'mot': 'Inversion', 'descriptif': 'Magie temporelle d\'inversion'},
+            'effect': '=',  # Effet neutre sur le score
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Mettre à jour les cartes jouées
+        self.played_cards.add(100)
+        
+        # Log de l'action
+        self.log_action(f"Inversion jouée par {player_name} - {len(reversed_entries)} cartes rejouées dans l'ordre inverse")
+        
+        return f"L'inversion temporelle a été déclenchée ! {len(reversed_entries)} événements ont été rejoués dans l'ordre inverse."
 
     def update_player_activity(self, player_name: str, player_role: str):
         """Update player activity timestamp"""

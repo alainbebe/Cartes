@@ -95,6 +95,29 @@ def envoyer():
             game_state.processing_card = None
             return jsonify({'error': 'Numéro de carte invalide'}), 400
 
+        # Handle special inversion card (100)
+        if card_number == 100:
+            if card_number in game_state.played_cards:
+                # Clear processing state on error
+                game_state.processing_player = None
+                game_state.processing_card = None
+                return jsonify({'error': 'La carte Inversion a déjà été jouée'}), 400
+            
+            # Execute inversion logic
+            inversion_result = game_state.handle_inversion_card(player_name, player_role)
+            game_state.update_card_played_timestamp()
+            
+            # Clear processing state
+            game_state.processing_player = None
+            game_state.processing_card = None
+            
+            return jsonify({
+                'success': True, 
+                'message': inversion_result,
+                'special_card': True,
+                'inversion': True
+            })
+
         # Find card in deck
         card = next((c for c in CARD_DECK if int(c['numero']) == card_number),
                     None)
