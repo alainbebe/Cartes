@@ -1,10 +1,38 @@
 import time
 import logging
 import requests
+import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Set, Optional
 
 logger = logging.getLogger(__name__)
+
+# Load game data
+def load_card_deck() -> List[Dict]:
+    """Load card deck from JSON file"""
+    try:
+        with open('deck.json', 'r', encoding='utf-8') as f:
+            deck = json.load(f)
+        logger.info(f"Loaded {len(deck)} cards from deck.json")
+        return deck
+    except FileNotFoundError:
+        logger.error("deck.json file not found")
+        return []
+
+def load_evaluations() -> Dict:
+    """Load card evaluations from JSON file"""
+    try:
+        with open('evaluations.json', 'r', encoding='utf-8') as f:
+            evaluations = json.load(f)
+        logger.info("Loaded card evaluations")
+        return evaluations
+    except FileNotFoundError:
+        logger.error("evaluations.json file not found")
+        return {}
+
+# Load data at module level
+CARD_DECK = load_card_deck()
+EVALUATIONS = load_evaluations()
 
 # Configuration des délais
 CONFIG = {

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, CARD_DECK, EVALUATIONS
 
 # Load environment variables
 load_dotenv()
@@ -29,23 +29,7 @@ game_state = GameState()
 logger.info("Début de la partie")
 game_state.log_action("Début")
 
-# Load card deck
-try:
-    with open('deck.json', 'r', encoding='utf-8') as f:
-        CARD_DECK = json.load(f)
-    logger.info(f"Loaded {len(CARD_DECK)} cards from deck.json")
-except FileNotFoundError:
-    logger.error("deck.json file not found")
-    CARD_DECK = []
 
-# Load evaluations
-try:
-    with open('evaluations.json', 'r', encoding='utf-8') as f:
-        EVALUATIONS = json.load(f)
-    logger.info("Loaded card evaluations")
-except FileNotFoundError:
-    logger.error("evaluations.json file not found")
-    EVALUATIONS = {}
 
 
 
