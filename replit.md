@@ -19,17 +19,24 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 
 ## Recent Changes
 
-### July 21, 2025 - Special Cards System and Complete Architecture Refactoring
-- **Special Cards Implementation**: Added carte 100 "Inversion" with unique temporal reversal mechanics
+### July 21, 2025 - Complete Special Cards System Implementation
+- **Special Cards Implementation**: Added both carte 100 "Inversion" and carte 101 "Suppression" with unique game-changing mechanics
 - **Story System Refactoring**: Unified story management by initializing `story` array with narrator's opening text
 - **Architecture Improvements**: Moved AI-related functions and data loading from Flask app to game logic module
 - **Changes**:
   - **Special Cards System**:
     - Added carte 100 "Inversion" to `deck.json` with mystical temporal magic description
+    - Added carte 101 "Suppression" to `deck.json` with reality-altering abilities
     - Implemented `handle_inversion_card()` method that reverses story order and replays all cards with new AI interpretations
+    - Implemented `handle_suppression_card()` method that removes target cards and reinterprets subsequent events
     - Special cards don't count in normal played cards but are tracked separately in `special_cards_played` list
     - Created `log_card_play()` method for comprehensive logging in `déroulement.txt` file
     - Special cards can be played multiple times by different players but not twice by same player
+  - **Advanced Input Validation**:
+    - Implemented `validate_card_input()` method supporting complex formats like "101 5" for targeting cards
+    - Removed all client-side validation controls to allow flexible input formats
+    - Changed input type from "number" to "text" to accept special card syntax
+    - Added intelligent validation that checks if target cards were actually played before allowing suppression
   - **Story System**:
     - Initialized `story` with narrator's opening text, eliminating separate `story_history` variable
     - Replaced `add_to_story_history()` with `get_story_history()` method using `join()` on story texts
@@ -39,11 +46,12 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
     - Updated all references to use new unified story management system
     - Adjusted auto-reset condition to account for initial narrator entry (`len(story) <= 1`)
   - **Bug Fixes**:
+    - Fixed integer parsing error for special card format "101 2" in Flask route handler
     - Fixed UI focus issues preventing typing in player name field during refresh
     - Corrected non-existent Font Awesome icon `fa-cards-blank` to `fa-th-large`
     - Created `_initialize_state()` method to centralize state initialization
-- **Impact**: Complete separation of concerns, special cards system with temporal mechanics, comprehensive logging, maintainable architecture
-- **Status**: ✅ Completed - Special cards system and major architectural improvements
+- **Impact**: Complete special cards system allowing temporal manipulation and story alteration, intelligent input validation, comprehensive logging, maintainable architecture
+- **Status**: ✅ Completed - Both special cards (100 Inversion, 101 Suppression) fully implemented and tested
 
 ### July 18, 2025 - Fixed Auto-Reset System and Score-based Conclusion Mode
 - **Bug Fix**: Fixed auto-reset system that wasn't functioning after 10 minutes of inactivity

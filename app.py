@@ -60,7 +60,18 @@ def envoyer():
 
         # Set processing state
         game_state.processing_player = player_name
-        game_state.processing_card = int(prompt) if prompt != '0' else 0
+        # For processing card, use the original prompt for display purposes
+        if prompt == '0':
+            game_state.processing_card = 0
+        elif prompt == '100':
+            game_state.processing_card = 100
+        elif prompt.startswith('101 '):
+            game_state.processing_card = prompt  # Store full string for special card 101
+        else:
+            try:
+                game_state.processing_card = int(prompt)
+            except ValueError:
+                game_state.processing_card = prompt  # Fallback to string
 
         # Handle conclusion request
         if prompt == '0':
