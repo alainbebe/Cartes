@@ -84,6 +84,135 @@ class GameState:
         """Update the timestamp when a card is played"""
         self.last_card_played = datetime.now()
     
+    def validate_card_input(self, input_str: str) -> tuple:
+        """
+        Valide l'entrée utilisateur et retourne (type, card_number, target_card)
+        Types possibles: 'normal', 'special_100', 'special_101', 'conclusion', 'invalid'
+        """
+        input_str = input_str.strip()
+        
+        # Conclusion
+        if input_str == '0':
+            return ('conclusion', 0, None)
+        
+        # Carte normale (1-55)
+        try:
+            card_num = int(input_str)
+            if 1 <= card_num <= 55:
+                return ('normal', card_num, None)
+        except ValueError:
+            pass
+        
+        # Carte spéciale 100
+        if input_str == '100':
+            return ('special_100', 100, None)
+        
+        # Carte spéciale 101 + numéro de carte cible
+        if input_str.startswith('101 '):
+            parts = input_str.split()
+            if len(parts) == 2:
+                try:
+                    target_card = int(parts[1])
+                    # Vérifier que la carte cible a été jouée
+                    target_played = any(entry.get('card', {}).get('numero') == str(target_card) 
+                                      for entry in self.story[1:] if entry.get('card'))  # Skip narrator
+                    if target_played:
+                        return ('special_101', 101, target_card)
+                    else:
+                        return ('invalid', None, None, f'La carte {target_card} n\'a pas encore été jouée')
+                except ValueError:
+                    return ('invalid', None, None, 'Format invalide pour la carte 101. Utilisez: 101 [numéro_carte]')
+            else:
+                return ('invalid', None, None, 'Format invalide pour la carte 101. Utilisez: 101 [numéro_carte]')
+        
+        return ('invalid', None, None, 'Entrée invalide. Utilisez: 1-55, 100, 101 [numéro], ou 0')
+
+    def handle_suppression_card(self, player_name: str, player_role: str, target_card_number: int) -> str:
+        """Handle the special suppression card 101 - removes a previously played card"""
+        logger.info(f"Suppression card played by {player_name} ({player_role}) targeting card {target_card_number}")
+        
+        # Mémoriser la carte spéciale jouée
+        special_card_info = {
+            'player': player_name,
+            'role': player_role,
+            'card_number': 101,
+            'card_name': 'Suppression',
+            'target_card': target_card_number,
+            'timestamp': datetime.now().isoformat()
+        }
+        self.special_cards_played.append(special_card_info)
+        
+        # Logger dans déroulement.txt
+        self.log_card_play(player_name, f"101 {target_card_number}", "spéciale")
+        
+        # Trouver la carte à supprimer dans l'histoire (skip narrator at index 0)
+        target_entry = None
+        target_index = -1
+        
+        for i, entry in enumerate(self.story[1:], 1):  # Start from index 1 to skip narrator
+            if entry.get('card', {}).get('numero') == str(target_card_number):
+                target_entry = entry
+                target_index = i
+                break
+        
+        if not target_entry:
+            return f"Impossible de trouver la carte {target_card_number} dans l'histoire."
+        
+        # Récupérer les détails de la carte supprimée pour ajuster le score
+        removed_card = target_entry['card']
+        removed_effect = target_entry['effect']
+        removed_player_role = target_entry['role']
+        
+        # Ajuster le score (inverse de l'effet de la carte supprimée)
+        if removed_effect == '+':
+            self.score -= 1
+        elif removed_effect == '-':
+            self.score += 1
+        # '=' reste neutre, pas de changement de score
+        
+        # Supprimer la carte de played_cards si c'était une carte normale
+        if 1 <= int(removed_card['numero']) <= 55:
+            self.played_cards.discard(int(removed_card['numero']))
+        
+        # Supprimer l'entrée de l'histoire
+        removed_story_text = target_entry['text']
+        del self.story[target_index]
+        
+        # Réinterpréter les cartes après celle supprimée
+        cards_to_reinterpret = []
+        for i in range(target_index, len(self.story)):
+            entry = self.story[i]
+            if entry.get('card') and entry.get('card', {}).get('numero') not in ['100', '101']:
+                cards_to_reinterpret.append((i, entry))
+        
+        # Réinterpréter chaque carte affectée
+        for story_index, entry in cards_to_reinterpret:
+            original_card = entry['card']
+            original_player_role = entry['role']
+            original_effect = entry['effect']
+            
+            # Générer une nouvelle interprétation
+            story_history = self.get_story_history()
+            new_prompt = get_story_prompt(
+                self.story[:story_index],  # Histoire jusqu'à cette carte
+                self.score,
+                original_card,
+                original_player_role,
+                original_effect,
+                story_history=story_history
+            )
+            
+            new_story_text = call_mistral_ai(new_prompt + " (Réinterprétée après suppression)")
+            
+            # Mettre à jour l'entrée
+            self.story[story_index]['text'] = new_story_text
+            self.story[story_index]['timestamp'] = datetime.now().isoformat()
+        
+        # Log de l'action
+        self.log_action(f"Suppression par {player_name} - Carte {target_card_number} supprimée, {len(cards_to_reinterpret)} cartes réinterprétées")
+        
+        return f"La carte {target_card_number} a été supprimée de l'histoire ! {len(cards_to_reinterpret)} événements ont été réinterprétés en conséquence."
+
     def handle_inversion_card(self, player_name: str, player_role: str) -> str:
         """Handle the special inversion card 100 - reverses story order and replays each card"""
         logger.info(f"Inversion card played by {player_name} ({player_role})")
@@ -236,16 +365,20 @@ class GameState:
         except Exception as e:
             logger.error(f"Error logging action: {e}")
     
-    def log_card_play(self, player_name: str, card_number: int, card_type: str = "normale"):
+    def log_card_play(self, player_name: str, card_info, card_type: str = "normale"):
         """Log card play to déroulement.txt with player and card details"""
         try:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
-            # Chercher les détails de la carte
-            card_info = next((c for c in CARD_DECK if int(c['numero']) == card_number), None)
-            card_name = card_info['mot'] if card_info else f"Carte{card_number}"
-            
-            log_entry = f"[{timestamp}] {player_name} a joué la carte {card_number} ({card_name}) - Type: {card_type}\n"
+            # card_info peut être un int ou une string (pour "101 12" par exemple)
+            if isinstance(card_info, int):
+                card_number = card_info
+                card_details = next((c for c in CARD_DECK if int(c['numero']) == card_number), None)
+                card_name = card_details['mot'] if card_details else f"Carte{card_number}"
+                log_entry = f"[{timestamp}] {player_name} a joué la carte {card_number} ({card_name}) - Type: {card_type}\n"
+            else:
+                # Pour les cartes comme "101 12"
+                log_entry = f"[{timestamp}] {player_name} a joué la carte {card_info} - Type: {card_type}\n"
             
             with open('déroulement.txt', 'a', encoding='utf-8') as f:
                 f.write(log_entry)

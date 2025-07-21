@@ -334,5 +334,11 @@
         "mot": "Inversion",
         "phrase": "Le temps se retourne sur lui-même.",
         "descriptif": "Une puissante magie temporelle qui inverse le cours des événements. Les actions passées se rejouent dans l'ordre inverse, créant une nouvelle réalité où chaque décision prend un sens différent."
+    },
+    {
+        "numero": "101",
+        "mot": "Suppression",
+        "phrase": "Effacer ce qui ne devrait pas être.",
+        "descriptif": "Un pouvoir mystérieux permettant d'effacer un événement passé de l'histoire. Les conséquences de cette suppression se propagent dans le temps, modifiant tout ce qui suit."
     }
 ]

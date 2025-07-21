@@ -86,17 +86,22 @@ def envoyer():
             game_state.processing_card = None
             return jsonify({'success': True, 'message': 'Conclusion générée'})
 
-        # Handle card play
-        try:
-            card_number = int(prompt)
-        except ValueError:
+        # Validate card input using new validation system
+        validation_result = game_state.validate_card_input(prompt)
+        card_type = validation_result[0]
+        
+        if card_type == 'invalid':
             # Clear processing state on error
             game_state.processing_player = None
             game_state.processing_card = None
-            return jsonify({'error': 'Numéro de carte invalide'}), 400
+            error_msg = validation_result[3] if len(validation_result) > 3 else 'Entrée invalide'
+            return jsonify({'error': error_msg}), 400
+        
+        card_number = validation_result[1]
+        target_card = validation_result[2] if len(validation_result) > 2 else None
 
-        # Handle special inversion card (100)
-        if card_number == 100:
+        # Handle special cards
+        if card_type == 'special_100':
             # Vérifier si la carte spéciale a déjà été jouée par ce joueur
             already_played = any(sc['player'] == player_name and sc['card_number'] == 100 
                                for sc in game_state.special_cards_played)
@@ -119,6 +124,31 @@ def envoyer():
                 'message': inversion_result,
                 'special_card': True,
                 'inversion': True
+            })
+        
+        elif card_type == 'special_101':
+            # Vérifier si la carte spéciale a déjà été jouée par ce joueur
+            already_played = any(sc['player'] == player_name and sc['card_number'] == 101 
+                               for sc in game_state.special_cards_played)
+            if already_played:
+                # Clear processing state on error
+                game_state.processing_player = None
+                game_state.processing_card = None
+                return jsonify({'error': 'Vous avez déjà joué la carte Suppression'}), 400
+            
+            # Execute suppression logic  
+            suppression_result = game_state.handle_suppression_card(player_name, player_role, int(target_card))
+            game_state.update_card_played_timestamp()
+            
+            # Clear processing state
+            game_state.processing_player = None
+            game_state.processing_card = None
+            
+            return jsonify({
+                'success': True, 
+                'message': suppression_result,
+                'special_card': True,
+                'suppression': True
             })
 
         # Find card in deck
