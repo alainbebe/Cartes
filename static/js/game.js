@@ -567,7 +567,7 @@ function updateButtonForScore(score, gameEnded) {
         }
         cardNumberInput.placeholder = 'Ex: 12';
         cardNumberInput.setAttribute('min', '0');
-        cardNumberInput.setAttribute('max', '55');
+        cardNumberInput.removeAttribute('max'); // Permettre cartes spéciales (100+)
     }
 }
 
