@@ -1,0 +1,2 @@
+[2025-07-21 14:16:40] Alice a joué la carte 5 (Blessure) - Type: normale
+[2025-07-21 14:16:40] Bob a joué la carte 100 (Inversion) - Type: spéciale

@@ -97,11 +97,14 @@ def envoyer():
 
         # Handle special inversion card (100)
         if card_number == 100:
-            if card_number in game_state.played_cards:
+            # Vérifier si la carte spéciale a déjà été jouée par ce joueur
+            already_played = any(sc['player'] == player_name and sc['card_number'] == 100 
+                               for sc in game_state.special_cards_played)
+            if already_played:
                 # Clear processing state on error
                 game_state.processing_player = None
                 game_state.processing_card = None
-                return jsonify({'error': 'La carte Inversion a déjà été jouée'}), 400
+                return jsonify({'error': 'Vous avez déjà joué la carte Inversion'}), 400
             
             # Execute inversion logic
             inversion_result = game_state.handle_inversion_card(player_name, player_role)
@@ -149,6 +152,9 @@ def envoyer():
         # Update game state
         game_state.played_cards.add(card_number)
         game_state.update_card_played_timestamp()
+        
+        # Logger la carte normale dans déroulement.txt
+        game_state.log_card_play(player_name, card_number, "normale")
 
         # Mark game as started on first card
         if not game_state.jeu_commence:
