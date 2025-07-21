@@ -157,7 +157,7 @@ function setInputState(enabled, cardNumber) {
         cardNumberInput.disabled = false;
         cardNumberInput.style.backgroundColor = '';
         cardNumberInput.style.color = '';
-        cardNumberInput.placeholder = 'Numéro de carte (1-55) ou 0 pour terminer';
+        cardNumberInput.placeholder = 'Numéro de carte (1-55, 100+) ou 0 pour terminer';
         cardNumberInput.value = '';
         cardNumberInput.focus();
     } else {
@@ -191,7 +191,7 @@ function setInputStateForProcessing(processingPlayer, processingCard) {
         cardNumberInput.disabled = false;
         cardNumberInput.style.backgroundColor = '';
         cardNumberInput.style.color = '';
-        cardNumberInput.placeholder = 'Numéro de carte (1-55) ou 0 pour terminer';
+        cardNumberInput.placeholder = 'Numéro de carte (1-55, 100+) ou 0 pour terminer';
         // Only clear the value if it was set by processing, not user input
         if (cardNumberInput.value === String(processingCard) && processingPlayer === gameState.playerName) {
             cardNumberInput.value = '';

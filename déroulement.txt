@@ -1,2 +1,5 @@
 [2025-07-21 14:16:40] Alice a joué la carte 5 (Blessure) - Type: normale
 [2025-07-21 14:16:40] Bob a joué la carte 100 (Inversion) - Type: spéciale
+[2025-07-21 14:17:56] Alain a joué la carte 2 (Mariée) - Type: normale
+[2025-07-21 14:18:06] Alain a joué la carte 3 (Illustration) - Type: normale
+[2025-07-21 14:19:05] Alain a joué la carte 100 (Inversion) - Type: spéciale
