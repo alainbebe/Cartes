@@ -8,6 +8,15 @@ This is a Flask-based web application that implements a collaborative narrative 
 
 Preferred communication style: Simple, everyday language.
 
+## Game Documentation
+
+Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
+- Complete gameplay mechanics including special cards system
+- Detailed explanation of Card 100 "Inversion" mechanics
+- Role-based effects and strategy guides  
+- Technical features (logging, auto-reset, save/download)
+- Troubleshooting and advanced tactics
+
 ## Recent Changes
 
 ### July 21, 2025 - Special Cards System and Complete Architecture Refactoring
