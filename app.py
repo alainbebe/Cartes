@@ -148,7 +148,10 @@ def envoyer():
                 return jsonify({'error': 'Vous avez déjà joué la carte Suppression'}), 400
             
             # Execute suppression logic  
-            suppression_result = game_state.handle_suppression_card(player_name, player_role, int(target_card))
+            if target_card is not None:
+                suppression_result = game_state.handle_suppression_card(player_name, player_role, target_card)
+            else:
+                return jsonify({'error': 'Numéro de carte cible manquant'}), 400
             game_state.update_card_played_timestamp()
             
             # Clear processing state
@@ -307,7 +310,8 @@ def refresh():
             'game_ended': game_state.game_ended,
             'total_cards': game_state.get_total_cards(BASE_CARDS_TO_PLAY),
             'processing_player': game_state.processing_player,
-            'processing_card': game_state.processing_card
+            'processing_card': game_state.processing_card,
+            'special_cards_played': game_state.special_cards_played
         })
 
     except Exception as e:
