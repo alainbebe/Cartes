@@ -10,15 +10,20 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 21, 2025 - Code Refactoring and UI Improvements
-- **Refactoring**: Eliminated code duplication between `__init__` and `reset_game` in GameState class
+### July 21, 2025 - Story System and Architecture Refactoring
+- **Story System Refactoring**: Unified story management by initializing `story` array with narrator's opening text
+- **Architecture Improvements**: Moved AI-related functions from Flask app to game logic module
 - **Changes**:
-  - Created `_initialize_state()` method to centralize state initialization
-  - Simplified `reset_game()` method to reuse initialization logic
+  - Initialized `story` with narrator's opening text, eliminating separate `story_history` variable
+  - Replaced `add_to_story_history()` with `get_story_history()` method using `join()` on story texts
+  - Moved `generate_game_conclusion()` and `call_mistral_ai()` functions from `app.py` to `game_logic.py`
+  - Updated all references to use new unified story management system
+  - Adjusted auto-reset condition to account for initial narrator entry (`len(story) <= 1`)
   - Fixed UI focus issues preventing typing in player name field during refresh
   - Corrected non-existent Font Awesome icon `fa-cards-blank` to `fa-th-large`
-- **Impact**: Cleaner, more maintainable code and better user experience
-- **Status**: ✅ Completed - Code quality improvements and UI fixes
+  - Created `_initialize_state()` method to centralize state initialization
+- **Impact**: Cleaner separation of concerns, more maintainable code structure, unified story management
+- **Status**: ✅ Completed - Major architectural improvements and code organization
 
 ### July 18, 2025 - Fixed Auto-Reset System and Score-based Conclusion Mode
 - **Bug Fix**: Fixed auto-reset system that wasn't functioning after 10 minutes of inactivity

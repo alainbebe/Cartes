@@ -1,5 +1,6 @@
 import time
 import logging
+import requests
 from datetime import datetime, timedelta
 from typing import Dict, List, Set, Optional
 
@@ -199,3 +200,76 @@ Consigne :
 Fais avancer l'histoire de manière subtile en incorporant la carte comme un élément narratif. Ne cite jamais le mot "carte" ni le nom de la carte directement. Garde le mystère. Marque bien l'effet. La sortie doit faire 20-25 mots."""
 
     return prompt
+
+
+def call_mistral_ai(prompt: str) -> str:
+    """Call Mistral AI API to generate text"""
+    import os
+    
+    MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY')
+    MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
+    
+    if not MISTRAL_API_KEY:
+        logger.warning("MISTRAL_API_KEY not found")
+        return "La clé API Mistral n'est pas configurée..."
+
+    headers = {
+        "Authorization": f"Bearer {MISTRAL_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "model": "mistral-large-latest",
+        "messages": [{
+            "role": "user",
+            "content": prompt
+        }],
+        "temperature": 0.7
+    }
+
+    try:
+        response = requests.post(
+            MISTRAL_API_URL,
+            headers=headers,
+            json=data,
+        )
+        response.raise_for_status()
+        result = response.json()
+
+        if 'choices' in result and len(result['choices']) > 0:
+            return result['choices'][0]['message']['content'].strip()
+        else:
+            logger.error("Unexpected response format from Mistral API")
+            return "L'histoire continue mystérieusement..."
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error calling Mistral API: {e}")
+        return "L'histoire continue dans l'ombre..."
+
+
+def generate_game_conclusion(score_final: int, score_initial: int, story_history: str) -> str:
+    """Generate game conclusion based on score comparison"""
+    if score_final >= score_initial:
+        # Victory
+        prompt = f"""
+[HISTOIRE]: {story_history}
+
+[RESULTAT]: VICTOIRE - Score final ({score_final}) >= Score initial ({score_initial})
+
+Génère une conclusion positive et victorieuse pour cette aventure médiévale fantastique. 
+Le groupe a réussi à surmonter les épreuves et a terminé avec un score égal ou supérieur au début.
+Conclusion en 30-40 mots maximum, ton dramatique et épique.
+"""
+    else:
+        # Defeat
+        prompt = f"""
+[HISTOIRE]: {story_history}
+
+[RESULTAT]: DÉFAITE - Score final ({score_final}) < Score initial ({score_initial})
+
+Génère une conclusion tragique et sombre pour cette aventure médiévale fantastique. 
+Le groupe a échoué dans sa quête et a terminé avec un score inférieur au début.
+Conclusion en 30-40 mots maximum, ton dramatique et mélancolique.
+"""
+
+    return call_mistral_ai(prompt)

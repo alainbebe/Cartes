@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion
 
 # Load environment variables
 load_dotenv()
@@ -47,77 +47,10 @@ except FileNotFoundError:
     logger.error("evaluations.json file not found")
     EVALUATIONS = {}
 
-# Mistral AI configuration
-MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
-MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 
 
-def call_mistral_ai(prompt):
-    """Call Mistral AI API to generate story text"""
-    if not MISTRAL_API_KEY:
-        logger.warning("No Mistral API key found, returning placeholder text")
-        return "L'histoire continue avec des événements mystérieux..."
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {MISTRAL_API_KEY}"
-    }
-
-    data = {
-        "model": "mistral-large-latest",
-        "messages": [{
-            "role": "user",
-            "content": prompt
-        }],
-        "temperature": 0.7
-    }
-
-    try:
-        response = requests.post(
-            MISTRAL_API_URL,
-            headers=headers,
-            json=data,
-        )
-        response.raise_for_status()
-        result = response.json()
-
-        if 'choices' in result and len(result['choices']) > 0:
-            return result['choices'][0]['message']['content'].strip()
-        else:
-            logger.error("Unexpected response format from Mistral API")
-            return "L'histoire continue mystérieusement..."
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Error calling Mistral API: {e}")
-        return "L'histoire continue dans l'ombre..."
 
 
-def generate_game_conclusion(score_final, score_initial, story_history):
-    """Generate game conclusion based on score comparison"""
-    if score_final >= score_initial:
-        # Victory
-        prompt = f"""
-[HISTOIRE]: {story_history}
-
-[RESULTAT]: VICTOIRE - Score final ({score_final}) >= Score initial ({score_initial})
-
-Génère une conclusion positive et victorieuse pour cette aventure médiévale fantastique. 
-Le groupe a réussi à surmonter les épreuves et a terminé avec un score égal ou supérieur au début.
-Conclusion en 30-40 mots maximum, ton dramatique et épique.
-"""
-    else:
-        # Defeat
-        prompt = f"""
-[HISTOIRE]: {story_history}
-
-[RESULTAT]: DÉFAITE - Score final ({score_final}) < Score initial ({score_initial})
-
-Génère une conclusion tragique et sombre pour cette aventure médiévale fantastique. 
-Le groupe a échoué dans sa quête et a terminé avec un score inférieur au début.
-Conclusion en 30-40 mots maximum, ton dramatique et mélancolique.
-"""
-
-    return call_mistral_ai(prompt)
 
 
 @app.route('/')
