@@ -10,20 +10,31 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 21, 2025 - Story System and Architecture Refactoring
+### July 21, 2025 - Special Cards System and Complete Architecture Refactoring
+- **Special Cards Implementation**: Added carte 100 "Inversion" with unique temporal reversal mechanics
 - **Story System Refactoring**: Unified story management by initializing `story` array with narrator's opening text
-- **Architecture Improvements**: Moved AI-related functions from Flask app to game logic module
+- **Architecture Improvements**: Moved AI-related functions and data loading from Flask app to game logic module
 - **Changes**:
-  - Initialized `story` with narrator's opening text, eliminating separate `story_history` variable
-  - Replaced `add_to_story_history()` with `get_story_history()` method using `join()` on story texts
-  - Moved `generate_game_conclusion()` and `call_mistral_ai()` functions from `app.py` to `game_logic.py`
-  - Updated all references to use new unified story management system
-  - Adjusted auto-reset condition to account for initial narrator entry (`len(story) <= 1`)
-  - Fixed UI focus issues preventing typing in player name field during refresh
-  - Corrected non-existent Font Awesome icon `fa-cards-blank` to `fa-th-large`
-  - Created `_initialize_state()` method to centralize state initialization
-- **Impact**: Cleaner separation of concerns, more maintainable code structure, unified story management
-- **Status**: ✅ Completed - Major architectural improvements and code organization
+  - **Special Cards System**:
+    - Added carte 100 "Inversion" to `deck.json` with mystical temporal magic description
+    - Implemented `handle_inversion_card()` method that reverses story order and replays all cards with new AI interpretations
+    - Special cards don't count in normal played cards but are tracked separately in `special_cards_played` list
+    - Created `log_card_play()` method for comprehensive logging in `déroulement.txt` file
+    - Special cards can be played multiple times by different players but not twice by same player
+  - **Story System**:
+    - Initialized `story` with narrator's opening text, eliminating separate `story_history` variable
+    - Replaced `add_to_story_history()` with `get_story_history()` method using `join()` on story texts
+  - **Architecture**:
+    - Moved `generate_game_conclusion()` and `call_mistral_ai()` functions from `app.py` to `game_logic.py`
+    - Moved JSON data loading (`load_card_deck()`, `load_evaluations()`) to `game_logic.py`
+    - Updated all references to use new unified story management system
+    - Adjusted auto-reset condition to account for initial narrator entry (`len(story) <= 1`)
+  - **Bug Fixes**:
+    - Fixed UI focus issues preventing typing in player name field during refresh
+    - Corrected non-existent Font Awesome icon `fa-cards-blank` to `fa-th-large`
+    - Created `_initialize_state()` method to centralize state initialization
+- **Impact**: Complete separation of concerns, special cards system with temporal mechanics, comprehensive logging, maintainable architecture
+- **Status**: ✅ Completed - Special cards system and major architectural improvements
 
 ### July 18, 2025 - Fixed Auto-Reset System and Score-based Conclusion Mode
 - **Bug Fix**: Fixed auto-reset system that wasn't functioning after 10 minutes of inactivity

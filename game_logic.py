@@ -48,6 +48,7 @@ class GameState:
 
     def __init__(self):
         self.active_players: Dict[str, Dict] = {}
+        self.special_cards_played: List[Dict] = []  # Mémoriser toutes les cartes spéciales
         self._initialize_state()
 
     def _initialize_state(self):
@@ -73,6 +74,7 @@ class GameState:
         self.total_cards_fixed: Optional[int] = None
         self.processing_player: Optional[str] = None
         self.processing_card: Optional[int] = None
+        # Note: special_cards_played n'est pas réinitialisé lors du reset pour garder l'historique
 
     def get_story_history(self) -> str:
         """Get the complete story history by joining all story entries"""
@@ -85,6 +87,19 @@ class GameState:
     def handle_inversion_card(self, player_name: str, player_role: str) -> str:
         """Handle the special inversion card 100 - reverses story order and replays each card"""
         logger.info(f"Inversion card played by {player_name} ({player_role})")
+        
+        # Mémoriser la carte spéciale jouée
+        special_card_info = {
+            'player': player_name,
+            'role': player_role,
+            'card_number': 100,
+            'card_name': 'Inversion',
+            'timestamp': datetime.now().isoformat()
+        }
+        self.special_cards_played.append(special_card_info)
+        
+        # Logger dans déroulement.txt
+        self.log_card_play(player_name, 100, "spéciale")
         
         if len(self.story) <= 1:
             return "Il n'y a pas encore assez d'histoire à inverser..."
@@ -104,7 +119,7 @@ class GameState:
         # Rejouer chaque carte dans l'ordre inversé
         new_story_entries = []
         for entry in reversed_entries:
-            if entry.get('card') and entry.get('card') != 100:  # Ne pas rejouer la carte inversion
+            if entry.get('card') and entry.get('card', {}).get('numero') != '100':  # Ne pas rejouer la carte inversion
                 # Récupérer les informations de la carte originale
                 original_card = entry['card']
                 original_player_role = entry['role']
@@ -133,23 +148,10 @@ class GameState:
                 }
                 new_story_entries.append(new_entry)
         
-        # Reconstruire l'histoire : introduction + nouvelles entrées inversées
+        # Reconstruire l'histoire : introduction + nouvelles entrées inversées (SANS ajouter la carte inversion)
         self.story = [introduction] + new_story_entries
         
-        # Ajouter l'entrée pour la carte inversion elle-même
-        inversion_text = "Le temps se retourne sur lui-même. Les événements passés se rejouent sous un nouveau jour, révélant des vérités cachées et transformant le destin de tous."
-        
-        self.story.append({
-            'player': player_name,
-            'role': player_role,
-            'text': inversion_text,
-            'card': {'numero': '100', 'mot': 'Inversion', 'descriptif': 'Magie temporelle d\'inversion'},
-            'effect': '=',  # Effet neutre sur le score
-            'timestamp': datetime.now().isoformat()
-        })
-        
-        # Mettre à jour les cartes jouées
-        self.played_cards.add(100)
+        # NE PAS ajouter la carte inversion à played_cards ni à l'histoire
         
         # Log de l'action
         self.log_action(f"Inversion jouée par {player_name} - {len(reversed_entries)} cartes rejouées dans l'ordre inverse")
@@ -233,6 +235,22 @@ class GameState:
                 f.write(log_entry)
         except Exception as e:
             logger.error(f"Error logging action: {e}")
+    
+    def log_card_play(self, player_name: str, card_number: int, card_type: str = "normale"):
+        """Log card play to déroulement.txt with player and card details"""
+        try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Chercher les détails de la carte
+            card_info = next((c for c in CARD_DECK if int(c['numero']) == card_number), None)
+            card_name = card_info['mot'] if card_info else f"Carte{card_number}"
+            
+            log_entry = f"[{timestamp}] {player_name} a joué la carte {card_number} ({card_name}) - Type: {card_type}\n"
+            
+            with open('déroulement.txt', 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+        except Exception as e:
+            logger.error(f"Error logging card play: {e}")
 
 
 def evaluate_card_effect(card_number: int, player_role: str,
