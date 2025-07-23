@@ -39,3 +39,6 @@
 [2025-07-21 15:10:29] Alain a joué la carte 6 (Mythologique) - Type: normale
 [2025-07-21 15:10:43] Alain a joué la carte 4 (Labyrinthe) - Type: normale
 [2025-07-21 15:10:46] Alain a joué la carte 100 (Inversion) - Type: spéciale
+[2025-07-23 15:12:19] Alice a joué la carte 5 (Blessure) - Type: normale
+[2025-07-23 15:12:35] Bob a joué la carte 12 (Canyon) - Type: normale
+[2025-07-23 15:12:47] Carol a joué la carte 100 (Inversion) - Type: spéciale

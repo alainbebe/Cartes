@@ -19,6 +19,27 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 
 ## Recent Changes
 
+### July 23, 2025 - AI Image Prompt Generation System
+- **New Feature**: Added automated AI image prompt generation for card effects
+- **Integration**: Each played card now generates a detailed image prompt via Mistral AI
+- **Changes**:
+  - **Image Prompt Generation**:
+    - Added `generate_image_prompt()` function in `game_logic.py` that calls Mistral AI
+    - Integrated image prompt generation into card playing workflow in `app.py`
+    - Each card play now generates two AI calls: one for story text, one for image prompt
+    - Image prompts are contextual, using full story history and current card effect
+  - **Logging System**:
+    - Created `image_prompts.txt` file to store all generated image prompts
+    - Each entry includes timestamp, player name, card number, and detailed visual prompt
+    - Prompts formatted for AI image generators with medieval-fantasy styling
+    - Added error handling for image prompt generation failures
+  - **Prompt Structure**:
+    - Uses story context: "Dans le contexte de cette histoire: [histoire]"
+    - References Mistral's story response: "Peux-tu me générer un prompt pour créer une image pour IA de ce qui suit: [réponse de mistral]"
+    - Results in detailed, artistic descriptions suitable for image generation
+- **Impact**: Players can now use generated prompts with external AI image generators to create visual representations of their card effects
+- **Status**: ✅ Completed - Automatic image prompt generation working for all normal cards (1-55)
+
 ### July 21, 2025 - Complete Special Cards System Implementation
 - **Special Cards Implementation**: Added both carte 100 "Inversion" and carte 101 "Suppression" with unique game-changing mechanics
 - **Story System Refactoring**: Unified story management by initializing `story` array with narrator's opening text
