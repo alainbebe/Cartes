@@ -26,3 +26,16 @@
 [2025-07-21 15:05:16] TestUser a joué la carte 100 (Inversion) - Type: spéciale
 [2025-07-21 15:05:52] Alice a joué la carte 5 (Blessure) - Type: normale
 [2025-07-21 15:05:54] Bob a joué la carte 100 (Inversion) - Type: spéciale
+[2025-07-21 15:06:39] Alain a joué la carte 3 (Illustration) - Type: normale
+[2025-07-21 15:06:52] Alain a joué la carte 4 (Labyrinthe) - Type: normale
+[2025-07-21 15:07:00] Alain a joué la carte 5 (Blessure) - Type: normale
+[2025-07-21 15:07:26] Alain a joué la carte 101 4 - Type: spéciale
+[2025-07-21 15:08:02] Alain a joué la carte 3 (Illustration) - Type: normale
+[2025-07-21 15:08:06] Alain a joué la carte 4 (Labyrinthe) - Type: normale
+[2025-07-21 15:08:31] Alain a joué la carte 100 (Inversion) - Type: spéciale
+[2025-07-21 15:09:53] Alain a joué la carte 22 (Chien) - Type: normale
+[2025-07-21 15:10:10] Alain a joué la carte 101 22 - Type: spéciale
+[2025-07-21 15:10:21] Alain a joué la carte 100 (Inversion) - Type: spéciale
+[2025-07-21 15:10:29] Alain a joué la carte 6 (Mythologique) - Type: normale
+[2025-07-21 15:10:43] Alain a joué la carte 4 (Labyrinthe) - Type: normale
+[2025-07-21 15:10:46] Alain a joué la carte 100 (Inversion) - Type: spéciale
