@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, CARD_DECK, EVALUATIONS
 
 # Load environment variables
 load_dotenv()
@@ -29,95 +29,12 @@ game_state = GameState()
 logger.info("Début de la partie")
 game_state.log_action("Début")
 
-# Load card deck
-try:
-    with open('deck.json', 'r', encoding='utf-8') as f:
-        CARD_DECK = json.load(f)
-    logger.info(f"Loaded {len(CARD_DECK)} cards from deck.json")
-except FileNotFoundError:
-    logger.error("deck.json file not found")
-    CARD_DECK = []
-
-# Load evaluations
-try:
-    with open('evaluations.json', 'r', encoding='utf-8') as f:
-        EVALUATIONS = json.load(f)
-    logger.info("Loaded card evaluations")
-except FileNotFoundError:
-    logger.error("evaluations.json file not found")
-    EVALUATIONS = {}
-
-# Mistral AI configuration
-MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
-MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 
 
-def call_mistral_ai(prompt):
-    """Call Mistral AI API to generate story text"""
-    if not MISTRAL_API_KEY:
-        logger.warning("No Mistral API key found, returning placeholder text")
-        return "L'histoire continue avec des événements mystérieux..."
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {MISTRAL_API_KEY}"
-    }
-
-    data = {
-        "model": "mistral-large-latest",
-        "messages": [{
-            "role": "user",
-            "content": prompt
-        }],
-        "temperature": 0.7
-    }
-
-    try:
-        response = requests.post(
-            MISTRAL_API_URL,
-            headers=headers,
-            json=data,
-        )
-        response.raise_for_status()
-        result = response.json()
-
-        if 'choices' in result and len(result['choices']) > 0:
-            return result['choices'][0]['message']['content'].strip()
-        else:
-            logger.error("Unexpected response format from Mistral API")
-            return "L'histoire continue mystérieusement..."
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Error calling Mistral API: {e}")
-        return "L'histoire continue dans l'ombre..."
 
 
-def generate_game_conclusion(score_final, score_initial, story_history):
-    """Generate game conclusion based on score comparison"""
-    if score_final >= score_initial:
-        # Victory
-        prompt = f"""
-[HISTOIRE]: {story_history}
 
-[RESULTAT]: VICTOIRE - Score final ({score_final}) >= Score initial ({score_initial})
 
-Génère une conclusion positive et victorieuse pour cette aventure médiévale fantastique. 
-Le groupe a réussi à surmonter les épreuves et a terminé avec un score égal ou supérieur au début.
-Conclusion en 30-40 mots maximum, ton dramatique et épique.
-"""
-    else:
-        # Defeat
-        prompt = f"""
-[HISTOIRE]: {story_history}
-
-[RESULTAT]: DÉFAITE - Score final ({score_final}) < Score initial ({score_initial})
-
-Génère une conclusion tragique et sombre pour cette aventure médiévale fantastique. 
-Le groupe a échoué dans sa quête et a terminé avec un score inférieur au début.
-Conclusion en 30-40 mots maximum, ton dramatique et mélancolique.
-"""
-
-    return call_mistral_ai(prompt)
 
 
 @app.route('/')
@@ -143,7 +60,18 @@ def envoyer():
 
         # Set processing state
         game_state.processing_player = player_name
-        game_state.processing_card = int(prompt) if prompt != '0' else 0
+        # For processing card, use the original prompt for display purposes
+        if prompt == '0':
+            game_state.processing_card = 0
+        elif prompt == '100':
+            game_state.processing_card = 100
+        elif prompt.startswith('101 '):
+            game_state.processing_card = prompt  # Store full string for special card 101
+        else:
+            try:
+                game_state.processing_card = int(prompt)
+            except ValueError:
+                game_state.processing_card = prompt  # Fallback to string
 
         # Handle conclusion request
         if prompt == '0':
@@ -151,7 +79,7 @@ def envoyer():
                 # Generate conclusion based on score comparison
                 conclusion_text = generate_game_conclusion(
                     game_state.score, game_state.score_initial,
-                    game_state.story_history)
+                    game_state.get_story_history())
                 game_state.story.append({
                     'player': 'Narrateur',
                     'role': 'Narrateur',
@@ -169,14 +97,73 @@ def envoyer():
             game_state.processing_card = None
             return jsonify({'success': True, 'message': 'Conclusion générée'})
 
-        # Handle card play
-        try:
-            card_number = int(prompt)
-        except ValueError:
+        # Validate card input using new validation system
+        validation_result = game_state.validate_card_input(prompt)
+        card_type = validation_result[0]
+        
+        if card_type == 'invalid':
             # Clear processing state on error
             game_state.processing_player = None
             game_state.processing_card = None
-            return jsonify({'error': 'Numéro de carte invalide'}), 400
+            error_msg = validation_result[3] if len(validation_result) > 3 else 'Entrée invalide'
+            return jsonify({'error': error_msg}), 400
+        
+        card_number = validation_result[1]
+        target_card = validation_result[2] if len(validation_result) > 2 else None
+
+        # Handle special cards
+        if card_type == 'special_100':
+            # Vérifier si la carte spéciale a déjà été jouée par ce joueur
+            already_played = any(sc['player'] == player_name and sc['card_number'] == 100 
+                               for sc in game_state.special_cards_played)
+            if already_played:
+                # Clear processing state on error
+                game_state.processing_player = None
+                game_state.processing_card = None
+                return jsonify({'error': 'Vous avez déjà joué la carte Inversion'}), 400
+            
+            # Execute inversion logic
+            inversion_result = game_state.handle_inversion_card(player_name, player_role)
+            game_state.update_card_played_timestamp()
+            
+            # Clear processing state
+            game_state.processing_player = None
+            game_state.processing_card = None
+            
+            return jsonify({
+                'success': True, 
+                'message': inversion_result,
+                'special_card': True,
+                'inversion': True
+            })
+        
+        elif card_type == 'special_101':
+            # Vérifier si la carte spéciale a déjà été jouée par ce joueur
+            already_played = any(sc['player'] == player_name and sc['card_number'] == 101 
+                               for sc in game_state.special_cards_played)
+            if already_played:
+                # Clear processing state on error
+                game_state.processing_player = None
+                game_state.processing_card = None
+                return jsonify({'error': 'Vous avez déjà joué la carte Suppression'}), 400
+            
+            # Execute suppression logic  
+            if target_card is not None:
+                suppression_result = game_state.handle_suppression_card(player_name, player_role, target_card)
+            else:
+                return jsonify({'error': 'Numéro de carte cible manquant'}), 400
+            game_state.update_card_played_timestamp()
+            
+            # Clear processing state
+            game_state.processing_player = None
+            game_state.processing_card = None
+            
+            return jsonify({
+                'success': True, 
+                'message': suppression_result,
+                'special_card': True,
+                'suppression': True
+            })
 
         # Find card in deck
         card = next((c for c in CARD_DECK if int(c['numero']) == card_number),
@@ -203,12 +190,15 @@ def envoyer():
                                         card,
                                         player_role,
                                         effect,
-                                        story_history=game_state.story_history)
+                                        story_history=game_state.get_story_history())
         story_text = call_mistral_ai(story_prompt)
 
         # Update game state
         game_state.played_cards.add(card_number)
         game_state.update_card_played_timestamp()
+        
+        # Logger la carte normale dans déroulement.txt
+        game_state.log_card_play(player_name, card_number, "normale")
 
         # Mark game as started on first card
         if not game_state.jeu_commence:
@@ -227,8 +217,7 @@ def envoyer():
             'timestamp': datetime.now().isoformat()
         })
 
-        # Add to story history
-        game_state.add_to_story_history(story_text)
+        # Story history is now automatically built from game_state.story
 
         # Update score
         if effect == '+':
@@ -243,7 +232,7 @@ def envoyer():
             # Generate conclusion
             conclusion_text = generate_game_conclusion(
                 game_state.score, game_state.score_initial,
-                game_state.story_history)
+                game_state.get_story_history())
             game_state.story.append({
                 'player': 'Narrateur',
                 'role': 'Narrateur',
@@ -321,7 +310,8 @@ def refresh():
             'game_ended': game_state.game_ended,
             'total_cards': game_state.get_total_cards(BASE_CARDS_TO_PLAY),
             'processing_player': game_state.processing_player,
-            'processing_card': game_state.processing_card
+            'processing_card': game_state.processing_card,
+            'special_cards_played': game_state.special_cards_played
         })
 
     except Exception as e:
