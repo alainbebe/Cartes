@@ -456,6 +456,20 @@ Fais avancer l'histoire de manière subtile en incorporant la carte comme un él
     return prompt
 
 
+def generate_image_prompt(story_history: str, mistral_response: str) -> str:
+    """Generate a prompt for AI image generation using Mistral AI"""
+    
+    prompt = f"""Dans le contexte de cette histoire :
+{story_history}
+
+Peux-tu me générer un prompt pour créer une image pour IA de ce qui suit :
+{mistral_response}
+
+Le prompt doit être adapté pour un générateur d'images IA, en décrivant visuellement la scène de manière détaillée et artistique, dans un style médiéval-fantastique."""
+
+    return call_mistral_ai(prompt)
+
+
 def call_mistral_ai(prompt: str) -> str:
     """Call Mistral AI API to generate text"""
     import os

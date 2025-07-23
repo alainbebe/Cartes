@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, CARD_DECK, EVALUATIONS
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, CARD_DECK, EVALUATIONS
 
 # Load environment variables
 load_dotenv()
@@ -192,6 +192,20 @@ def envoyer():
                                         effect,
                                         story_history=game_state.get_story_history())
         story_text = call_mistral_ai(story_prompt)
+        
+        # Generate image prompt using Mistral AI and log it
+        try:
+            story_history = game_state.get_story_history()
+            image_prompt = generate_image_prompt(story_history, story_text)
+            
+            # Log the image prompt to a separate file for later use
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open('image_prompts.txt', 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] {player_name} - Carte {card_number}: {image_prompt}\n\n")
+            
+            logger.info(f"Image prompt generated and logged for card {card_number}")
+        except Exception as e:
+            logger.error(f"Error generating image prompt: {e}")
 
         # Update game state
         game_state.played_cards.add(card_number)
