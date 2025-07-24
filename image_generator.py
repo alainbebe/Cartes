@@ -15,7 +15,7 @@ MODELE_SCHNELL = "black-forest-labs/flux-schnell"
 DEFAULT_MODEL = MODELE_KONTEXT
 
 # Image de référence par défaut pour le style médiéval-fantastique
-DEFAULT_IMAGE_REF = "http://www.barbason.be/public/visage_bleu.jpg"
+DEFAULT_IMAGE_REF = "http://www.barbason.be/public/mariee.jpg"
 
 def ensure_result_directory():
     """Crée le dossier result s'il n'existe pas."""
