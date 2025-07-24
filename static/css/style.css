@@ -317,7 +317,40 @@ body::before {
 }
 
 .story-content {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
     line-height: 1.6;
+}
+
+.story-text {
+    flex: 1;
+    min-width: 0; /* Allows text to shrink */
+}
+
+.story-image {
+    flex-shrink: 0;
+    width: 120px;
+}
+
+.story-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid var(--border-color);
+}
+
+.story-image img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3);
+    border-color: var(--accent-color);
+}
+
+.story-image a {
+    display: block;
+    text-decoration: none;
 }
 
 .story-content p {
@@ -360,6 +393,20 @@ body::before {
 .role-badge.forgeron {
     background: #B8860B;
     color: white;
+}
+
+/* Mobile responsiveness for story images */
+@media (max-width: 768px) {
+    .story-content {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .story-image {
+        width: 100%;
+        max-width: 200px;
+        align-self: center;
+    }
 }
 
 /* Available Cards Grid */

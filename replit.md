@@ -65,6 +65,27 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 - **Impact**: Players now get automatically generated visual images for every card effect, creating a rich multimedia storytelling experience
 - **Status**: ✅ Completed - Full image generation pipeline working with Replicate API
 
+### July 24, 2025 - Interface Integration for Generated Images
+- **New Feature**: Added visual display of generated images directly in the game interface
+- **Integration**: Images now appear next to each story entry with clickable links
+- **Changes**:
+  - **Backend Integration**:
+    - Modified story entries to include `image_path` field for tracking generated images
+    - Added `/result/<filename>` route to serve generated images from result directory
+    - Updated story creation logic to link successful image generation to story entries
+  - **Frontend Display**:
+    - Modified `updateStoryDisplay()` function to render images alongside story text
+    - Added responsive layout with story text on left, image thumbnail on right
+    - Implemented clickable images that open full-size versions in new tabs
+    - Added loading="lazy" for better performance with multiple images
+  - **CSS Styling**:
+    - Added `.story-content`, `.story-text`, and `.story-image` classes for responsive layout
+    - Implemented hover effects with scaling and accent border highlighting
+    - Added mobile responsiveness with column layout for smaller screens
+    - Integrated medieval-fantasy theme colors for image borders and hover effects
+- **Impact**: Players now see visual representations of their card effects directly in the game interface, creating an immersive multimedia storytelling experience
+- **Status**: ✅ Completed - Images display seamlessly in game interface with responsive design
+
 ### July 21, 2025 - Complete Special Cards System Implementation
 - **Special Cards Implementation**: Added both carte 100 "Inversion" and carte 101 "Suppression" with unique game-changing mechanics
 - **Story System Refactoring**: Unified story management by initializing `story` array with narrator's opening text
