@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, CARD_DECK, EVALUATIONS
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS
 
 # Load environment variables
 load_dotenv()
@@ -193,7 +193,7 @@ def envoyer():
                                         story_history=game_state.get_story_history())
         story_text = call_mistral_ai(story_prompt)
         
-        # Generate image prompt using Mistral AI and log it
+        # Generate image prompt using Mistral AI and log it, then generate actual image
         try:
             story_history = game_state.get_story_history()
             image_prompt = generate_image_prompt(story_history, story_text)
@@ -204,6 +204,17 @@ def envoyer():
                 f.write(f"[{timestamp}] {player_name} - Carte {card_number}: {image_prompt}\n\n")
             
             logger.info(f"Image prompt generated and logged for card {card_number}")
+            
+            # Generate actual image using Replicate API
+            try:
+                image_result = generate_card_image_with_replicate(image_prompt, player_name, card_number)
+                if image_result.get("success"):
+                    logger.info(f"Actual image generated successfully for card {card_number}")
+                else:
+                    logger.warning(f"Image generation failed for card {card_number}: {image_result.get('error')}")
+            except Exception as img_error:
+                logger.error(f"Error generating actual image for card {card_number}: {img_error}")
+                
         except Exception as e:
             logger.error(f"Error generating image prompt: {e}")
 
