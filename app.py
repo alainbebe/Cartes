@@ -217,8 +217,9 @@ def envoyer():
 
             # Generate actual image using Replicate API
             try:
+                card_name = card.get('mot', '') if card else ''
                 image_result = generate_card_image_with_replicate(
-                    image_prompt, player_name, card_number)
+                    image_prompt, player_name, card_number, card_name)
                 if image_result.get("success"):
                     logger.info(
                         f"Actual image generated successfully for card {card_number}"
@@ -517,10 +518,12 @@ def serve_result_file(filename):
             logger.error(f"Image file not found: {file_path}")
             return jsonify({'error': 'Image non trouvée'}), 404
             
-        # Send file with proper headers
+        # Send file with proper headers for Chrome compatibility
         response = send_from_directory('result', filename)
         response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
         response.headers['Access-Control-Allow-Origin'] = '*'  # Allow CORS
+        response.headers['Cross-Origin-Resource-Policy'] = 'cross-origin'  # Chrome fix
+        response.headers['X-Content-Type-Options'] = 'nosniff'  # Chrome security
         return response
         
     except Exception as e:

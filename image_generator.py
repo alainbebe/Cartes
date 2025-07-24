@@ -17,6 +17,28 @@ DEFAULT_MODEL = MODELE_KONTEXT
 # Image de référence par défaut pour le style médiéval-fantastique
 DEFAULT_IMAGE_REF = "http://www.barbason.be/public/mariee.jpg"
 
+def get_card_reference_image(card_name):
+    """Construit l'URL de l'image de référence basée sur le nom de la carte."""
+    if card_name:
+        # Nettoyer le nom de la carte pour l'URL
+        clean_name = card_name.lower().replace(' ', '').replace('é', 'e').replace('è', 'e').replace('ï', 'i')
+        card_url = f"http://www.barbason.be/public/{clean_name}.jpg"
+        
+        # Vérifier rapidement si l'URL existe (timeout court)
+        try:
+            import requests
+            response = requests.head(card_url, timeout=2)
+            if response.status_code == 200:
+                logger.info(f"Using card-specific image: {card_url}")
+                return card_url
+            else:
+                logger.info(f"Card image not found ({response.status_code}), using default: {card_url}")
+        except Exception as e:
+            logger.info(f"Card image check failed, using default: {e}")
+    
+    logger.info(f"Using default reference image: {DEFAULT_IMAGE_REF}")
+    return DEFAULT_IMAGE_REF
+
 def ensure_result_directory():
     """Crée le dossier result s'il n'existe pas."""
     os.makedirs("result", exist_ok=True)
@@ -86,7 +108,7 @@ def enregistrer_donnees_json(modele, input_data, timestamp, player_name, card_nu
         logger.error(f"Error saving JSON data: {e}")
         return False
 
-def generate_card_image(prompt, player_name, card_number, model=None, image_ref=None):
+def generate_card_image(prompt, player_name, card_number, model=None, image_ref=None, card_name=None):
     """
     Génère une image basée sur le prompt fourni par Mistral AI.
     
@@ -95,7 +117,8 @@ def generate_card_image(prompt, player_name, card_number, model=None, image_ref=
         player_name (str): Nom du joueur
         card_number (int): Numéro de la carte
         model (str, optional): Modèle à utiliser (par défaut MODELE_KONTEXT)
-        image_ref (str, optional): Image de référence (par défaut DEFAULT_IMAGE_REF)
+        image_ref (str, optional): Image de référence (par défaut dérivée du nom de carte)
+        card_name (str, optional): Nom de la carte pour générer l'image de référence
     
     Returns:
         dict: Résultat contenant les informations sur l'image générée
@@ -107,6 +130,11 @@ def generate_card_image(prompt, player_name, card_number, model=None, image_ref=
         
         # Créer le dossier de résultats
         ensure_result_directory()
+        
+        # Construire l'image de référence basée sur le nom de la carte
+        if not image_ref:
+            image_ref = get_card_reference_image(card_name)
+            logger.info(f"Using card-specific reference image: {image_ref}")
         
         # Construire les paramètres d'entrée
         input_data = construire_input(modele, prompt, image_ref)

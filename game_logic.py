@@ -505,14 +505,14 @@ Je ne veux que le prompt en retour. Il ne faut pas d'explication en plus."""
     return call_mistral_ai(prompt)
 
 
-def generate_card_image_with_replicate(prompt: str, player_name: str, card_number: int) -> dict:
+def generate_card_image_with_replicate(prompt: str, player_name: str, card_number: int, card_name: str = "") -> dict:
     """Generate an actual image using Replicate API based on the Mistral-generated prompt"""
     try:
         # Import the image generator module
         from image_generator import generate_card_image
         
-        logger.info(f"Generating actual image for card {card_number} by {player_name}")
-        result = generate_card_image(prompt, player_name, card_number)
+        logger.info(f"Generating actual image for card {card_number} ({card_name}) by {player_name}")
+        result = generate_card_image(prompt, player_name, card_number, card_name=card_name)
         
         if result.get("success"):
             logger.info(f"Image generation successful: {len(result.get('images', []))} images created")
