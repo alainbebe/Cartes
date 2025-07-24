@@ -73,18 +73,24 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
     - Modified story entries to include `image_path` field for tracking generated images
     - Added `/result/<filename>` route to serve generated images from result directory
     - Updated story creation logic to link successful image generation to story entries
+    - **Bug Fix**: Corrected image filename extraction from Replicate API response structure
+    - **Enhancement**: Improved `/result/<filename>` route with better error handling, CORS headers, and security checks
   - **Frontend Display**:
     - Modified `updateStoryDisplay()` function to render images alongside story text
     - Added responsive layout with story text on left, image thumbnail on right
     - Implemented clickable images that open full-size versions in new tabs
     - Added loading="lazy" for better performance with multiple images
+    - **Debug Enhancement**: Added console logging for image loading diagnostics
   - **CSS Styling**:
     - Added `.story-content`, `.story-text`, and `.story-image` classes for responsive layout
     - Implemented hover effects with scaling and accent border highlighting
     - Added mobile responsiveness with column layout for smaller screens
     - Integrated medieval-fantasy theme colors for image borders and hover effects
+  - **Debugging Tools**:
+    - Created `test_image_route.py` script for local server diagnostics
+    - Added `debug_images.html` for visual testing of image display functionality
 - **Impact**: Players now see visual representations of their card effects directly in the game interface, creating an immersive multimedia storytelling experience
-- **Status**: ✅ Completed - Images display seamlessly in game interface with responsive design
+- **Status**: ✅ Completed on Replit - Working on local server compatibility improvements
 
 ### July 21, 2025 - Complete Special Cards System Implementation
 - **Special Cards Implementation**: Added both carte 100 "Inversion" and carte 101 "Suppression" with unique game-changing mechanics
