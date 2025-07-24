@@ -42,3 +42,6 @@
 [2025-07-23 15:12:19] Alice a joué la carte 5 (Blessure) - Type: normale
 [2025-07-23 15:12:35] Bob a joué la carte 12 (Canyon) - Type: normale
 [2025-07-23 15:12:47] Carol a joué la carte 100 (Inversion) - Type: spéciale
+[2025-07-23 15:13:43] Alain a joué la carte 3 (Illustration) - Type: normale
+[2025-07-24 06:41:49] Alice a joué la carte 3 (Illustration) - Type: normale
+[2025-07-24 06:42:19] Bob a joué la carte 7 (Crucifixion) - Type: normale
