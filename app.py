@@ -197,6 +197,9 @@ def envoyer():
             story_history=game_state.get_story_history())
         story_text = call_mistral_ai(story_prompt)
 
+        # Initialize image_result
+        image_result = None
+        
         # Generate image prompt using Mistral AI and log it, then generate actual image
         try:
             story_history = game_state.get_story_history()
@@ -247,14 +250,29 @@ def envoyer():
                 f"Jeu commencé - Première carte jouée - Score initial: {game_state.score_initial}"
             )
 
-        game_state.story.append({
+        # Create story entry with image information
+        story_entry = {
             'player': player_name,
             'role': player_role,
             'text': story_text,
             'card': card,
             'effect': effect,
-            'timestamp': datetime.now().isoformat()
-        })
+            'timestamp': datetime.now().isoformat(),
+            'image_path': None  # Will be updated if image generation succeeds
+        }
+
+        # If image generation was successful, add image information
+        if image_result and 'success' in image_result and image_result['success']:
+            images = image_result.get('images', [])
+            if images:
+                # Extract just the filename from the full path
+                full_filename = images[0].get('filename', '')
+                if full_filename.startswith('result/'):
+                    story_entry['image_path'] = full_filename[7:]  # Remove 'result/' prefix
+                else:
+                    story_entry['image_path'] = full_filename
+
+        game_state.story.append(story_entry)
 
         # Story history is now automatically built from game_state.story
 
@@ -441,6 +459,15 @@ def cards():
         logger.error(f"Error getting cards: {e}")
         return jsonify({'error':
                         'Erreur lors de la récupération des cartes'}), 500
+
+
+@app.route('/result/<filename>')
+def serve_result_file(filename):
+    """Serve generated images from the result directory"""
+    try:
+        return send_from_directory('result', filename)
+    except FileNotFoundError:
+        return jsonify({'error': 'Image not found'}), 404
 
 
 if __name__ == '__main__':
