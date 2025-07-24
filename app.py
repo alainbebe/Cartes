@@ -263,7 +263,14 @@ def envoyer():
 
         # If image generation was successful, add image information
         if image_result and 'success' in image_result and image_result['success']:
-            story_entry['image_path'] = image_result.get('image_filename')
+            images = image_result.get('images', [])
+            if images:
+                # Extract just the filename from the full path
+                full_filename = images[0].get('filename', '')
+                if full_filename.startswith('result/'):
+                    story_entry['image_path'] = full_filename[7:]  # Remove 'result/' prefix
+                else:
+                    story_entry['image_path'] = full_filename
 
         game_state.story.append(story_entry)
 
