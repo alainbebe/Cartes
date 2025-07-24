@@ -384,11 +384,17 @@ function updateStoryDisplay(story) {
         // Create image element if image path exists
         var imageElement = '';
         if (entry.image_path) {
+            // Debug logging for image path
+            console.log('Image path found:', entry.image_path);
+            console.log('Full image URL:', '/result/' + entry.image_path);
+            
             imageElement = `
                 <div class="story-image">
                     <a href="/result/${entry.image_path}" target="_blank" rel="noopener noreferrer">
                         <img src="/result/${entry.image_path}" alt="Image générée pour ${entry.player}" 
-                             loading="lazy" onclick="window.open('/result/${entry.image_path}', '_blank')">
+                             loading="lazy" onclick="window.open('/result/${entry.image_path}', '_blank')"
+                             onerror="console.error('Failed to load image:', this.src); this.style.display='none';"
+                             onload="console.log('Image loaded successfully:', this.src);">
                     </a>
                 </div>
             `;

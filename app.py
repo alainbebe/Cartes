@@ -461,13 +461,71 @@ def cards():
                         'Erreur lors de la récupération des cartes'}), 500
 
 
+@app.route('/debug')
+def debug_page():
+    """Debug page for testing image display"""
+    return send_from_directory('.', 'debug_images.html')
+
+
+@app.route('/debug/images')
+def debug_images():
+    """Debug endpoint to check available images and story data"""
+    import os
+    try:
+        debug_info = {
+            'available_images': [],
+            'story_entries_with_images': [],
+            'result_directory_exists': os.path.exists('result'),
+            'total_story_entries': len(game_state.story)
+        }
+        
+        # List available images
+        if os.path.exists('result'):
+            images = [f for f in os.listdir('result') if f.endswith(('.jpg', '.jpeg', '.png'))]
+            debug_info['available_images'] = images[-5:]  # Last 5 images
+        
+        # Check story entries with images
+        for i, entry in enumerate(game_state.story):
+            if entry.get('image_path'):
+                debug_info['story_entries_with_images'].append({
+                    'index': i,
+                    'player': entry.get('player'),
+                    'image_path': entry.get('image_path'),
+                    'text_preview': entry.get('text', '')[:50] + '...'
+                })
+        
+        return jsonify(debug_info)
+    except Exception as e:
+        logger.error(f"Error in debug endpoint: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/result/<filename>')
 def serve_result_file(filename):
     """Serve generated images from the result directory"""
     try:
-        return send_from_directory('result', filename)
-    except FileNotFoundError:
-        return jsonify({'error': 'Image not found'}), 404
+        import os
+        from flask import Response
+        
+        # Security check: only allow image files
+        if not filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            return jsonify({'error': 'Type de fichier non autorisé'}), 400
+            
+        # Check if file exists
+        file_path = os.path.join('result', filename)
+        if not os.path.exists(file_path):
+            logger.error(f"Image file not found: {file_path}")
+            return jsonify({'error': 'Image non trouvée'}), 404
+            
+        # Send file with proper headers
+        response = send_from_directory('result', filename)
+        response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
+        response.headers['Access-Control-Allow-Origin'] = '*'  # Allow CORS
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error serving image {filename}: {e}")
+        return jsonify({'error': 'Erreur lors du chargement de l\'image'}), 500
 
 
 if __name__ == '__main__':
