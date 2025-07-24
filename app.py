@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, CARD_DECK, EVALUATIONS
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS
 
 # Load environment variables
 load_dotenv()
@@ -28,13 +28,6 @@ game_state = GameState()
 # Log initial action - Game start
 logger.info("Début de la partie")
 game_state.log_action("Début")
-
-
-
-
-
-
-
 
 
 @app.route('/')
@@ -89,9 +82,10 @@ def envoyer():
                     'timestamp': datetime.now().isoformat()
                 })
                 game_state.game_ended = True
-                game_state.update_card_played_timestamp()  # Update timestamp for conclusion
+                game_state.update_card_played_timestamp(
+                )  # Update timestamp for conclusion
                 game_state.log_action(f"Conclusion demandée par {player_name}")
-            
+
             # Clear processing state
             game_state.processing_player = None
             game_state.processing_card = None
@@ -100,66 +94,75 @@ def envoyer():
         # Validate card input using new validation system
         validation_result = game_state.validate_card_input(prompt)
         card_type = validation_result[0]
-        
+
         if card_type == 'invalid':
             # Clear processing state on error
             game_state.processing_player = None
             game_state.processing_card = None
-            error_msg = validation_result[3] if len(validation_result) > 3 else 'Entrée invalide'
+            error_msg = validation_result[3] if len(
+                validation_result) > 3 else 'Entrée invalide'
             return jsonify({'error': error_msg}), 400
-        
+
         card_number = validation_result[1]
-        target_card = validation_result[2] if len(validation_result) > 2 else None
+        target_card = validation_result[2] if len(
+            validation_result) > 2 else None
 
         # Handle special cards
         if card_type == 'special_100':
             # Vérifier si la carte spéciale a déjà été jouée par ce joueur
-            already_played = any(sc['player'] == player_name and sc['card_number'] == 100 
-                               for sc in game_state.special_cards_played)
+            already_played = any(
+                sc['player'] == player_name and sc['card_number'] == 100
+                for sc in game_state.special_cards_played)
             if already_played:
                 # Clear processing state on error
                 game_state.processing_player = None
                 game_state.processing_card = None
-                return jsonify({'error': 'Vous avez déjà joué la carte Inversion'}), 400
-            
+                return jsonify(
+                    {'error': 'Vous avez déjà joué la carte Inversion'}), 400
+
             # Execute inversion logic
-            inversion_result = game_state.handle_inversion_card(player_name, player_role)
+            inversion_result = game_state.handle_inversion_card(
+                player_name, player_role)
             game_state.update_card_played_timestamp()
-            
+
             # Clear processing state
             game_state.processing_player = None
             game_state.processing_card = None
-            
+
             return jsonify({
-                'success': True, 
+                'success': True,
                 'message': inversion_result,
                 'special_card': True,
                 'inversion': True
             })
-        
+
         elif card_type == 'special_101':
             # Vérifier si la carte spéciale a déjà été jouée par ce joueur
-            already_played = any(sc['player'] == player_name and sc['card_number'] == 101 
-                               for sc in game_state.special_cards_played)
+            already_played = any(
+                sc['player'] == player_name and sc['card_number'] == 101
+                for sc in game_state.special_cards_played)
             if already_played:
                 # Clear processing state on error
                 game_state.processing_player = None
                 game_state.processing_card = None
-                return jsonify({'error': 'Vous avez déjà joué la carte Suppression'}), 400
-            
-            # Execute suppression logic  
+                return jsonify(
+                    {'error': 'Vous avez déjà joué la carte Suppression'}), 400
+
+            # Execute suppression logic
             if target_card is not None:
-                suppression_result = game_state.handle_suppression_card(player_name, player_role, target_card)
+                suppression_result = game_state.handle_suppression_card(
+                    player_name, player_role, target_card)
             else:
-                return jsonify({'error': 'Numéro de carte cible manquant'}), 400
+                return jsonify({'error':
+                                'Numéro de carte cible manquant'}), 400
             game_state.update_card_played_timestamp()
-            
+
             # Clear processing state
             game_state.processing_player = None
             game_state.processing_card = None
-            
+
             return jsonify({
-                'success': True, 
+                'success': True,
                 'message': suppression_result,
                 'special_card': True,
                 'suppression': True
@@ -185,32 +188,54 @@ def envoyer():
         effect = evaluate_card_effect(card_number, player_role, EVALUATIONS)
 
         # Generate story text
-        story_prompt = get_story_prompt(game_state.story,
-                                        game_state.score,
-                                        card,
-                                        player_role,
-                                        effect,
-                                        story_history=game_state.get_story_history())
+        story_prompt = get_story_prompt(
+            game_state.story,
+            game_state.score,
+            card,
+            player_role,
+            effect,
+            story_history=game_state.get_story_history())
         story_text = call_mistral_ai(story_prompt)
-        
-        # Generate image prompt using Mistral AI and log it
+
+        # Generate image prompt using Mistral AI and log it, then generate actual image
         try:
             story_history = game_state.get_story_history()
             image_prompt = generate_image_prompt(story_history, story_text)
-            
+
             # Log the image prompt to a separate file for later use
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open('image_prompts.txt', 'a', encoding='utf-8') as f:
-                f.write(f"[{timestamp}] {player_name} - Carte {card_number}: {image_prompt}\n\n")
-            
-            logger.info(f"Image prompt generated and logged for card {card_number}")
+                f.write(
+                    f"[{timestamp}] {player_name} - Carte {card_number}: {image_prompt}\n\n"
+                )
+
+            logger.info(
+                f"Image prompt generated and logged for card {card_number}")
+
+            # Generate actual image using Replicate API
+            try:
+                image_result = generate_card_image_with_replicate(
+                    image_prompt, player_name, card_number)
+                if image_result.get("success"):
+                    logger.info(
+                        f"Actual image generated successfully for card {card_number}"
+                    )
+                else:
+                    logger.warning(
+                        f"Image generation failed for card {card_number}: {image_result.get('error')}"
+                    )
+            except Exception as img_error:
+                logger.error(
+                    f"Error generating actual image for card {card_number}: {img_error}"
+                )
+
         except Exception as e:
             logger.error(f"Error generating image prompt: {e}")
 
         # Update game state
         game_state.played_cards.add(card_number)
         game_state.update_card_played_timestamp()
-        
+
         # Logger la carte normale dans déroulement.txt
         game_state.log_card_play(player_name, card_number, "normale")
 
@@ -240,7 +265,8 @@ def envoyer():
             game_state.score -= 1
 
         # Check game end conditions
-        if len(game_state.played_cards) >= game_state.get_total_cards(BASE_CARDS_TO_PLAY):
+        if len(game_state.played_cards) >= game_state.get_total_cards(
+                BASE_CARDS_TO_PLAY):
             game_state.game_ended = True
             game_state.log_action(f"Jeu terminé - Toutes les cartes jouées")
             # Generate conclusion
@@ -264,7 +290,7 @@ def envoyer():
         # Clear processing state
         game_state.processing_player = None
         game_state.processing_card = None
-        
+
         return jsonify({
             'success': True,
             'message': 'Carte jouée avec succès',
@@ -312,20 +338,29 @@ def refresh():
             # Log debug info about auto-reset conditions
             from game_logic import CONFIG
             inactive_time = datetime.now() - game_state.last_card_played
-            logger.debug(f"Auto-reset check: story_count={len(game_state.story)}, "
-                        f"cards_inactive_time={inactive_time.total_seconds():.1f}s/"
-                        f"{CONFIG['AUTO_RESET_TIMEOUT']}s")
+            #logger.debug(f"Auto-reset check: story_count={len(game_state.story)}, "
+            #           f"cards_inactive_time={inactive_time.total_seconds():.1f}s/"
+            #           f"{CONFIG['AUTO_RESET_TIMEOUT']}s")
 
         return jsonify({
-            'story': game_state.story,
-            'score': game_state.score,
-            'played_cards': list(game_state.played_cards),
-            'active_players': game_state.get_active_players(),
-            'game_ended': game_state.game_ended,
-            'total_cards': game_state.get_total_cards(BASE_CARDS_TO_PLAY),
-            'processing_player': game_state.processing_player,
-            'processing_card': game_state.processing_card,
-            'special_cards_played': game_state.special_cards_played
+            'story':
+            game_state.story,
+            'score':
+            game_state.score,
+            'played_cards':
+            list(game_state.played_cards),
+            'active_players':
+            game_state.get_active_players(),
+            'game_ended':
+            game_state.game_ended,
+            'total_cards':
+            game_state.get_total_cards(BASE_CARDS_TO_PLAY),
+            'processing_player':
+            game_state.processing_player,
+            'processing_card':
+            game_state.processing_card,
+            'special_cards_played':
+            game_state.special_cards_played
         })
 
     except Exception as e:

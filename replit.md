@@ -40,6 +40,31 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 - **Impact**: Players can now use generated prompts with external AI image generators to create visual representations of their card effects
 - **Status**: ✅ Completed - Automatic image prompt generation working for all normal cards (1-55)
 
+### July 24, 2025 - Complete Replicate Integration for Actual Image Generation  
+- **New Feature**: Integrated Replicate API for automatic image generation from Mistral-generated prompts
+- **Integration**: Complete end-to-end image generation pipeline
+- **Changes**:
+  - **Replicate Module**:
+    - Created `image_generator.py` module with complete Replicate integration
+    - Added `generate_card_image()` function using FLUX-Kontext-Pro model
+    - Supports both FLUX-Kontext and FLUX-Schnell models with appropriate configurations
+    - Added comprehensive error handling and logging for image generation process
+  - **Game Logic Integration**:
+    - Added `generate_card_image_with_replicate()` function in `game_logic.py`
+    - Integrated image generation into card playing workflow in `app.py`
+    - Each normal card now generates: story text + image prompt + actual image
+    - Images saved in `result/` directory with structured naming convention
+  - **File Management**:
+    - Images saved as `image_{player}_{card}_{timestamp}.jpg`
+    - JSON metadata saved as `donnees_{timestamp}.json` with full generation parameters
+    - Automatic creation of result directory structure
+  - **API Configuration**:
+    - REPLICATE_API_TOKEN environment variable configuration
+    - Default medieval-fantasy reference image for style consistency
+    - Configurable model selection (FLUX-Kontext-Pro as default)
+- **Impact**: Players now get automatically generated visual images for every card effect, creating a rich multimedia storytelling experience
+- **Status**: ✅ Completed - Full image generation pipeline working with Replicate API
+
 ### July 21, 2025 - Complete Special Cards System Implementation
 - **Special Cards Implementation**: Added both carte 100 "Inversion" and carte 101 "Suppression" with unique game-changing mechanics
 - **Story System Refactoring**: Unified story management by initializing `story` array with narrator's opening text
