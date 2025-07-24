@@ -20,8 +20,9 @@ DEFAULT_IMAGE_REF = "http://www.barbason.be/public/mariee.jpg"
 def get_card_reference_image(card_name):
     """Construit l'URL de l'image de référence basée sur le nom de la carte."""
     if card_name:
-        # Nettoyer le nom de la carte pour l'URL
-        clean_name = card_name.lower().replace(' ', '').replace('é', 'e').replace('è', 'e').replace('ï', 'i')
+        # Utiliser unidecode pour convertir tous les caractères accentués
+        from unidecode import unidecode
+        clean_name = unidecode(card_name).lower().replace(' ', '')
         card_url = f"http://www.barbason.be/public/{clean_name}.jpg"
         
         # Vérifier rapidement si l'URL existe (timeout court)

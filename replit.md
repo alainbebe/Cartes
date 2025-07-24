@@ -75,12 +75,15 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
     - Updated story creation logic to link successful image generation to story entries
     - **Bug Fix**: Corrected image filename extraction from Replicate API response structure
     - **Enhancement**: Improved `/result/<filename>` route with better error handling, CORS headers, and security checks
+    - **Card Reference Images**: Added system to use card-specific reference images from `http://www.barbason.be/public/{cardname}.jpg`
+    - **Character Handling**: Integrated `unidecode` library for proper handling of accented characters in card names
   - **Frontend Display**:
     - Modified `updateStoryDisplay()` function to render images alongside story text
     - Added responsive layout with story text on left, image thumbnail on right
     - Implemented clickable images that open full-size versions in new tabs
     - Added loading="lazy" for better performance with multiple images
     - **Debug Enhancement**: Added console logging for image loading diagnostics
+    - **Chrome Compatibility**: Fixed image display issues in Chrome with additional HTTP headers
   - **CSS Styling**:
     - Added `.story-content`, `.story-text`, and `.story-image` classes for responsive layout
     - Implemented hover effects with scaling and accent border highlighting
@@ -89,8 +92,9 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
   - **Debugging Tools**:
     - Created `test_image_route.py` script for local server diagnostics
     - Added `debug_images.html` for visual testing of image display functionality
+    - Added `/debug` and `/debug/images` endpoints for troubleshooting
 - **Impact**: Players now see visual representations of their card effects directly in the game interface, creating an immersive multimedia storytelling experience
-- **Status**: ✅ Completed on Replit - Working on local server compatibility improvements
+- **Status**: ✅ Completed - Images display correctly in both Firefox and Chrome, with card-specific reference images
 
 ### July 21, 2025 - Complete Special Cards System Implementation
 - **Special Cards Implementation**: Added both carte 100 "Inversion" and carte 101 "Suppression" with unique game-changing mechanics
