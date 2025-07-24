@@ -55,13 +55,13 @@
     },
     {
         "numero": "7",
-        "mot": "Crucifixion",
+        "mot": "Nue",
         "phrase": "Une figure crucifiée avec des cheveux jaunes.",
         "descriptif": "L'image montre une figure crucifiée avec les bras étendus, les cheveux jaunes, et un corps pâle. La scène se déroule dans un environnement extérieur avec des arbres verts et un ciel bleu, évoquant une ambiance paisible malgré le thème dramatique."
     },
     {
         "numero": "5",
-        "mot": "Blessure",
+        "mot": "decapite",
         "phrase": "Un homme blessé avec des couteaux plantés dans sa poitrine.",
         "descriptif": "L'image montre un homme avec une expression de douleur, les cheveux noirs et une moustache. Il a deux couteaux plantés dans sa poitrine, d'où s'écoule du sang. L'arrière-plan est dominé par des tons chauds de jaune et d'orange, ce qui contraste avec la scène violente."
     },
@@ -97,7 +97,7 @@
     },
     {
         "numero": "12",
-        "mot": "Canyon",
+        "mot": "Montagne",
         "phrase": "Un canyon avec une rivière sinueuse.",
         "descriptif": "L'image montre un canyon aux parois rocheuses et colorées, avec une rivière sinueuse qui serpente à travers le paysage verdoyant en contrebas."
     },
@@ -127,13 +127,13 @@
     },
     {
         "numero": "19",
-        "mot": "Flamme",
+        "mot": "Torche",
         "phrase": "Une flamme vive sur un fond jaune et gris.",
         "descriptif": "L'image montre une flamme rouge et jaune intense, avec une mèche de bougie en bas, sur un fond qui mélange des tons jaunes et gris."
     },
     {
         "numero": "42",
-        "mot": "Marteau",
+        "mot": "Hache",
         "phrase": "Un marteau posé sur une souche dans un champ.",
         "descriptif": "L'image montre un marteau avec un manche en bois et une tête métallique, posé sur une souche de bois dans un champ vert. En arrière-plan, on voit des tas de différentes textures, évoquant des matériaux comme du bois et du foin, sous un ciel clair."
     },
@@ -145,7 +145,7 @@
     },
     {
         "numero": "31",
-        "mot": "Bouteille",
+        "mot": "Fiole",
         "phrase": "Une bouteille bleue avec un bouchon décoratif sur un fond rayé.",
         "descriptif": "L'image montre une bouteille bleue avec un bouchon décoratif, posée sur une surface rose devant un fond rayé orange et blanc. La bouteille est au centre de l'image, avec des reflets de lumière qui accentuent sa couleur bleue."
     },
@@ -157,13 +157,13 @@
     },
     {
         "numero": "6",
-        "mot": "Mythologique",
+        "mot": "Chimere",
         "phrase": "Une créature mythologique avec des ailes et une tête de lion.",
         "descriptif": "L'image montre une créature mythologique avec des ailes, une tête de lion, et un corps partiellement humain. Elle est représentée dans un environnement aquatique, avec des couleurs vives et un style artistique unique."
     },
     {
         "numero": "3",
-        "mot": "Illustration",
+        "mot": "Bicephale",
         "phrase": "Un homme à deux têtes dans un environnement naturel.",
         "descriptif": "L'image montre un homme avec deux têtes, l'une masculine avec une barbe et l'autre féminine aux cheveux blonds. Il porte une tenue bleue et tient des outils dans ses mains. L'arrière-plan est un paysage naturel avec des arbres verts, évoquant une scène fantastique ou mythologique."
     },
@@ -187,13 +187,13 @@
     },
     {
         "numero": "8",
-        "mot": "Campagne",
+        "mot": "Portail",
         "phrase": "Un paysage champêtre avec une maison et une personne.",
         "descriptif": "L'image montre un paysage champêtre avec une maison rouge au toit jaune, partiellement cachée par un grand nuage blanc. Au premier plan, une personne avec un chapeau rouge et une veste bleue se tient dans un champ vert, sous un ciel bleu avec des nuages."
     },
     {
         "numero": "32",
-        "mot": "Aquatique",
+        "mot": "Pont",
         "phrase": "Un personnage assis sur un radeau en mer.",
         "descriptif": "L'image montre un personnage assis sur un radeau en mer, avec un ciel vert et bleu en arrière-plan. Le personnage semble contemplatif, entouré d'un environnement aquatique, avec des vagues et un ciel qui évoque une ambiance paisible et solitaire."
     },
@@ -211,7 +211,7 @@
     },
     {
         "numero": "43",
-        "mot": "Repas",
+        "mot": "Bol",
         "phrase": "Un bol de macaroni au fromage sur une table en bois.",
         "descriptif": "L'image montre un bol de macaroni au fromage posé sur une table en bois. Le bol est bleu avec des motifs décoratifs, et le plat est bien garni de macaronis recouverts de fromage fondu. En arrière-plan, une chaise en bois est visible contre un mur rouge."
     },
@@ -223,7 +223,7 @@
     },
     {
         "numero": "16",
-        "mot": "Lumière",
+        "mot": "Fenêtre",
         "phrase": "Une lumière blanche dans un environnement sombre.",
         "descriptif": "L'image montre une lumière blanche en haut à droite, éclairant faiblement un environnement sombre et flou. La source de lumière semble petite et intense, contrastant avec l'obscurité environnante, créant une ambiance mystérieuse et intrigante."
     },
@@ -253,13 +253,13 @@
     },
     {
         "numero": "41",
-        "mot": "Araignée",
+        "mot": "Toile",
         "phrase": "Une araignée rouge et noire sur une toile d'araignée.",
         "descriptif": "L'image montre une araignée rouge et noire au centre de sa toile d'araignée. La toile est tissée sur un fond de feuilles vertes, avec des détails qui mettent en valeur les couleurs vives de l'araignée et la structure complexe de la toile."
     },
     {
         "numero": "48",
-        "mot": "Forêt",
+        "mot": "Lac",
         "phrase": "Un lac bleu entouré de conifères dans une forêt.",
         "descriptif": "L'image montre un lac bleu entouré de conifères dans une forêt dense. Les arbres sont verts et touffus, et le lac est encerclé de rochers, créant une scène naturelle et paisible. Le ciel est partiellement visible, avec des nuages légers."
     },
@@ -271,7 +271,7 @@
     },
     {
         "numero": "27",
-        "mot": "Portrait",
+        "mot": "Sorcière",
         "phrase": "Un portrait d'une personne âgée aux cheveux blancs.",
         "descriptif": "L'image montre un portrait d'une personne âgée aux cheveux blancs, vêtue d'une robe orange et bleue. La personne a une expression sérieuse et est représentée sur un fond neutre, avec des traits du visage marqués et des détails qui mettent en valeur son âge et sa sagesse."
     },
@@ -319,13 +319,13 @@
     },
     {
         "numero": "37",
-        "mot": "Rideaux",
+        "mot": "Baldaquin",
         "phrase": "Des rideaux verts avec des cordes dorées.",
         "descriptif": "L'image montre des rideaux verts avec des cordes dorées, suspendus à une tringle en bois. Les rideaux sont tirés, révélant un intérieur avec des murs rouges et un tapis aux motifs colorés, créant une ambiance chaleureuse et vibrante."
     },
     {
         "numero": "17",
-        "mot": "Couronne",
+        "mot": "Bague",
         "phrase": "Une couronne dorée avec des pierres colorées.",
         "descriptif": "L'image montre une couronne dorée avec des pierres colorées, posée sur un fond bleu texturé. La couronne est ornée de pierres rouges, vertes et blanches, créant un contraste vibrant avec le fond bleu."
     },
