@@ -381,10 +381,26 @@ function updateStoryDisplay(story) {
         // Apply white color for Narrateur entries (conclusions)
         const textStyle = entry.player === 'Narrateur' ? 'style="color: white;"' : '';
         
+        // Create image element if image path exists
+        var imageElement = '';
+        if (entry.image_path) {
+            imageElement = `
+                <div class="story-image">
+                    <a href="/result/${entry.image_path}" target="_blank" rel="noopener noreferrer">
+                        <img src="/result/${entry.image_path}" alt="Image générée pour ${entry.player}" 
+                             loading="lazy" onclick="window.open('/result/${entry.image_path}', '_blank')">
+                    </a>
+                </div>
+            `;
+        }
+
         storyEntry.innerHTML = `
             <div class="story-content">
-                <p ${textStyle}><strong>${entry.player}</strong>${roleBadge}: ${entry.text}</p>
-                ${cardInfo ? `<div class="story-meta">Carte: ${cardInfo}</div>` : ''}
+                <div class="story-text">
+                    <p ${textStyle}><strong>${entry.player}</strong>${roleBadge}: ${entry.text}</p>
+                    ${cardInfo ? `<div class="story-meta">Carte: ${cardInfo}</div>` : ''}
+                </div>
+                ${imageElement}
             </div>
         `;
         
