@@ -65,6 +65,22 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 - **Impact**: Players now get automatically generated visual images for every card effect, creating a rich multimedia storytelling experience
 - **Status**: ✅ Completed - Full image generation pipeline working with Replicate API
 
+### July 25, 2025 - Client-Side Card Confirmation System
+- **New Feature**: Added comprehensive card confirmation system with card names before playing
+- **Integration**: Client-side validation using deck.json data for enhanced user experience
+- **Changes**:
+  - **Deck Data Loading**: Added `loadDeckData()` function to fetch deck.json on page load
+  - **Card Name Lookup**: Implemented `findCardByNumber()` to match card numbers with names
+  - **Confirmation System**: Added `confirmCardPlay()` with different confirmation messages:
+    - Normal cards (1-55): "Voulez-vous jouer 4 : « Labyrinthe » ?"
+    - Special card 100: "Voulez-vous jouer la carte spéciale 100 : « Inversion » ?"
+    - Special card 101: "Voulez-vous jouer la carte spéciale 101 : « Suppression » ?" with target info
+    - Conclusion (0): "Voulez-vous terminer la partie et générer la conclusion ?"
+  - **Special Cards Enhancement**: Single confirmation message for card 101 with target details
+  - **Compatibility**: Replaced template literals with string concatenation for Firefox compatibility
+- **Impact**: Players now see card names before confirming actions, reducing accidental plays
+- **Status**: ✅ Completed - Confirmation system working with consolidated special card messages
+
 ### July 24, 2025 - Interface Integration for Generated Images
 - **New Feature**: Added visual display of generated images directly in the game interface
 - **Integration**: Images now appear next to each story entry with clickable links
