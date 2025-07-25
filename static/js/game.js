@@ -12,7 +12,8 @@ var gameState = {
     isActive: false,
     availableCards: [],
     refreshInterval: null,
-    isWaitingForResponse: false
+    isWaitingForResponse: false,
+    deckData: []  // Pour stocker les données du deck.json
 };
 
 // DOM elements
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     setupEventListeners();
+    loadDeckData();  // Charger les données du deck
     loadAvailableCards();
     // Start refresh only after player info is loaded
     setTimeout(function() {
@@ -129,6 +131,11 @@ function handleCardPlay(event) {
         // In normal mode, validate input
         if (!cardNumber) {
             showAlert('Veuillez entrer un numéro de carte.', 'warning');
+            return;
+        }
+        
+        // Demander confirmation avec le nom de la carte
+        if (!confirmCardPlay(cardNumber)) {
             return;
         }
     }
@@ -282,6 +289,78 @@ function sendCardToServer(playerName, playerRole, cardNumber) {
         player_role: playerRole,
         prompt: cardNumber
     }));
+}
+
+function loadDeckData() {
+    // Charger les données du deck.json
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/static/js/deck.json', true);
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                if (xhr.status === 200) {
+                    gameState.deckData = JSON.parse(xhr.responseText);
+                    console.log('Deck data loaded:', gameState.deckData.length, 'cards');
+                } else {
+                    console.error('Error loading deck data:', xhr.status);
+                }
+            } catch (error) {
+                console.error('Error parsing deck data:', error);
+            }
+        }
+    };
+    
+    xhr.send();
+}
+
+function findCardByNumber(cardNumber) {
+    // Chercher une carte par son numéro dans le deck
+    for (var i = 0; i < gameState.deckData.length; i++) {
+        if (gameState.deckData[i].numero === String(cardNumber)) {
+            return gameState.deckData[i];
+        }
+    }
+    return null;
+}
+
+function confirmCardPlay(prompt) {
+    // Gérer les cartes spéciales avec format "101 5" (carte suppression avec cible)
+    var parts = prompt.trim().split(' ');
+    var mainCard = parts[0];
+    
+    // Traitement pour cartes spéciales
+    if (mainCard === '100' || mainCard === '101') {
+        // Confirmation pour carte spéciale
+        var specialCardName = mainCard === '100' ? 'Inversion' : 'Suppression';
+        var confirmSpecial = confirm('Voulez-vous jouer la carte spéciale ' + mainCard + ' : « ' + specialCardName + ' » ?');
+        if (!confirmSpecial) return false;
+        
+        // Si carte 101 avec cible, confirmer aussi la cible
+        if (mainCard === '101' && parts.length > 1) {
+            var targetCard = parts[1];
+            var targetCardData = findCardByNumber(targetCard);
+            var targetName = targetCardData ? targetCardData.mot : 'Carte ' + targetCard;
+            var confirmTarget = confirm('Voulez-vous supprimer la carte ' + targetCard + ' : « ' + targetName + ' » ?');
+            if (!confirmTarget) return false;
+        }
+        
+        return true;
+    }
+    
+    // Cartes normales (1-55)
+    var cardData = findCardByNumber(mainCard);
+    if (cardData) {
+        var cardName = cardData.mot;
+        var confirmation = confirm('Voulez-vous jouer ' + mainCard + ' : « ' + cardName + ' » ?');
+        return confirmation;
+    } else if (mainCard === '0') {
+        // Conclusion
+        return confirm('Voulez-vous terminer la partie et générer la conclusion ?');
+    } else {
+        // Carte non trouvée
+        return confirm('Voulez-vous jouer la carte ' + mainCard + ' ?');
+    }
 }
 
 function refreshGameState() {
