@@ -331,21 +331,18 @@ function confirmCardPlay(prompt) {
     
     // Traitement pour cartes spéciales
     if (mainCard === '100' || mainCard === '101') {
-        // Confirmation pour carte spéciale
         var specialCardName = mainCard === '100' ? 'Inversion' : 'Suppression';
-        var confirmSpecial = confirm('Voulez-vous jouer la carte spéciale ' + mainCard + ' : « ' + specialCardName + ' » ?');
-        if (!confirmSpecial) return false;
+        var message = 'Voulez-vous jouer la carte spéciale ' + mainCard + ' : « ' + specialCardName + ' » ?';
         
-        // Si carte 101 avec cible, confirmer aussi la cible
+        // Si carte 101 avec cible, ajouter l'information de la cible dans le même message
         if (mainCard === '101' && parts.length > 1) {
             var targetCard = parts[1];
             var targetCardData = findCardByNumber(targetCard);
             var targetName = targetCardData ? targetCardData.mot : 'Carte ' + targetCard;
-            var confirmTarget = confirm('Voulez-vous supprimer la carte ' + targetCard + ' : « ' + targetName + ' » ?');
-            if (!confirmTarget) return false;
+            message += '\n\nCette action supprimera la carte ' + targetCard + ' : « ' + targetName + ' » de l\'histoire.';
         }
         
-        return true;
+        return confirm(message);
     }
     
     // Cartes normales (1-55)
