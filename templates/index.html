@@ -72,11 +72,9 @@
                                     <label for="player-role" class="form-label">Rôle</label>
                                     <select class="form-select" id="player-role">
                                         <option value="">Choisir un rôle</option>
-                                        <option value="Soldat">⚔️ Soldat</option>
-                                        <option value="Moine">🙏 Moine</option>
-                                        <option value="Sorcière">🔮 Sorcière</option>
-                                        <option value="Forgeron">🔨 Forgeron</option>
+                                        <!-- Options chargées dynamiquement via /api/roles -->
                                     </select>
+                                    <div id="role-description" class="form-text text-muted" style="display: none;"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="card-number" class="form-label">Numéro de carte (ou 0 pour conclusion)</label>

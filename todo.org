@@ -1,0 +1,4 @@
+* confirmaion des cartes
+** améliorer le check
+soit simplifier, juste liste des cartes qu'on joue
+soit pour les cartes spécial, rajouter un message plus complet et français dans le deck.json

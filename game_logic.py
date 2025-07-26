@@ -33,9 +33,25 @@ def load_evaluations() -> Dict:
         return {}
 
 
+def load_roles() -> List:
+    """Load role definitions from JSON file"""
+    try:
+        with open('roles.json', 'r', encoding='utf-8') as f:
+            roles = json.load(f)
+        logger.info(f"Loaded {len(roles)} role definitions")
+        return roles
+    except FileNotFoundError:
+        logger.error("roles.json file not found")
+        return []
+    except json.JSONDecodeError as e:
+        logger.error(f"Error parsing roles.json: {e}")
+        return []
+
+
 # Load data at module level
 CARD_DECK = load_card_deck()
 EVALUATIONS = load_evaluations()
+ROLES = load_roles()
 
 # Configuration des délais
 CONFIG = {
@@ -426,9 +442,14 @@ def evaluate_card_effect(card_number: int, player_role: str,
     """Evaluate the effect of a card for a given player role"""
     try:
         card_str = str(card_number)
-        if player_role in evaluations and card_str in evaluations[player_role]:
+        # Si le rôle n'existe pas du tout dans evaluations.json, toutes les cartes sont neutres
+        if player_role not in evaluations:
+            logger.info(f"Role '{player_role}' not found in evaluations, treating all cards as neutral")
+            return "="
+        # Si le rôle existe mais pas cette carte spécifique, effet neutre
+        if card_str in evaluations[player_role]:
             return evaluations[player_role][card_str]
-        return "="  # Neutral effect if not found
+        return "="  # Neutral effect if card not found for this role
     except Exception as e:
         logger.error(f"Error evaluating card effect: {e}")
         return "="

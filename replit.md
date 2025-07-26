@@ -65,6 +65,34 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 - **Impact**: Players now get automatically generated visual images for every card effect, creating a rich multimedia storytelling experience
 - **Status**: ✅ Completed - Full image generation pipeline working with Replicate API
 
+### July 26, 2025 - Dynamic Role System with API Integration
+- **New Feature**: Created comprehensive role management system with dynamic loading
+- **Architecture**: Added roles.json configuration file with centralized role definitions
+- **Changes**:
+  - **Roles Configuration**: Created `roles.json` with 4 roles (Soldat ⚔️, Moine 📿, Sorcière 🔮, Forgeron 🔨)
+  - **Backend Integration**: Added `load_roles()` function in `game_logic.py` and `ROLES` constant
+  - **API Route**: Created `/api/roles` endpoint serving role data with badges and descriptions
+  - **Frontend Enhancement**: Modified role selector to load dynamically from API
+  - **User Experience**: Added role descriptions that appear when selecting a role
+  - **Data Structure**: Each role includes id, name, badge emoji, and descriptive text
+- **Benefits**: Centralized role management, easy addition of new roles, consistent UI
+- **Impact**: More maintainable role system with rich descriptions for better user guidance
+- **Status**: ✅ Completed - Dynamic role system with API integration working
+- **Architecture Fix**: Modified `evaluate_card_effect()` to handle missing roles gracefully - any role not in evaluations.json defaults to neutral effects for all cards
+- **Cleanup**: Removed "Paysan" specific evaluations from evaluations.json (now handled by default logic)
+
+### July 26, 2025 - API Route for Deck Data
+- **Enhancement**: Replaced file duplication with proper API endpoint for deck data
+- **Architecture**: Eliminated duplicate deck.json files using REST API pattern
+- **Changes**:
+  - **New API Route**: Added `/api/deck` endpoint that serves deck.json data via Flask
+  - **Client Update**: Modified `loadDeckData()` to fetch from `/api/deck` instead of static file
+  - **File Cleanup**: Removed duplicate `static/js/deck.json` file
+  - **Source Truth**: Single deck.json file in root directory maintains data integrity
+  - **Benefits**: No synchronization issues, proper REST API, better maintainability
+- **Impact**: Cleaner architecture following DRY principle with single source of truth
+- **Status**: ✅ Completed - API route working, duplication eliminated
+
 ### July 25, 2025 - Client-Side Card Confirmation System
 - **New Feature**: Added comprehensive card confirmation system with card names before playing
 - **Integration**: Client-side validation using deck.json data for enhanced user experience
