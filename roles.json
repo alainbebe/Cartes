@@ -22,5 +22,11 @@
         "name": "Forgeron",
         "badge": "🔨",
         "description": "Artisan habile créateur d'armes et d'outils. Maître du feu et du métal, façonne des objets extraordinaires."
+    },
+    {
+        "id": "Paysan",
+        "name": "Paysan",
+        "badge": "🌾",
+        "description": "Héros de la terre, cultivant les champs et vivant en harmonie avec la nature."
     }
 ]
