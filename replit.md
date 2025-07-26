@@ -65,6 +65,18 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 - **Impact**: Players now get automatically generated visual images for every card effect, creating a rich multimedia storytelling experience
 - **Status**: ✅ Completed - Full image generation pipeline working with Replicate API
 
+### July 26, 2025 - API Route for Deck Data
+- **Enhancement**: Replaced file duplication with proper API endpoint for deck data
+- **Architecture**: Eliminated duplicate deck.json files using REST API pattern
+- **Changes**:
+  - **New API Route**: Added `/api/deck` endpoint that serves deck.json data via Flask
+  - **Client Update**: Modified `loadDeckData()` to fetch from `/api/deck` instead of static file
+  - **File Cleanup**: Removed duplicate `static/js/deck.json` file
+  - **Source Truth**: Single deck.json file in root directory maintains data integrity
+  - **Benefits**: No synchronization issues, proper REST API, better maintainability
+- **Impact**: Cleaner architecture following DRY principle with single source of truth
+- **Status**: ✅ Completed - API route working, duplication eliminated
+
 ### July 25, 2025 - Client-Side Card Confirmation System
 - **New Feature**: Added comprehensive card confirmation system with card names before playing
 - **Integration**: Client-side validation using deck.json data for enhanced user experience

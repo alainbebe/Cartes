@@ -292,9 +292,9 @@ function sendCardToServer(playerName, playerRole, cardNumber) {
 }
 
 function loadDeckData() {
-    // Charger les données du deck.json
+    // Charger les données du deck via l'API
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/static/js/deck.json', true);
+    xhr.open('GET', '/api/deck', true);
     
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
