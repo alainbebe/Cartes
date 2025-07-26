@@ -78,7 +78,8 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 - **Benefits**: Centralized role management, easy addition of new roles, consistent UI
 - **Impact**: More maintainable role system with rich descriptions for better user guidance
 - **Status**: ✅ Completed - Dynamic role system with API integration working
-- **Bug Fix**: Added missing evaluations for "Paysan" role in evaluations.json to prevent empty prompts
+- **Architecture Fix**: Modified `evaluate_card_effect()` to handle missing roles gracefully - any role not in evaluations.json defaults to neutral effects for all cards
+- **Cleanup**: Removed "Paysan" specific evaluations from evaluations.json (now handled by default logic)
 
 ### July 26, 2025 - API Route for Deck Data
 - **Enhancement**: Replaced file duplication with proper API endpoint for deck data
