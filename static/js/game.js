@@ -13,7 +13,8 @@ var gameState = {
     availableCards: [],
     refreshInterval: null,
     isWaitingForResponse: false,
-    deckData: []  // Pour stocker les données du deck.json
+    deckData: [],  // Pour stocker les données du deck.json
+    rolesData: []  // Pour stocker les données des rôles
 };
 
 // DOM elements
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     setupEventListeners();
     loadDeckData();  // Charger les données du deck
+    loadRolesData(); // Charger les données des rôles
     loadAvailableCards();
     // Start refresh only after player info is loaded
     setTimeout(function() {
@@ -357,6 +359,70 @@ function confirmCardPlay(prompt) {
     } else {
         // Carte non trouvée
         return confirm('Voulez-vous jouer la carte ' + mainCard + ' ?');
+    }
+}
+
+function loadRolesData() {
+    // Charger les données des rôles via l'API
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/roles', true);
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                if (xhr.status === 200) {
+                    gameState.rolesData = JSON.parse(xhr.responseText);
+                    console.log('Roles data loaded:', gameState.rolesData.length, 'roles');
+                    populateRoleSelect();
+                } else {
+                    console.error('Error loading roles data:', xhr.status);
+                }
+            } catch (error) {
+                console.error('Error parsing roles data:', error);
+            }
+        }
+    };
+    
+    xhr.send();
+}
+
+function populateRoleSelect() {
+    // Remplir le sélecteur de rôles avec les données de l'API
+    var roleSelect = document.getElementById('player-role');
+    if (!roleSelect || !gameState.rolesData) return;
+    
+    // Vider les options existantes (sauf la première)
+    while (roleSelect.children.length > 1) {
+        roleSelect.removeChild(roleSelect.lastChild);
+    }
+    
+    // Ajouter les rôles depuis l'API
+    for (var i = 0; i < gameState.rolesData.length; i++) {
+        var role = gameState.rolesData[i];
+        var option = document.createElement('option');
+        option.value = role.id;
+        option.textContent = role.badge + ' ' + role.name;
+        option.setAttribute('data-description', role.description);
+        roleSelect.appendChild(option);
+    }
+    
+    // Ajouter l'événement pour afficher la description
+    roleSelect.addEventListener('change', showRoleDescription);
+}
+
+function showRoleDescription() {
+    var roleSelect = document.getElementById('player-role');
+    var roleDescription = document.getElementById('role-description');
+    
+    if (!roleSelect || !roleDescription) return;
+    
+    var selectedOption = roleSelect.options[roleSelect.selectedIndex];
+    
+    if (selectedOption && selectedOption.getAttribute('data-description')) {
+        roleDescription.textContent = selectedOption.getAttribute('data-description');
+        roleDescription.style.display = 'block';
+    } else {
+        roleDescription.style.display = 'none';
     }
 }
 

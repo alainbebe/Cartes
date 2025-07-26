@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS, ROLES
 
 # Load environment variables
 load_dotenv()
@@ -466,12 +466,19 @@ def cards():
 def api_deck():
     """API endpoint pour récupérer les données du deck"""
     try:
-        from game_logic import load_card_deck
-        deck_data = load_card_deck()
-        return jsonify(deck_data)
+        return jsonify(CARD_DECK)
     except Exception as e:
         logger.error(f"Erreur lors du chargement du deck: {e}")
         return jsonify({"error": "Impossible de charger les données du deck"}), 500
+
+@app.route('/api/roles')
+def api_roles():
+    """API endpoint pour récupérer les données des rôles"""
+    try:
+        return jsonify(ROLES)
+    except Exception as e:
+        logger.error(f"Erreur lors du chargement des rôles: {e}")
+        return jsonify({"error": "Impossible de charger les données des rôles"}), 500
 
 @app.route('/debug')
 def debug_page():

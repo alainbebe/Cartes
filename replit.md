@@ -65,6 +65,20 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 - **Impact**: Players now get automatically generated visual images for every card effect, creating a rich multimedia storytelling experience
 - **Status**: ✅ Completed - Full image generation pipeline working with Replicate API
 
+### July 26, 2025 - Dynamic Role System with API Integration
+- **New Feature**: Created comprehensive role management system with dynamic loading
+- **Architecture**: Added roles.json configuration file with centralized role definitions
+- **Changes**:
+  - **Roles Configuration**: Created `roles.json` with 4 roles (Soldat ⚔️, Moine 📿, Sorcière 🔮, Forgeron 🔨)
+  - **Backend Integration**: Added `load_roles()` function in `game_logic.py` and `ROLES` constant
+  - **API Route**: Created `/api/roles` endpoint serving role data with badges and descriptions
+  - **Frontend Enhancement**: Modified role selector to load dynamically from API
+  - **User Experience**: Added role descriptions that appear when selecting a role
+  - **Data Structure**: Each role includes id, name, badge emoji, and descriptive text
+- **Benefits**: Centralized role management, easy addition of new roles, consistent UI
+- **Impact**: More maintainable role system with rich descriptions for better user guidance
+- **Status**: ✅ Completed - Dynamic role system with API integration working
+
 ### July 26, 2025 - API Route for Deck Data
 - **Enhancement**: Replaced file duplication with proper API endpoint for deck data
 - **Architecture**: Eliminated duplicate deck.json files using REST API pattern

@@ -33,9 +33,25 @@ def load_evaluations() -> Dict:
         return {}
 
 
+def load_roles() -> List:
+    """Load role definitions from JSON file"""
+    try:
+        with open('roles.json', 'r', encoding='utf-8') as f:
+            roles = json.load(f)
+        logger.info(f"Loaded {len(roles)} role definitions")
+        return roles
+    except FileNotFoundError:
+        logger.error("roles.json file not found")
+        return []
+    except json.JSONDecodeError as e:
+        logger.error(f"Error parsing roles.json: {e}")
+        return []
+
+
 # Load data at module level
 CARD_DECK = load_card_deck()
 EVALUATIONS = load_evaluations()
+ROLES = load_roles()
 
 # Configuration des délais
 CONFIG = {
