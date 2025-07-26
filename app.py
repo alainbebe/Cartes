@@ -462,6 +462,17 @@ def cards():
                         'Erreur lors de la récupération des cartes'}), 500
 
 
+@app.route('/api/deck')
+def api_deck():
+    """API endpoint pour récupérer les données du deck"""
+    try:
+        from game_logic import load_card_deck
+        deck_data = load_card_deck()
+        return jsonify(deck_data)
+    except Exception as e:
+        logger.error(f"Erreur lors du chargement du deck: {e}")
+        return jsonify({"error": "Impossible de charger les données du deck"}), 500
+
 @app.route('/debug')
 def debug_page():
     """Debug page for testing image display"""
