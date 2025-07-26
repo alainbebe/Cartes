@@ -480,6 +480,23 @@ def api_roles():
         logger.error(f"Erreur lors du chargement des rôles: {e}")
         return jsonify({"error": "Impossible de charger les données des rôles"}), 500
 
+@app.route('/debug/env')
+def debug_env():
+    """Debug endpoint for environment variables"""
+    try:
+        mistral_key = os.environ.get('MISTRAL_API_KEY')
+        replicate_key = os.environ.get('REPLICATE_API_TOKEN')
+        
+        return jsonify({
+            'mistral_api_key': 'Present (' + str(len(mistral_key)) + ' chars)' if mistral_key else 'MISSING',
+            'replicate_api_token': 'Present (' + str(len(replicate_key)) + ' chars)' if replicate_key else 'MISSING',
+            'game_players': len(game_state.active_players),
+            'cards_played': len(game_state.played_cards),
+            'current_score': game_state.score
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/debug')
 def debug_page():
     """Debug page for testing image display"""
