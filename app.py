@@ -217,7 +217,6 @@ def envoyer():
 
             # Generate actual image using Replicate API
             try:
-                dummy=1/0
                 card_name = card.get('mot', '') if card else ''
                 image_result = generate_card_image_with_replicate(
                     image_prompt, player_name, card_number, card_name)
