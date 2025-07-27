@@ -569,8 +569,12 @@ function getRoleBadge(role) {
     if (gameState.rolesData && gameState.rolesData.length > 0) {
         const roleData = gameState.rolesData.find(r => r.id === role || r.name === role);
         if (roleData) {
-            const className = role.toLowerCase().replace('è', 'e'); // sorcière -> sorciere
-            return `<span class="role-badge ${className}">${roleData.badge} ${roleData.name}</span>`;
+            // Apply dynamic colors if available
+            let style = '';
+            if (roleData.colors) {
+                style = `style="background-color: ${roleData.colors.background}; color: ${roleData.colors.color}; border-color: ${roleData.colors.border};"`;
+            }
+            return `<span class="role-badge dynamic-role" ${style}>${roleData.badge} ${roleData.name}</span>`;
         }
     }
     
