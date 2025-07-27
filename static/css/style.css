@@ -375,24 +375,15 @@ body::before {
     margin-left: 10px;
 }
 
-.role-badge.soldat {
-    background: #8B0000;
-    color: white;
+.role-badge.dynamic-role {
+    /* Colors applied dynamically from roles.json */
+    border: 1px solid;
+    transition: all 0.3s ease;
 }
 
-.role-badge.moine {
-    background: #4169E1;
-    color: white;
-}
-
-.role-badge.sorciere {
-    background: #8A2BE2;
-    color: white;
-}
-
-.role-badge.forgeron {
-    background: #B8860B;
-    color: white;
+.role-badge.dynamic-role:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
 /* Mobile responsiveness for story images */

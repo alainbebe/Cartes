@@ -3,30 +3,55 @@
         "id": "Soldat",
         "name": "Soldat",
         "badge": "⚔️",
-        "description": "Guerrier courageux spécialisé dans le combat et la protection. Excelle avec les armes et la stratégie militaire."
+        "description": "Guerrier courageux spécialisé dans le combat et la protection. Excelle avec les armes et la stratégie militaire.",
+        "colors": {
+            "background": "#8B4513",
+            "color": "#FFD700",
+            "border": "#D2691E"
+        }
     },
     {
         "id": "Moine",
         "name": "Moine",
         "badge": "📿",
-        "description": "Sage religieux maîtrisant la guérison et les arts spirituels. Apporte sagesse et réconfort dans l'adversité."
+        "description": "Sage religieux maîtrisant la guérison et les arts spirituels. Apporte sagesse et réconfort dans l'adversité.",
+        "colors": {
+            "background": "#4169E1",
+            "color": "#F0F8FF",
+            "border": "#6495ED"
+        }
     },
     {
         "id": "Sorcière",
         "name": "Sorcière",
         "badge": "🔮",
-        "description": "Mystique puissante versée dans la magie et l'alchimie. Manipule les forces occultes et les potions magiques."
+        "description": "Mystique puissante versée dans la magie et l'alchimie. Manipule les forces occultes et les potions magiques.",
+        "colors": {
+            "background": "#8B008B",
+            "color": "#DDA0DD",
+            "border": "#BA55D3"
+        }
     },
     {
         "id": "Forgeron",
         "name": "Forgeron",
         "badge": "🔨",
-        "description": "Artisan habile créateur d'armes et d'outils. Maître du feu et du métal, façonne des objets extraordinaires."
+        "description": "Artisan habile créateur d'armes et d'outils. Maître du feu et du métal, façonne des objets extraordinaires.",
+        "colors": {
+            "background": "#B22222",
+            "color": "#FFA500",
+            "border": "#FF4500"
+        }
     },
     {
         "id": "Paysan",
         "name": "Paysan",
         "badge": "🌾",
-        "description": "Héros de la terre, cultivant les champs et vivant en harmonie avec la nature."
+        "description": "Héros de la terre, cultivant les champs et vivant en harmonie avec la nature.",
+        "colors": {
+            "background": "#228B22",
+            "color": "#F5DEB3",
+            "border": "#32CD32"
+        }
     }
 ]
