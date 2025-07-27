@@ -560,15 +560,22 @@ function updateStoryDisplay(story) {
 }
 
 function getRoleBadge(role) {
-    const badges = {
-        'Soldat': '<span class="role-badge soldat">⚔️ Soldat</span>',
-        'Moine': '<span class="role-badge moine">🙏 Moine</span>',
-        'Sorcière': '<span class="role-badge sorciere">🔮 Sorcière</span>',
-        'Forgeron': '<span class="role-badge forgeron">🔨 Forgeron</span>',
-        'Narrateur': '<span class="role-badge narrateur">📜 Narrateur</span>'
-    };
+    // Handle special case for Narrateur
+    if (role === 'Narrateur') {
+        return '<span class="role-badge narrateur">📜 Narrateur</span>';
+    }
     
-    return badges[role] || '';
+    // Use dynamic data from roles.json
+    if (gameState.rolesData && gameState.rolesData.length > 0) {
+        const roleData = gameState.rolesData.find(r => r.id === role || r.name === role);
+        if (roleData) {
+            const className = role.toLowerCase().replace('è', 'e'); // sorcière -> sorciere
+            return `<span class="role-badge ${className}">${roleData.badge} ${roleData.name}</span>`;
+        }
+    }
+    
+    // Fallback for unknown roles
+    return '';
 }
 
 function updateActivePlayersDisplay(players) {
