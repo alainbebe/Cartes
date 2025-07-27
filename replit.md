@@ -81,6 +81,19 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 - **Architecture Fix**: Modified `evaluate_card_effect()` to handle missing roles gracefully - any role not in evaluations.json defaults to neutral effects for all cards
 - **Cleanup**: Removed "Paysan" specific evaluations from evaluations.json (now handled by default logic)
 
+### July 27, 2025 - Dynamic Role Styling System
+- **Enhancement**: Eliminated static CSS role classes, implemented fully dynamic styling system
+- **Architecture**: Centralized role appearance configuration in roles.json with runtime CSS application
+- **Changes**:
+  - **Role Colors Configuration**: Added `colors` object to each role in roles.json with background, text, and border colors
+  - **Dynamic Badge Generation**: Updated `getRoleBadge()` function to apply styles dynamically via inline CSS
+  - **CSS Modernization**: Replaced static `.soldat`, `.moine`, `.sorciere`, `.forgeron` CSS classes with `.dynamic-role` class
+  - **Hover Effects**: Added smooth transitions and scaling effects for dynamic role badges
+  - **Paysan Integration**: Proper support for newly added Paysan role (🌾) with green earth-themed colors
+  - **Extensibility**: New roles can be added to roles.json without requiring CSS changes
+- **Impact**: Completely extensible role system where visual styling is data-driven, eliminating hardcoded CSS dependencies
+- **Status**: ✅ Completed - Dynamic role styling working with Paysan badge support
+
 ### July 26, 2025 - API Route for Deck Data
 - **Enhancement**: Replaced file duplication with proper API endpoint for deck data
 - **Architecture**: Eliminated duplicate deck.json files using REST API pattern
