@@ -6,7 +6,12 @@ var gameState = {
     rolesData: null,
     availableCards: null,
     playedCards: [],
-    refreshInterval: null
+    refreshInterval: null,
+    // Interface state persistence
+    interfaceState: {
+        currentView: 'range-selection', // 'range-selection', 'number-selection', 'special-cards-selection', 'suppression-target-selection'
+        currentRange: null // {start: X, end: Y}
+    }
 };
 
 // Configuration
@@ -90,6 +95,16 @@ function loadStoredPlayerData() {
             playerRoleSelect.value = storedRole;
             gameState.playerRole = storedRole;
         }
+        
+        // Load interface state
+        var storedInterfaceState = localStorage.getItem('interfaceState');
+        if (storedInterfaceState) {
+            try {
+                gameState.interfaceState = JSON.parse(storedInterfaceState);
+            } catch (e) {
+                console.log('Could not parse stored interface state');
+            }
+        }
     }
 }
 
@@ -112,6 +127,12 @@ function savePlayerInfo() {
     
     startRefreshInterval();
     refreshGameState();
+}
+
+function saveInterfaceState() {
+    if (typeof Storage !== 'undefined') {
+        localStorage.setItem('interfaceState', JSON.stringify(gameState.interfaceState));
+    }
 }
 
 function handleCardPlay() {
@@ -298,6 +319,9 @@ function updateGameDisplay(data) {
     updateProcessingState(data.processing_player, data.processing_card);
     updateButtonForScore(data.score, data.game_ended);
     
+    // Restore interface state after refresh
+    restoreInterfaceState();
+    
     if (data.game_ended) {
         showGameEndModal(data.score);
     }
@@ -444,6 +468,11 @@ function selectCard(cardNumber) {
 }
 
 function selectRange(start, end) {
+    // Update interface state
+    gameState.interfaceState.currentView = 'number-selection';
+    gameState.interfaceState.currentRange = {start: start, end: end};
+    saveInterfaceState();
+    
     document.getElementById('range-selection').style.display = 'none';
     document.getElementById('number-selection').style.display = 'block';
     
@@ -465,16 +494,29 @@ function selectRange(start, end) {
 }
 
 function goBackToRanges() {
+    // Update interface state
+    gameState.interfaceState.currentView = 'range-selection';
+    gameState.interfaceState.currentRange = null;
+    saveInterfaceState();
+    
     document.getElementById('range-selection').style.display = 'block';
     document.getElementById('number-selection').style.display = 'none';
 }
 
 function showSpecialCards() {
+    // Update interface state
+    gameState.interfaceState.currentView = 'special-cards-selection';
+    saveInterfaceState();
+    
     document.getElementById('range-selection').style.display = 'none';
     document.getElementById('special-cards-selection').style.display = 'block';
 }
 
 function hideSpecialCards() {
+    // Update interface state
+    gameState.interfaceState.currentView = 'range-selection';
+    saveInterfaceState();
+    
     document.getElementById('range-selection').style.display = 'block';
     document.getElementById('special-cards-selection').style.display = 'none';
 }
@@ -486,6 +528,10 @@ function showSuppressionTarget() {
         alert("Aucune carte n'a encore été jouée pour pouvoir être supprimée.");
         return;
     }
+    
+    // Update interface state
+    gameState.interfaceState.currentView = 'suppression-target-selection';
+    saveInterfaceState();
     
     document.getElementById('special-cards-selection').style.display = 'none';
     document.getElementById('suppression-target-selection').style.display = 'block';
@@ -507,6 +553,10 @@ function showSuppressionTarget() {
 }
 
 function backToSpecialCards() {
+    // Update interface state
+    gameState.interfaceState.currentView = 'special-cards-selection';
+    saveInterfaceState();
+    
     document.getElementById('special-cards-selection').style.display = 'block';
     document.getElementById('suppression-target-selection').style.display = 'none';
 }
@@ -519,10 +569,71 @@ function hideCardSelectionInterface() {
 function showCardSelectionInterface() {
     var container = document.getElementById('card-selection-container');
     if (container) container.style.display = 'block';
-    document.getElementById('range-selection').style.display = 'block';
+    
+    // Reset to default view if no stored state
+    if (!gameState.interfaceState.currentView || gameState.interfaceState.currentView === 'range-selection') {
+        document.getElementById('range-selection').style.display = 'block';
+        document.getElementById('number-selection').style.display = 'none';
+        document.getElementById('special-cards-selection').style.display = 'none';
+        document.getElementById('suppression-target-selection').style.display = 'none';
+    } else {
+        // Will be restored by restoreInterfaceState()
+    }
+}
+
+function restoreInterfaceState() {
+    if (!gameState.interfaceState || !gameState.interfaceState.currentView) {
+        return;
+    }
+    
+    // Hide all views first
+    document.getElementById('range-selection').style.display = 'none';
     document.getElementById('number-selection').style.display = 'none';
     document.getElementById('special-cards-selection').style.display = 'none';
     document.getElementById('suppression-target-selection').style.display = 'none';
+    
+    // Show the current view
+    var currentView = gameState.interfaceState.currentView;
+    document.getElementById(currentView).style.display = 'block';
+    
+    // Restore specific state for number selection
+    if (currentView === 'number-selection' && gameState.interfaceState.currentRange) {
+        var range = gameState.interfaceState.currentRange;
+        document.getElementById('current-range').textContent = range.start + '-' + range.end;
+        
+        var numberButtons = document.getElementById('number-buttons');
+        numberButtons.innerHTML = '';
+        
+        for (var i = range.start; i <= range.end; i++) {
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-outline-primary';
+            button.textContent = i;
+            button.onclick = (function(num) {
+                return function() { selectCard(num); };
+            })(i);
+            numberButtons.appendChild(button);
+        }
+    }
+    
+    // Restore suppression targets if needed
+    if (currentView === 'suppression-target-selection') {
+        var playedCards = getCurrentPlayedCards();
+        var suppressionTargets = document.getElementById('suppression-targets');
+        suppressionTargets.innerHTML = '';
+        
+        for (var i = 0; i < playedCards.length; i++) {
+            var cardNumber = playedCards[i];
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-outline-danger';
+            button.textContent = cardNumber;
+            button.onclick = (function(num) {
+                return function() { selectCard('101 ' + num); };
+            })(cardNumber);
+            suppressionTargets.appendChild(button);
+        }
+    }
 }
 
 function getCardName(cardNumber) {
