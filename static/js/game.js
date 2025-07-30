@@ -340,9 +340,7 @@ function updateGameDisplay(data) {
     // Restore interface state after refresh
     restoreInterfaceState();
     
-    if (data.game_ended) {
-        showGameEndModal(data.score);
-    }
+    // No modal needed when game ends - conclusion is shown in story display
 }
 
 function updateStoryDisplay(story) {
@@ -889,9 +887,8 @@ function initializeStoryDisplay() {
 }
 
 function showGameEndModal(score) {
-    // Placeholder for game end modal
-    var message = score > 0 ? 'Félicitations ! Vous avez réussi !' : 'Dommage, vous avez échoué...';
-    alert(message);
+    // Game end modal removed as requested by user
+    // The game conclusion is already shown in the story display
 }
 
 // Event listeners
