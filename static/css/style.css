@@ -248,6 +248,16 @@ body::before {
     font-weight: bold;
 }
 
+/* Role Description Fix */
+#role-description {
+    color: var(--text-color) !important;
+    opacity: 0.8;
+}
+
+#role-description.text-muted {
+    color: var(--text-color) !important;
+}
+
 /* Button Styling */
 .btn {
     border-radius: 6px;
