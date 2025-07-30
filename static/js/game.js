@@ -474,6 +474,43 @@ function updateGameDisplay(data) {
     cardsPlayedSpan.textContent = playedCount;
     totalCardsSpan.textContent = totalCount;
     
+    // Store played cards for suppression functionality
+    gameState.playedCards = data.played_cards;
+    
+    // Update story
+    updateStoryDisplay(data.story);
+    
+    // Update active players
+    updateActivePlayersDisplay(data.active_players);
+    
+    // Update players count in status bar
+    var playersCountSpan = document.getElementById('players-count');
+    if (playersCountSpan) {
+        playersCountSpan.textContent = data.active_players.length;
+    }
+    
+    // Update available cards
+    updateAvailableCardsDisplay(data.played_cards);
+    
+    // Show processing state for all players
+    updateProcessingState(data.processing_player, data.processing_card);
+    
+    // Update button and input based on score
+    updateButtonForScore(data.score, data.game_ended);
+    
+    // Check if game ended
+    if (data.game_ended) {
+        showGameEndModal(data.score);
+    }
+    const progressPercent = (playedCount / totalCount) * 100;
+    
+    cardsProgressBar.style.width = `${progressPercent}%`;
+    cardsPlayedSpan.textContent = playedCount;
+    totalCardsSpan.textContent = totalCount;
+    
+    // Store played cards for suppression functionality
+    gameState.playedCards = data.played_cards;
+    
     // Update story
     updateStoryDisplay(data.story);
     
@@ -616,11 +653,145 @@ function updateAvailableCardsDisplay(playedCards) {
 }
 
 function selectCard(cardNumber) {
+    // Set the card number in the hidden input
     cardNumberInput.value = cardNumber;
-    // Only focus if user is not actively typing in another field
-    if (document.activeElement !== playerNameInput && document.activeElement !== playerRoleSelect) {
-        cardNumberInput.focus();
+    
+    // Get card name for confirmation
+    var cardName = getCardName(cardNumber);
+    var confirmMessage;
+    
+    if (cardNumber === 0) {
+        confirmMessage = "Voulez-vous terminer la partie et générer la conclusion ?";
+    } else if (cardNumber === 100) {
+        confirmMessage = "Voulez-vous jouer la carte spéciale 100 : « Inversion » ?";
+    } else if (cardNumber >= 101) {
+        // For suppression cards, the number might be "101 X"
+        confirmMessage = "Voulez-vous jouer la carte spéciale 101 : « Suppression » ?";
+    } else {
+        confirmMessage = "Voulez-vous jouer " + cardNumber + " : « " + cardName + " » ?";
     }
+    
+    if (confirm(confirmMessage)) {
+        // Hide the card selection interface and show processing
+        hideCardSelectionInterface();
+        // Submit the form
+        document.getElementById('player-form').submit();
+    } else {
+        // Reset card selection if cancelled
+        cardNumberInput.value = '';
+        showCardSelectionInterface();
+    }
+}
+
+// New functions for button-based card selection interface
+
+function selectRange(start, end) {
+    // Hide range selection and show number selection
+    document.getElementById('range-selection').style.display = 'none';
+    document.getElementById('number-selection').style.display = 'block';
+    
+    // Update current range display
+    document.getElementById('current-range').textContent = start + '-' + end;
+    
+    // Populate number buttons
+    var numberButtons = document.getElementById('number-buttons');
+    numberButtons.innerHTML = '';
+    
+    for (var i = start; i <= end; i++) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn btn-outline-primary';
+        button.textContent = i;
+        button.onclick = function(num) {
+            return function() { selectCard(num); };
+        }(i);
+        numberButtons.appendChild(button);
+    }
+}
+
+function goBackToRanges() {
+    // Show range selection and hide number selection
+    document.getElementById('range-selection').style.display = 'block';
+    document.getElementById('number-selection').style.display = 'none';
+}
+
+function showSpecialCards() {
+    // Hide range selection and show special cards
+    document.getElementById('range-selection').style.display = 'none';
+    document.getElementById('special-cards-selection').style.display = 'block';
+}
+
+function hideSpecialCards() {
+    // Show range selection and hide special cards
+    document.getElementById('range-selection').style.display = 'block';
+    document.getElementById('special-cards-selection').style.display = 'none';
+}
+
+function showSuppressionTarget() {
+    // Get played cards from current game state
+    // This should be populated with actual played cards
+    var playedCards = getCurrentPlayedCards();
+    
+    if (playedCards.length === 0) {
+        alert("Aucune carte n'a encore été jouée pour pouvoir être supprimée.");
+        return;
+    }
+    
+    // Hide special cards and show suppression target selection
+    document.getElementById('special-cards-selection').style.display = 'none';
+    document.getElementById('suppression-target-selection').style.display = 'block';
+    
+    // Populate target buttons
+    var suppressionTargets = document.getElementById('suppression-targets');
+    suppressionTargets.innerHTML = '';
+    
+    playedCards.forEach(function(cardNumber) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn btn-outline-danger';
+        button.textContent = cardNumber;
+        button.onclick = function() { 
+            selectCard('101 ' + cardNumber); 
+        };
+        suppressionTargets.appendChild(button);
+    });
+}
+
+function backToSpecialCards() {
+    // Show special cards and hide suppression target
+    document.getElementById('special-cards-selection').style.display = 'block';
+    document.getElementById('suppression-target-selection').style.display = 'none';
+}
+
+function hideCardSelectionInterface() {
+    // Hide all card selection interfaces during processing
+    document.getElementById('card-selection-container').style.display = 'none';
+}
+
+function showCardSelectionInterface() {
+    // Show card selection interface and reset to initial state
+    document.getElementById('card-selection-container').style.display = 'block';
+    document.getElementById('range-selection').style.display = 'block';
+    document.getElementById('number-selection').style.display = 'none';
+    document.getElementById('special-cards-selection').style.display = 'none';
+    document.getElementById('suppression-target-selection').style.display = 'none';
+}
+
+function getCardName(cardNumber) {
+    // Look up card name from deck data
+    if (gameState.deckData) {
+        for (var i = 0; i < gameState.deckData.length; i++) {
+            if (parseInt(gameState.deckData[i].numero) === cardNumber) {
+                return gameState.deckData[i].mot;
+            }
+        }
+    }
+    return 'Carte inconnue';
+}
+
+function getCurrentPlayedCards() {
+    // Return the list of currently played cards from game state
+    return gameState.playedCards || [];
 }
 
 function loadAvailableCards() {
@@ -685,24 +856,23 @@ function updateProcessingState(processingPlayer, processingCard) {
     
     if (processingPlayer && processingCard) {
         // Show processing state
-        processingDiv.innerHTML = `
-            <div class="d-flex align-items-center">
-                <div class="spinner-border spinner-border-sm me-2" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <span><strong>${processingPlayer}</strong> joue la carte <strong>${processingCard}</strong>... Traitement en cours</span>
-            </div>
-        `;
+        processingDiv.innerHTML = 
+            '<div class="d-flex align-items-center">' +
+                '<div class="spinner-border spinner-border-sm me-2" role="status">' +
+                    '<span class="visually-hidden">Loading...</span>' +
+                '</div>' +
+                '<span><strong>' + processingPlayer + '</strong> joue la carte <strong>' + processingCard + '</strong>... Traitement en cours</span>' +
+            '</div>';
         processingDiv.style.display = 'block';
         
-        // Disable input for ALL players during processing
-        setInputStateForProcessing(processingPlayer, processingCard);
+        // Hide card selection interface during processing
+        hideCardSelectionInterface();
     } else {
         // Hide processing state
         processingDiv.style.display = 'none';
         
-        // Re-enable input for all players
-        setInputStateForProcessing(null, null);
+        // Show card selection interface when processing is done
+        showCardSelectionInterface();
     }
 }
 

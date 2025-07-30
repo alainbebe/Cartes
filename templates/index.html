@@ -76,11 +76,95 @@
                                     </select>
                                     <div id="role-description" class="form-text text-muted" style="display: none;"></div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="card-number" class="form-label">Numéro de carte (ou 0 pour conclusion)</label>
-                                    <input type="text" class="form-control no-arrows" id="card-number" placeholder="Ex: 12, 100, 101 5">
+                                <!-- Card Selection Interface -->
+                                <div id="card-selection-container">
+                                    <!-- Range Selection (Initial State) -->
+                                    <div id="range-selection" class="mb-3">
+                                        <label class="form-label">Choisir une carte</label>
+                                        <div class="card-ranges">
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(1, 10)">1-10</button></div>
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(11, 20)">11-20</button></div>
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(21, 30)">21-30</button></div>
+                                            </div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(31, 40)">31-40</button></div>
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(41, 50)">41-50</button></div>
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(51, 55)">51-55</button></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Number Selection (Hidden by default) -->
+                                    <div id="number-selection" class="mb-3" style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goBackToRanges()">
+                                                <i class="fas fa-arrow-left"></i> Retour
+                                            </button>
+                                            <span id="current-range" class="text-muted small"></span>
+                                        </div>
+                                        <div id="number-buttons" class="card-numbers">
+                                            <!-- Numbers will be populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Special Cards and Conclusion (Always visible) -->
+                                    <div class="special-cards mb-3">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-warning w-100" onclick="showSpecialCards()">
+                                                    <i class="fas fa-star"></i> Cartes Spéciales
+                                                </button>
+                                            </div>
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-success w-100" onclick="selectCard(0)" id="conclusion-button">
+                                                    <i class="fas fa-flag-checkered"></i> Conclusion
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Special Cards Selection (Hidden by default) -->
+                                    <div id="special-cards-selection" class="mb-3" style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="hideSpecialCards()">
+                                                <i class="fas fa-arrow-left"></i> Retour
+                                            </button>
+                                            <span class="text-muted small">Cartes Spéciales</span>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-primary w-100" onclick="selectCard(100)">
+                                                    100: Inversion
+                                                </button>
+                                            </div>
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-primary w-100" onclick="showSuppressionTarget()">
+                                                    101: Suppression
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Suppression Target Selection (Hidden by default) -->
+                                    <div id="suppression-target-selection" class="mb-3" style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="backToSpecialCards()">
+                                                <i class="fas fa-arrow-left"></i> Retour
+                                            </button>
+                                            <span class="text-muted small">Carte à supprimer</span>
+                                        </div>
+                                        <div id="suppression-targets" class="card-numbers">
+                                            <!-- Played cards will be populated by JavaScript -->
+                                        </div>
+                                    </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary w-100" id="play-button">
+                                
+                                <!-- Hidden input for form submission -->
+                                <input type="hidden" id="card-number" name="card-number">
+                                
+                                <!-- Submit button (hidden during selection) -->
+                                <button type="submit" class="btn btn-primary w-100" id="play-button" style="display: none;">
                                     <i class="fas fa-play"></i> Jouer la carte
                                 </button>
                             </form>
