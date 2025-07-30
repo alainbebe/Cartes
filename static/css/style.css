@@ -284,6 +284,66 @@ body::before {
     border-color: var(--danger-color);
 }
 
+/* Card Selection Interface */
+.card-ranges .btn,
+.card-numbers .btn,
+.special-cards .btn {
+    font-size: 0.9rem;
+    padding: 10px 8px;
+    margin-bottom: 8px;
+}
+
+.card-numbers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.card-numbers .btn {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    min-height: 45px;
+}
+
+.card-ranges .btn {
+    font-weight: 600;
+    min-height: 50px;
+}
+
+.special-cards .btn {
+    min-height: 45px;
+    font-size: 0.85rem;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 576px) {
+    .card-numbers {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+    
+    .card-numbers .btn {
+        font-size: 0.8rem;
+        padding: 8px 4px;
+        min-height: 40px;
+    }
+    
+    .card-ranges .btn {
+        font-size: 0.8rem;
+        padding: 8px 6px;
+        min-height: 45px;
+    }
+    
+    .special-cards .btn {
+        font-size: 0.75rem;
+        padding: 8px 6px;
+        min-height: 40px;
+    }
+}
+
 /* Story Panel */
 .story-panel {
     height: auto;
