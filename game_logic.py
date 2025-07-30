@@ -332,11 +332,13 @@ class GameState:
 
     def update_player_activity(self, player_name: str, player_role: str):
         """Update player activity timestamp"""
-        self.active_players[player_name] = {
-            'role': player_role,
-            'last_seen': datetime.now()
-        }
-        self.last_activity = datetime.now()
+        # Only update if both name and role are valid (non-empty strings)
+        if player_name and player_name.strip() and player_role and player_role.strip():
+            self.active_players[player_name] = {
+                'role': player_role,
+                'last_seen': datetime.now()
+            }
+            self.last_activity = datetime.now()
 
     def get_active_players(self) -> List[Dict]:
         """Get list of active players (seen within configured timeout)"""
@@ -350,11 +352,14 @@ class GameState:
         for player_name in player_names:
             player_info = self.active_players[player_name]
             if player_info['last_seen'] > cutoff_time:
-                active.append({
-                    'name': player_name,
-                    'role': player_info['role'],
-                    'last_seen': player_info['last_seen'].isoformat()
-                })
+                # Only add player if both name and role are valid (non-empty strings)
+                if (player_name and player_name.strip() and 
+                    player_info.get('role') and player_info['role'].strip()):
+                    active.append({
+                        'name': player_name,
+                        'role': player_info['role'],
+                        'last_seen': player_info['last_seen'].isoformat()
+                    })
             else:
                 # Remove inactive players from the stored list
                 del self.active_players[player_name]
