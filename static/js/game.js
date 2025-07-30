@@ -423,7 +423,13 @@ function getRoleBadge(role) {
 }
 
 function updateActivePlayersDisplay(players) {
-    if (!activePlayersDiv) return;
+    if (!activePlayersDiv) {
+        // Try to find it again
+        activePlayersDiv = document.getElementById('active-players');
+        if (!activePlayersDiv) {
+            return;
+        }
+    }
     
     if (!players || players.length === 0) {
         activePlayersDiv.innerHTML = '<p class="text-muted">Aucun joueur actif</p>';
@@ -440,6 +446,7 @@ function updateActivePlayersDisplay(players) {
             '</div>' +
         '</div>';
     }
+    
     activePlayersDiv.innerHTML = html;
 }
 
