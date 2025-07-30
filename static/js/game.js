@@ -502,12 +502,7 @@ function updateGameDisplay(data) {
     if (data.game_ended) {
         showGameEndModal(data.score);
     }
-    const progressPercent = (playedCount / totalCount) * 100;
-    
-    cardsProgressBar.style.width = `${progressPercent}%`;
-    cardsPlayedSpan.textContent = playedCount;
-    totalCardsSpan.textContent = totalCount;
-    
+}
     // Store played cards for suppression functionality
     gameState.playedCards = data.played_cards;
     
@@ -540,11 +535,11 @@ function updateGameDisplay(data) {
 
 function updateStoryDisplay(story) {
     // Clear existing story except intro
-    const entries = storyContainer.querySelectorAll('.story-entry:not(.intro)');
-    entries.forEach(entry => entry.remove());
+    var entries = storyContainer.querySelectorAll('.story-entry:not(.intro)');
+    entries.forEach(function(entry) { entry.remove(); });
     
-    story.forEach(entry => {
-        const storyEntry = document.createElement('div');
+    story.forEach(function(entry) {
+        var storyEntry = document.createElement('div');
         storyEntry.className = 'story-entry';
         
         // Add effect class
@@ -554,11 +549,11 @@ function updateStoryDisplay(story) {
             storyEntry.classList.add('negative');
         }
         
-        const roleBadge = getRoleBadge(entry.role);
-        const cardInfo = entry.card ? ` - ${entry.card.mot}` : '';
+        var roleBadge = getRoleBadge(entry.role);
+        var cardInfo = entry.card ? ' - ' + entry.card.mot : '';
         
         // Apply white color for Narrateur entries (conclusions)
-        const textStyle = entry.player === 'Narrateur' ? 'style="color: white;"' : '';
+        var textStyle = entry.player === 'Narrateur' ? 'style="color: white;"' : '';
         
         // Create image element if image path exists
         var imageElement = '';
@@ -567,27 +562,25 @@ function updateStoryDisplay(story) {
             console.log('Image path found:', entry.image_path);
             console.log('Full image URL:', '/result/' + entry.image_path);
             
-            imageElement = `
-                <div class="story-image">
-                    <a href="/result/${entry.image_path}" target="_blank" rel="noopener noreferrer">
-                        <img src="/result/${entry.image_path}" alt="Image générée pour ${entry.player}" 
-                             loading="lazy" onclick="window.open('/result/${entry.image_path}', '_blank')"
-                             onerror="console.error('Failed to load image:', this.src); this.style.display='none';"
-                             onload="console.log('Image loaded successfully:', this.src);">
-                    </a>
-                </div>
-            `;
+            imageElement = 
+                '<div class="story-image">' +
+                    '<a href="/result/' + entry.image_path + '" target="_blank" rel="noopener noreferrer">' +
+                        '<img src="/result/' + entry.image_path + '" alt="Image générée pour ' + entry.player + '" ' +
+                             'loading="lazy" onclick="window.open(\'/result/' + entry.image_path + '\', \'_blank\')" ' +
+                             'onerror="console.error(\'Failed to load image:\', this.src); this.style.display=\'none\';" ' +
+                             'onload="console.log(\'Image loaded successfully:\', this.src);">' +
+                    '</a>' +
+                '</div>';
         }
 
-        storyEntry.innerHTML = `
-            <div class="story-content">
-                <div class="story-text">
-                    <p ${textStyle}><strong>${entry.player}</strong>${roleBadge}: ${entry.text}</p>
-                    ${cardInfo ? `<div class="story-meta">Carte: ${cardInfo}</div>` : ''}
-                </div>
-                ${imageElement}
-            </div>
-        `;
+        storyEntry.innerHTML = 
+            '<div class="story-content">' +
+                '<div class="story-text">' +
+                    '<p ' + textStyle + '><strong>' + entry.player + '</strong>' + roleBadge + ': ' + entry.text + '</p>' +
+                    (cardInfo ? '<div class="story-meta">Carte: ' + cardInfo + '</div>' : '') +
+                '</div>' +
+                imageElement +
+            '</div>';
         
         storyContainer.appendChild(storyEntry);
     });
@@ -625,14 +618,14 @@ function updateActivePlayersDisplay(players) {
         return;
     }
     
-    activePlayersDiv.innerHTML = players.map(player => `
-        <div class="player-item">
-            <div>
-                <div class="player-name">${player.name}</div>
-                <div class="player-role">${player.role}</div>
-            </div>
-        </div>
-    `).join('');
+    activePlayersDiv.innerHTML = players.map(function(player) {
+        return '<div class="player-item">' +
+            '<div>' +
+                '<div class="player-name">' + player.name + '</div>' +
+                '<div class="player-role">' + player.role + '</div>' +
+            '</div>' +
+        '</div>';
+    }).join('');
 }
 
 function updateAvailableCardsDisplay(playedCards) {
@@ -640,15 +633,13 @@ function updateAvailableCardsDisplay(playedCards) {
         return;
     }
     
-    availableCardsDiv.innerHTML = gameState.availableCards.map(card => {
-        const isPlayed = playedCards.includes(parseInt(card.numero));
-        return `
-            <div class="card-item ${isPlayed ? 'played' : ''}" 
-                 onclick="${isPlayed ? '' : `selectCard(${card.numero})`}">
-                <div class="card-number">${card.numero}</div>
-                <div class="card-word">${card.mot}</div>
-            </div>
-        `;
+    availableCardsDiv.innerHTML = gameState.availableCards.map(function(card) {
+        var isPlayed = playedCards.includes(parseInt(card.numero));
+        return '<div class="card-item ' + (isPlayed ? 'played' : '') + '" ' +
+                 'onclick="' + (isPlayed ? '' : 'selectCard(' + card.numero + ')') + '">' +
+                '<div class="card-number">' + card.numero + '</div>' +
+                '<div class="card-word">' + card.mot + '</div>' +
+            '</div>';
     }).join('');
 }
 
