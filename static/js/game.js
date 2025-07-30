@@ -169,15 +169,18 @@ function handleCardPlay() {
                 if (xhr.status === 200) {
                     console.log('Card played successfully!');
                     cardNumberInput.value = '';
+                    hideWaitingMessage();
                     showCardSelectionInterface();
                     refreshGameState();
                 } else {
                     console.error('Error playing card:', data);
+                    hideWaitingMessage();
                     alert(data.error || 'Erreur lors du jeu de la carte');
                     showCardSelectionInterface();
                 }
             } catch (error) {
                 console.error('Error parsing play response:', error, xhr.responseText);
+                hideWaitingMessage();
                 alert('Erreur de traitement de la réponse');
                 showCardSelectionInterface();
             }
@@ -186,6 +189,7 @@ function handleCardPlay() {
     
     xhr.onerror = function() {
         console.error('Error playing card - network error');
+        hideWaitingMessage();
         alert('Erreur de connexion au serveur');
         showCardSelectionInterface();
     };
@@ -476,9 +480,14 @@ function selectCard(cardNumber) {
     
     if (confirm(confirmMessage)) {
         console.log('Card confirmed, sending:', cardNumber);
+        
+        // Show waiting message immediately
+        showWaitingMessage(gameState.playerName, cardNumber);
         hideCardSelectionInterface();
+        
         // Use our AJAX function instead of form submit
         handleCardPlay();
+        
         // Reset interface state after successful play
         gameState.interfaceState.currentView = 'range-selection';
         gameState.interfaceState.currentRange = null;
@@ -889,6 +898,36 @@ function initializeStoryDisplay() {
 function showGameEndModal(score) {
     // Game end modal removed as requested by user
     // The game conclusion is already shown in the story display
+}
+
+function showWaitingMessage(playerName, cardNumber) {
+    var waitingDiv = document.getElementById('waiting-status');
+    if (!waitingDiv) {
+        waitingDiv = document.createElement('div');
+        waitingDiv.id = 'waiting-status';
+        waitingDiv.className = 'alert alert-info mt-3';
+        
+        var gameContainer = document.querySelector('.container-fluid');
+        if (gameContainer) {
+            gameContainer.insertBefore(waitingDiv, gameContainer.firstChild);
+        }
+    }
+    
+    waitingDiv.innerHTML = 
+        '<div class="d-flex align-items-center">' +
+            '<div class="spinner-border spinner-border-sm me-2" role="status">' +
+                '<span class="visually-hidden">Loading...</span>' +
+            '</div>' +
+            '<span><strong>' + playerName + '</strong> joue la carte <strong>' + cardNumber + '</strong>... Traitement en cours, veuillez patienter</span>' +
+        '</div>';
+    waitingDiv.style.display = 'block';
+}
+
+function hideWaitingMessage() {
+    var waitingDiv = document.getElementById('waiting-status');
+    if (waitingDiv) {
+        waitingDiv.style.display = 'none';
+    }
 }
 
 // Event listeners
