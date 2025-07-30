@@ -73,6 +73,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Add live update listeners for name and role changes
+    if (playerNameInput) {
+        playerNameInput.addEventListener('input', function(e) {
+            var name = e.target.value.trim();
+            gameState.playerName = name;
+            if (typeof Storage !== 'undefined') {
+                localStorage.setItem('playerName', name);
+            }
+            console.log('Player name updated to:', name);
+        });
+    }
+    
+    if (playerRoleSelect) {
+        playerRoleSelect.addEventListener('change', function(e) {
+            var role = e.target.value;
+            gameState.playerRole = role;
+            if (typeof Storage !== 'undefined') {
+                localStorage.setItem('playerRole', role);
+            }
+            console.log('Player role updated to:', role);
+        });
+    }
+    
     // Initialize story display
     initializeStoryDisplay();
     
