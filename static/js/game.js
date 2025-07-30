@@ -138,6 +138,10 @@ function saveInterfaceState() {
 function handleCardPlay() {
     var cardNumber = cardNumberInput.value.trim();
     
+    console.log('handleCardPlay called with card:', cardNumber);
+    console.log('Player name:', gameState.playerName);
+    console.log('Player role:', gameState.playerRole);
+    
     if (!gameState.playerName || !gameState.playerRole) {
         alert('Veuillez d\'abord renseigner vos informations');
         return;
@@ -148,38 +152,52 @@ function handleCardPlay() {
         return;
     }
     
+    console.log('Sending card play request...');
+    
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/jouer', true);
+    xhr.open('POST', '/envoyer', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
+            console.log('Response received. Status:', xhr.status);
+            console.log('Response text:', xhr.responseText);
+            
             try {
                 var data = JSON.parse(xhr.responseText);
                 
                 if (xhr.status === 200) {
+                    console.log('Card played successfully!');
                     cardNumberInput.value = '';
+                    showCardSelectionInterface();
                     refreshGameState();
                 } else {
+                    console.error('Error playing card:', data);
                     alert(data.error || 'Erreur lors du jeu de la carte');
+                    showCardSelectionInterface();
                 }
             } catch (error) {
-                console.error('Error parsing play response:', error);
+                console.error('Error parsing play response:', error, xhr.responseText);
                 alert('Erreur de traitement de la réponse');
+                showCardSelectionInterface();
             }
         }
     };
     
     xhr.onerror = function() {
-        console.error('Error playing card');
+        console.error('Error playing card - network error');
         alert('Erreur de connexion au serveur');
+        showCardSelectionInterface();
     };
     
-    xhr.send(JSON.stringify({
+    var payload = {
         player_name: gameState.playerName,
         player_role: gameState.playerRole,
-        card_number: cardNumber
-    }));
+        prompt: cardNumber
+    };
+    
+    console.log('Sending payload:', payload);
+    xhr.send(JSON.stringify(payload));
 }
 
 function loadDeckData() {
@@ -459,8 +477,14 @@ function selectCard(cardNumber) {
     }
     
     if (confirm(confirmMessage)) {
+        console.log('Card confirmed, sending:', cardNumber);
         hideCardSelectionInterface();
-        document.getElementById('player-form').submit();
+        // Use our AJAX function instead of form submit
+        handleCardPlay();
+        // Reset interface state after successful play
+        gameState.interfaceState.currentView = 'range-selection';
+        gameState.interfaceState.currentRange = null;
+        saveInterfaceState();
     } else {
         cardNumberInput.value = '';
         showCardSelectionInterface();
