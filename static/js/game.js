@@ -16,15 +16,14 @@ var gameState = {
 
 // Web Speech API configuration
 var speechConfig = {
-    enabled: localStorage.getItem('speechEnabled') === 'true',
-    rate: parseFloat(localStorage.getItem('speechRate')) || 0.9,
+    enabled: localStorage.getItem('speechEnabled') === 'true' || false,
+    rate: parseFloat(localStorage.getItem('speechRate')) || 1.0,
     pitch: parseFloat(localStorage.getItem('speechPitch')) || 1.0,
     volume: parseFloat(localStorage.getItem('speechVolume')) || 0.8,
     voice: localStorage.getItem('speechVoice') || null,
-    autoRead: localStorage.getItem('speechAutoRead') !== 'false' // true by default
+    autoRead: localStorage.getItem('speechAutoRead') === 'true' || false
 };
 
-var speechSynthesis = window.speechSynthesis;
 var currentUtterance = null;
 var availableVoices = [];
 
@@ -463,8 +462,8 @@ function updateStoryDisplay(story) {
         
         storyContainer.appendChild(storyEntry);
         
-        // Auto-read new story entries if enabled (only for new entries)
-        if (speechConfig.enabled && speechConfig.autoRead && i >= previousStoryLength) {
+        // Auto-read new story entries if enabled (only for the last entry)
+        if (speechConfig.enabled && speechConfig.autoRead && i === story.length - 1 && story.length > previousStoryLength) {
             setTimeout(function() {
                 speakText(entry.text);
             }, 1000);
@@ -1065,37 +1064,62 @@ window.addEventListener('beforeunload', function() {
 function initializeSpeechSynthesis() {
     if (!('speechSynthesis' in window)) {
         console.warn('Web Speech API not supported in this browser');
+        // Hide speech controls
+        var speechControls = document.querySelectorAll('.speech-btn, #speech-enable-btn, #speech-autoread-btn, .speech-controls');
+        speechControls.forEach(function(el) {
+            if (el) el.style.display = 'none';
+        });
         return;
     }
     
+    console.log('Initializing Speech Synthesis...');
+    
     // Load available voices
     function loadVoices() {
-        availableVoices = speechSynthesis.getVoices();
-        console.log('Available voices:', availableVoices.length);
+        availableVoices = window.speechSynthesis.getVoices();
+        console.log('Available voices loaded:', availableVoices.length);
         
-        // Find French voices
-        var frenchVoices = availableVoices.filter(voice => 
-            voice.lang.startsWith('fr') || voice.name.toLowerCase().includes('french')
-        );
-        
-        if (frenchVoices.length > 0 && !speechConfig.voice) {
-            speechConfig.voice = frenchVoices[0].name;
-            saveSpeechConfig();
+        if (availableVoices.length > 0) {
+            // Find French voices
+            var frenchVoices = availableVoices.filter(function(voice) {
+                return voice.lang.startsWith('fr') || voice.name.toLowerCase().includes('french');
+            });
+            
+            console.log('French voices found:', frenchVoices.length);
+            
+            if (frenchVoices.length > 0 && !speechConfig.voice) {
+                speechConfig.voice = frenchVoices[0].name;
+                console.log('Selected default French voice:', speechConfig.voice);
+                saveSpeechConfig();
+            }
         }
+        
+        // Update controls after voices are loaded
+        updateSpeechControls();
     }
     
-    // Load voices when they become available
+    // Load voices immediately and on change
     loadVoices();
-    speechSynthesis.onvoiceschanged = loadVoices;
+    window.speechSynthesis.onvoiceschanged = loadVoices;
     
-    // Initialize speech controls
-    setTimeout(updateSpeechControls, 500);
-    
-    console.log('Speech synthesis initialized');
+    // Initialize speech controls after a delay
+    setTimeout(function() {
+        updateSpeechControls();
+        console.log('Speech synthesis initialized');
+    }, 100);
 }
 
 function speakText(text) {
+    console.log('speakText called with enabled:', speechConfig.enabled, 'text length:', text ? text.length : 0);
+    
+    if (!('speechSynthesis' in window)) {
+        console.error('Web Speech API not supported');
+        alert('La synthèse vocale n\'est pas supportée par votre navigateur');
+        return;
+    }
+    
     if (!speechConfig.enabled || !text) {
+        console.log('Speech disabled or no text');
         return;
     }
     
@@ -1103,8 +1127,13 @@ function speakText(text) {
     stopSpeech();
     
     // Clean text for speech
-    var cleanText = text.replace(/<[^>]*>/g, '').trim();
-    if (!cleanText) return;
+    var cleanText = text.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
+    if (!cleanText) {
+        console.log('No clean text to speak');
+        return;
+    }
+    
+    console.log('Speaking text:', cleanText.substring(0, 100) + '...');
     
     try {
         currentUtterance = new SpeechSynthesisUtterance(cleanText);
@@ -1117,60 +1146,87 @@ function speakText(text) {
         
         // Set voice if available
         if (speechConfig.voice && availableVoices.length > 0) {
-            var selectedVoice = availableVoices.find(voice => voice.name === speechConfig.voice);
+            var selectedVoice = availableVoices.find(function(voice) {
+                return voice.name === speechConfig.voice;
+            });
             if (selectedVoice) {
                 currentUtterance.voice = selectedVoice;
+                console.log('Using voice:', selectedVoice.name);
+            }
+        } else if (availableVoices.length > 0) {
+            // Try to find a French voice
+            var frenchVoice = availableVoices.find(function(voice) {
+                return voice.lang.startsWith('fr');
+            });
+            if (frenchVoice) {
+                currentUtterance.voice = frenchVoice;
+                console.log('Using French voice:', frenchVoice.name);
             }
         }
         
         // Event handlers
         currentUtterance.onstart = function() {
-            console.log('Speech started:', cleanText.substring(0, 50) + '...');
+            console.log('✓ Speech started');
             updateSpeechButtons(true);
         };
         
         currentUtterance.onend = function() {
-            console.log('Speech ended');
+            console.log('✓ Speech ended');
             updateSpeechButtons(false);
             currentUtterance = null;
         };
         
         currentUtterance.onerror = function(event) {
-            console.error('Speech error:', event.error);
+            console.error('✗ Speech error:', event.error);
+            alert('Erreur de lecture vocale: ' + event.error);
             updateSpeechButtons(false);
             currentUtterance = null;
         };
         
         // Start speaking
-        speechSynthesis.speak(currentUtterance);
+        window.speechSynthesis.speak(currentUtterance);
+        console.log('✓ Speech command sent');
         
     } catch (error) {
         console.error('Error in speakText:', error);
+        alert('Erreur lors de l\'initialisation de la synthèse vocale: ' + error.message);
     }
 }
 
 function stopSpeech() {
-    if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
+    try {
+        if (window.speechSynthesis && window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+            console.log('Speech stopped');
+        }
+        if (currentUtterance) {
+            currentUtterance = null;
+        }
+        updateSpeechButtons(false);
+    } catch (error) {
+        console.error('Error stopping speech:', error);
     }
-    if (currentUtterance) {
-        currentUtterance = null;
-    }
-    updateSpeechButtons(false);
 }
 
 function toggleSpeech() {
     speechConfig.enabled = !speechConfig.enabled;
+    console.log('Speech toggled:', speechConfig.enabled);
     saveSpeechConfig();
     updateSpeechControls();
     
     if (!speechConfig.enabled) {
         stopSpeech();
+    } else {
+        // Test speech when enabled
+        setTimeout(function() {
+            testSpeech();
+        }, 500);
     }
 }
 
 function toggleAutoRead() {
     speechConfig.autoRead = !speechConfig.autoRead;
+    console.log('Auto-read toggled:', speechConfig.autoRead);
     saveSpeechConfig();
     updateSpeechControls();
 }
@@ -1243,5 +1299,11 @@ function saveSpeechConfig() {
         Object.keys(speechConfig).forEach(function(key) {
             localStorage.setItem('speech' + key.charAt(0).toUpperCase() + key.slice(1), speechConfig[key]);
         });
+        console.log('Speech config saved:', speechConfig);
     }
+}
+
+// Test function for speech synthesis
+function testSpeech() {
+    speakText('Bonjour ! Ceci est un test de la synthèse vocale française.');
 }
