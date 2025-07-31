@@ -946,13 +946,8 @@ function showAlert(message, type) {
 function initializeStoryDisplay() {
     if (!storyContainer) return;
     
-    storyContainer.innerHTML = '<div class="story-entry intro">' +
-        '<div class="story-content">' +
-            '<div class="story-text">' +
-                '<p style="color: white;"><strong>Narrateur</strong><span class="role-badge narrateur">📜 Narrateur</span>: Dans un royaume lointain, une mystérieuse énigme trouble la paix. Les héros doivent unir leurs forces pour résoudre ce mystère et restaurer l\'harmonie.</p>' +
-            '</div>' +
-        '</div>' +
-    '</div>';
+    // Initialize with empty story container
+    storyContainer.innerHTML = '';
 }
 
 function showGameEndModal(score) {
