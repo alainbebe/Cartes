@@ -1,10 +1,10 @@
 {
   "mistral": {
     "enabled": false,
-    "fallback_text": "Test mistral..."
+    "fallback_text": "Une ombre plane sur le champ de bataille."
   },
   "image_generation": {
-    "enabled": false,
+    "enabled": true,
     "fallback_to_original": true
   }
 }
