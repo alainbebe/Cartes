@@ -218,6 +218,26 @@
                     <button class="btn btn-outline-success" onclick="saveGame()">
                         <i class="fas fa-save"></i> Sauvegarder
                     </button>
+                    
+                    <!-- Speech Controls -->
+                    <div class="btn-group ms-2" role="group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="speech-enable-btn" onclick="toggleSpeech()" title="Activer/Désactiver la lecture vocale">
+                            <i class="fas fa-volume-mute"></i> Désactivé
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="speech-autoread-btn" onclick="toggleAutoRead()" title="Lecture automatique des nouveaux textes" style="display: none;">
+                            <i class="fas fa-play"></i> Auto
+                        </button>
+                    </div>
+                    
+                    <!-- Speech Rate Control -->
+                    <div class="speech-controls mt-2" style="display: none;">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <label for="speech-rate-slider" class="form-label me-2 mb-0 small">Vitesse:</label>
+                            <input type="range" class="form-range" id="speech-rate-slider" min="0.5" max="2" step="0.1" value="0.9" 
+                                   oninput="updateSpeechRate(this.value)" style="width: 100px;">
+                            <span class="ms-2 small text-muted" id="speech-rate-value">0.9x</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

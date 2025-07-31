@@ -14,6 +14,20 @@ var gameState = {
     }
 };
 
+// Web Speech API configuration
+var speechConfig = {
+    enabled: localStorage.getItem('speechEnabled') === 'true',
+    rate: parseFloat(localStorage.getItem('speechRate')) || 0.9,
+    pitch: parseFloat(localStorage.getItem('speechPitch')) || 1.0,
+    volume: parseFloat(localStorage.getItem('speechVolume')) || 0.8,
+    voice: localStorage.getItem('speechVoice') || null,
+    autoRead: localStorage.getItem('speechAutoRead') !== 'false' // true by default
+};
+
+var speechSynthesis = window.speechSynthesis;
+var currentUtterance = null;
+var availableVoices = [];
+
 // Configuration
 var CONFIG = {
     REFRESH_INTERVAL: 500
@@ -98,6 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize story display
     initializeStoryDisplay();
+    
+    // Initialize speech synthesis
+    initializeSpeechSynthesis();
     
     // Start refresh cycle
     refreshGameState();
@@ -429,9 +446,15 @@ function updateStoryDisplay(story) {
                 '</div>';
         }
 
+        // Clean text for speech function call (escape quotes)
+        var cleanTextForSpeech = entry.text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        
         storyEntry.innerHTML = 
             '<div class="story-content">' +
                 '<div class="story-text">' +
+                    '<button class="btn btn-sm btn-outline-secondary speech-btn" onclick="speakText(\'' + cleanTextForSpeech + '\')" title="Écouter ce texte">' +
+                        '<i class="fas fa-volume-up"></i>' +
+                    '</button>' +
                     '<p ' + textStyle + '><strong>' + entry.player + '</strong>' + roleBadge + ': ' + entry.text + '</p>' +
                     (cardInfo ? '<div class="story-meta">Carte: ' + cardInfo + '</div>' : '') +
                 '</div>' +
@@ -439,6 +462,13 @@ function updateStoryDisplay(story) {
             '</div>';
         
         storyContainer.appendChild(storyEntry);
+        
+        // Auto-read new story entries if enabled (only for new entries)
+        if (speechConfig.enabled && speechConfig.autoRead && i >= previousStoryLength) {
+            setTimeout(function() {
+                speakText(entry.text);
+            }, 1000);
+        }
     }
     
     storyContainer.scrollTop = storyContainer.scrollHeight;
@@ -1030,3 +1060,188 @@ document.addEventListener('visibilitychange', function() {
 window.addEventListener('beforeunload', function() {
     stopRefreshInterval();
 });
+
+// Web Speech API Functions
+function initializeSpeechSynthesis() {
+    if (!('speechSynthesis' in window)) {
+        console.warn('Web Speech API not supported in this browser');
+        return;
+    }
+    
+    // Load available voices
+    function loadVoices() {
+        availableVoices = speechSynthesis.getVoices();
+        console.log('Available voices:', availableVoices.length);
+        
+        // Find French voices
+        var frenchVoices = availableVoices.filter(voice => 
+            voice.lang.startsWith('fr') || voice.name.toLowerCase().includes('french')
+        );
+        
+        if (frenchVoices.length > 0 && !speechConfig.voice) {
+            speechConfig.voice = frenchVoices[0].name;
+            saveSpeechConfig();
+        }
+    }
+    
+    // Load voices when they become available
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+    
+    // Initialize speech controls
+    setTimeout(updateSpeechControls, 500);
+    
+    console.log('Speech synthesis initialized');
+}
+
+function speakText(text) {
+    if (!speechConfig.enabled || !text) {
+        return;
+    }
+    
+    // Stop any current speech
+    stopSpeech();
+    
+    // Clean text for speech
+    var cleanText = text.replace(/<[^>]*>/g, '').trim();
+    if (!cleanText) return;
+    
+    try {
+        currentUtterance = new SpeechSynthesisUtterance(cleanText);
+        
+        // Configure utterance
+        currentUtterance.rate = speechConfig.rate;
+        currentUtterance.pitch = speechConfig.pitch;
+        currentUtterance.volume = speechConfig.volume;
+        currentUtterance.lang = 'fr-FR';
+        
+        // Set voice if available
+        if (speechConfig.voice && availableVoices.length > 0) {
+            var selectedVoice = availableVoices.find(voice => voice.name === speechConfig.voice);
+            if (selectedVoice) {
+                currentUtterance.voice = selectedVoice;
+            }
+        }
+        
+        // Event handlers
+        currentUtterance.onstart = function() {
+            console.log('Speech started:', cleanText.substring(0, 50) + '...');
+            updateSpeechButtons(true);
+        };
+        
+        currentUtterance.onend = function() {
+            console.log('Speech ended');
+            updateSpeechButtons(false);
+            currentUtterance = null;
+        };
+        
+        currentUtterance.onerror = function(event) {
+            console.error('Speech error:', event.error);
+            updateSpeechButtons(false);
+            currentUtterance = null;
+        };
+        
+        // Start speaking
+        speechSynthesis.speak(currentUtterance);
+        
+    } catch (error) {
+        console.error('Error in speakText:', error);
+    }
+}
+
+function stopSpeech() {
+    if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+    }
+    if (currentUtterance) {
+        currentUtterance = null;
+    }
+    updateSpeechButtons(false);
+}
+
+function toggleSpeech() {
+    speechConfig.enabled = !speechConfig.enabled;
+    saveSpeechConfig();
+    updateSpeechControls();
+    
+    if (!speechConfig.enabled) {
+        stopSpeech();
+    }
+}
+
+function toggleAutoRead() {
+    speechConfig.autoRead = !speechConfig.autoRead;
+    saveSpeechConfig();
+    updateSpeechControls();
+}
+
+function updateSpeechRate(rate) {
+    speechConfig.rate = parseFloat(rate);
+    saveSpeechConfig();
+    
+    // Update display value
+    var valueSpan = document.getElementById('speech-rate-value');
+    if (valueSpan) {
+        valueSpan.textContent = rate + 'x';
+    }
+}
+
+function updateSpeechButtons(speaking) {
+    var speechButtons = document.querySelectorAll('.speech-btn i');
+    speechButtons.forEach(function(icon) {
+        if (speaking) {
+            icon.className = 'fas fa-stop';
+            icon.parentElement.title = 'Arrêter la lecture';
+        } else {
+            icon.className = 'fas fa-volume-up';
+            icon.parentElement.title = 'Écouter ce texte';
+        }
+    });
+}
+
+function updateSpeechControls() {
+    var enableBtn = document.getElementById('speech-enable-btn');
+    var autoReadBtn = document.getElementById('speech-autoread-btn');
+    var rateSlider = document.getElementById('speech-rate-slider');
+    var speechControlsDiv = document.querySelector('.speech-controls');
+    var valueSpan = document.getElementById('speech-rate-value');
+    
+    if (enableBtn) {
+        enableBtn.innerHTML = speechConfig.enabled ? 
+            '<i class="fas fa-volume-up"></i> Activé' : 
+            '<i class="fas fa-volume-mute"></i> Désactivé';
+        enableBtn.className = speechConfig.enabled ? 
+            'btn btn-success btn-sm' : 
+            'btn btn-outline-secondary btn-sm';
+    }
+    
+    if (autoReadBtn) {
+        autoReadBtn.innerHTML = speechConfig.autoRead ? 
+            '<i class="fas fa-play"></i> Auto' : 
+            '<i class="fas fa-pause"></i> Manuel';
+        autoReadBtn.className = speechConfig.autoRead ? 
+            'btn btn-info btn-sm' : 
+            'btn btn-outline-secondary btn-sm';
+        autoReadBtn.style.display = speechConfig.enabled ? 'inline-block' : 'none';
+    }
+    
+    if (speechControlsDiv) {
+        speechControlsDiv.style.display = speechConfig.enabled ? 'block' : 'none';
+    }
+    
+    if (rateSlider) {
+        rateSlider.value = speechConfig.rate;
+    }
+    
+    if (valueSpan) {
+        valueSpan.textContent = speechConfig.rate + 'x';
+    }
+}
+
+function saveSpeechConfig() {
+    if (typeof Storage !== 'undefined') {
+        Object.keys(speechConfig).forEach(function(key) {
+            localStorage.setItem('speech' + key.charAt(0).toUpperCase() + key.slice(1), speechConfig[key]);
+        });
+    }
+}
