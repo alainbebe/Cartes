@@ -57,8 +57,11 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
   - Flexible deployment options
   - Easy feature toggling for testing
   - Graceful fallbacks for all services
-- **Impact**: Complete control over AI features without code modifications
-- **Status**: ✅ Completed - Configuration system fully functional with all features toggleable
+- **Auto-reload System**: Configuration automatically reloads during game reset for real-time changes
+- **Manual Reload API**: Added `/api/config/reload` endpoint for immediate configuration updates
+- **Change Detection**: Smart logging system that detects and reports configuration changes
+- **Impact**: Complete control over AI features with real-time updates and no server restart required
+- **Status**: ✅ Completed - Configuration system with auto-reload functionality fully implemented
 
 ### July 24, 2025 - Complete Replicate Integration for Actual Image Generation  
 - **New Feature**: Integrated Replicate API for automatic image generation from Mistral-generated prompts
