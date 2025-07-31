@@ -647,6 +647,8 @@ function hideCardSelectionInterface() {
 }
 
 function showCardSelectionInterface() {
+    console.log('showCardSelectionInterface called');
+    
     var container = document.getElementById('card-selection-container');
     if (container) container.style.display = 'block';
     
@@ -654,6 +656,13 @@ function showCardSelectionInterface() {
     var waitingDiv = document.getElementById('waiting-status');
     if (waitingDiv) {
         waitingDiv.style.display = 'none';
+    }
+    
+    // Remettre les boutons spéciaux visibles
+    var specialCards = document.querySelector('.special-cards');
+    if (specialCards) {
+        specialCards.style.display = 'block';
+        console.log('Special cards buttons made visible');
     }
     
     // Reset to default view if no stored state
