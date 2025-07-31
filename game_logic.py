@@ -618,16 +618,18 @@ def generate_card_image_with_replicate(prompt: str, player_name: str, card_numbe
                 # Check if original image exists
                 response = requests.head(original_url, timeout=5)
                 if response.status_code == 200:
-                    logger.info(f"Using original image fallback: {original_url}")
+                    logger.info(f"Using original image fallback via proxy: {original_url}")
+                    proxy_url = f"/proxy-image/{clean_card_name}"
                     return {
                         "success": True, 
                         "images": [{
                             "filename": f"original_{clean_card_name}.jpg",
-                            "url": original_url,
+                            "url": proxy_url,
+                            "original_url": original_url,
                             "is_original": True
                         }],
                         "fallback": True,
-                        "message": "Image generation disabled, using original image"
+                        "message": "Image generation disabled, using original image via proxy"
                     }
             except Exception as e:
                 logger.warning(f"Could not get original image: {e}")
@@ -662,12 +664,14 @@ def generate_card_image_with_replicate(prompt: str, player_name: str, card_numbe
                     
                     response = requests.head(original_url, timeout=5)
                     if response.status_code == 200:
-                        logger.info(f"API failed, using original image fallback: {original_url}")
+                        logger.info(f"API failed, using original image fallback via proxy: {original_url}")
+                        proxy_url = f"/proxy-image/{clean_card_name}"
                         return {
                             "success": True,
                             "images": [{
                                 "filename": f"original_{clean_card_name}.jpg",
-                                "url": original_url,
+                                "url": proxy_url,
+                                "original_url": original_url,
                                 "is_original": True
                             }],
                             "fallback": True,
@@ -692,12 +696,14 @@ def generate_card_image_with_replicate(prompt: str, player_name: str, card_numbe
                 
                 response = requests.head(original_url, timeout=5)
                 if response.status_code == 200:
-                    logger.info(f"Module unavailable, using original image fallback: {original_url}")
+                    logger.info(f"Module unavailable, using original image fallback via proxy: {original_url}")
+                    proxy_url = f"/proxy-image/{clean_card_name}"
                     return {
                         "success": True,
                         "images": [{
                             "filename": f"original_{clean_card_name}.jpg",
-                            "url": original_url,
+                            "url": proxy_url,
+                            "original_url": original_url,
                             "is_original": True
                         }],
                         "fallback": True,
