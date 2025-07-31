@@ -606,15 +606,14 @@ def generate_card_image_with_replicate(prompt: str, player_name: str, card_numbe
         logger.info("Image generation disabled in configuration")
         
         # If fallback_to_original is enabled, try to get the original card image
-        if GAME_CONFIG.get("image_generation", {}).get("fallback_to_original", False):
+        if GAME_CONFIG.get("image_generation", {}).get("fallback_to_original", False) and card_name:
             try:
                 import requests
                 from unidecode import unidecode
                 
                 # Get card name for original image URL
-                original_card_name = card_name.lower() if card_name else f"card{card_number}"
-                original_card_name = unidecode(original_card_name).replace(' ', '').replace("'", "")
-                original_url = f"http://www.barbason.be/public/{original_card_name}.jpg"
+                clean_card_name = unidecode(card_name.lower().replace(' ', '').replace("'", ""))
+                original_url = f"http://www.barbason.be/public/{clean_card_name}.jpg"
                 
                 # Check if original image exists
                 response = requests.head(original_url, timeout=5)
@@ -622,8 +621,12 @@ def generate_card_image_with_replicate(prompt: str, player_name: str, card_numbe
                     logger.info(f"Using original image fallback: {original_url}")
                     return {
                         "success": True, 
-                        "images": [original_url],
-                        "fallback_mode": True,
+                        "images": [{
+                            "filename": f"original_{clean_card_name}.jpg",
+                            "url": original_url,
+                            "is_original": True
+                        }],
+                        "fallback": True,
                         "message": "Image generation disabled, using original image"
                     }
             except Exception as e:
@@ -644,13 +647,65 @@ def generate_card_image_with_replicate(prompt: str, player_name: str, card_numbe
         
         if result.get("success"):
             logger.info(f"Image generation successful: {len(result.get('images', []))} images created")
+            return result
         else:
             logger.error(f"Image generation failed: {result.get('error')}")
             
-        return result
+            # Fallback to original image if enabled and API fails
+            if GAME_CONFIG.get("image_generation", {}).get("fallback_to_original", False) and card_name:
+                try:
+                    import requests
+                    from unidecode import unidecode
+                    
+                    clean_card_name = unidecode(card_name.lower().replace(' ', '').replace("'", ""))
+                    original_url = f"http://www.barbason.be/public/{clean_card_name}.jpg"
+                    
+                    response = requests.head(original_url, timeout=5)
+                    if response.status_code == 200:
+                        logger.info(f"API failed, using original image fallback: {original_url}")
+                        return {
+                            "success": True,
+                            "images": [{
+                                "filename": f"original_{clean_card_name}.jpg",
+                                "url": original_url,
+                                "is_original": True
+                            }],
+                            "fallback": True,
+                            "api_error": result.get('error')
+                        }
+                except Exception as fallback_e:
+                    logger.warning(f"Original image fallback also failed: {fallback_e}")
+            
+            return result
         
     except ImportError as e:
         logger.error(f"Image generator module not available: {e}")
+        
+        # Fallback to original image if enabled
+        if GAME_CONFIG.get("image_generation", {}).get("fallback_to_original", False) and card_name:
+            try:
+                import requests
+                from unidecode import unidecode
+                
+                clean_card_name = unidecode(card_name.lower().replace(' ', '').replace("'", ""))
+                original_url = f"http://www.barbason.be/public/{clean_card_name}.jpg"
+                
+                response = requests.head(original_url, timeout=5)
+                if response.status_code == 200:
+                    logger.info(f"Module unavailable, using original image fallback: {original_url}")
+                    return {
+                        "success": True,
+                        "images": [{
+                            "filename": f"original_{clean_card_name}.jpg",
+                            "url": original_url,
+                            "is_original": True
+                        }],
+                        "fallback": True,
+                        "module_error": str(e)
+                    }
+            except Exception as fallback_e:
+                logger.warning(f"Original image fallback failed: {fallback_e}")
+        
         return {"success": False, "error": "Image generator module not available"}
     except Exception as e:
         logger.error(f"Error in generate_card_image_with_replicate: {e}")

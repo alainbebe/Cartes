@@ -266,12 +266,20 @@ def envoyer():
         if image_result and 'success' in image_result and image_result['success']:
             images = image_result.get('images', [])
             if images:
-                # Extract just the filename from the full path
-                full_filename = images[0].get('filename', '')
-                if full_filename.startswith('result/'):
-                    story_entry['image_path'] = full_filename[7:]  # Remove 'result/' prefix
+                image_info = images[0]
+                
+                # Handle original images (fallback to barbason.be)
+                if image_info.get('is_original', False):
+                    story_entry['image_path'] = image_info.get('url', '')
+                    story_entry['is_original_image'] = True
                 else:
-                    story_entry['image_path'] = full_filename
+                    # Handle generated images from Replicate
+                    full_filename = image_info.get('filename', '')
+                    if full_filename.startswith('result/'):
+                        story_entry['image_path'] = full_filename[7:]  # Remove 'result/' prefix
+                    else:
+                        story_entry['image_path'] = full_filename
+                    story_entry['is_original_image'] = False
 
         game_state.story.append(story_entry)
 
