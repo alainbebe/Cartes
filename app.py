@@ -200,7 +200,11 @@ def envoyer():
         # Initialize image_result
         image_result = None
         
-        # Generate image prompt using Mistral AI and log it, then generate actual image
+        # TEMPORARILY DISABLED: Generate image prompt using Mistral AI and log it, then generate actual image
+        # Disabled due to Replicate API causing server crashes
+        logger.info(f"Image generation temporarily disabled for card {card_number}")
+        
+        # Generate image prompt using Mistral AI and log it (keep prompt generation working)
         try:
             story_history = game_state.get_story_history()
             image_prompt = generate_image_prompt(story_history, story_text)
@@ -215,23 +219,23 @@ def envoyer():
             logger.info(
                 f"Image prompt generated and logged for card {card_number}")
 
-            # Generate actual image using Replicate API
-            try:
-                card_name = card.get('mot', '') if card else ''
-                image_result = generate_card_image_with_replicate(
-                    image_prompt, player_name, card_number, card_name)
-                if image_result.get("success"):
-                    logger.info(
-                        f"Actual image generated successfully for card {card_number}"
-                    )
-                else:
-                    logger.warning(
-                        f"Image generation failed for card {card_number}: {image_result.get('error')}"
-                    )
-            except Exception as img_error:
-                logger.error(
-                    f"Error generating actual image for card {card_number}: {img_error}"
-                )
+            # DISABLED: Generate actual image using Replicate API
+            # try:
+            #     card_name = card.get('mot', '') if card else ''
+            #     image_result = generate_card_image_with_replicate(
+            #         image_prompt, player_name, card_number, card_name)
+            #     if image_result.get("success"):
+            #         logger.info(
+            #             f"Actual image generated successfully for card {card_number}"
+            #         )
+            #     else:
+            #         logger.warning(
+            #             f"Image generation failed for card {card_number}: {image_result.get('error')}"
+            #         )
+            # except Exception as img_error:
+            #     logger.error(
+            #         f"Error generating actual image for card {card_number}: {img_error}"
+            #     )
 
         except Exception as e:
             logger.error(f"Error generating image prompt: {e}")
