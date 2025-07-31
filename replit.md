@@ -40,6 +40,26 @@ Created comprehensive game rules document (`RÈGLES_DU_JEU.md`) covering:
 - **Impact**: Players can now use generated prompts with external AI image generators to create visual representations of their card effects
 - **Status**: ✅ Completed - Automatic image prompt generation working for all normal cards (1-55)
 
+### July 31, 2025 - Configuration System Implementation
+- **New Feature**: Added comprehensive configuration system via `config.json`
+- **Flexible Control**: Toggle Mistral AI and image generation independently
+- **Changes**:
+  - **Configuration File**: Created `config.json` with toggleable settings for all major features
+  - **Mistral Control**: Added `mistral.enabled` and `mistral.fallback_text` parameters
+  - **Image Generation Control**: Added `image_generation.enabled` and `image_generation.fallback_to_original` parameters
+  - **Fallback System**: When disabled, Mistral uses custom fallback text instead of API calls
+  - **Original Image Support**: When image generation is disabled, can fallback to original card images from barbason.be
+  - **API Integration**: Added `/api/config` endpoint to expose current configuration
+  - **Documentation**: Created `CONFIG_README.md` with comprehensive usage examples
+- **Architecture**: Centralized configuration loading in `game_logic.py` with `GAME_CONFIG` constant
+- **Benefits**: 
+  - Development mode without API costs
+  - Flexible deployment options
+  - Easy feature toggling for testing
+  - Graceful fallbacks for all services
+- **Impact**: Complete control over AI features without code modifications
+- **Status**: ✅ Completed - Configuration system fully functional with all features toggleable
+
 ### July 24, 2025 - Complete Replicate Integration for Actual Image Generation  
 - **New Feature**: Integrated Replicate API for automatic image generation from Mistral-generated prompts
 - **Integration**: Complete end-to-end image generation pipeline
