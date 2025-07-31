@@ -407,10 +407,19 @@ body::before {
 .story-image img {
     width: 100%;
     height: auto;
+    min-height: 80px; /* Ensure minimum height even if image fails to load */
+    max-height: 150px;
+    object-fit: cover;
     border-radius: 8px;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 2px solid var(--border-color);
+    background-color: var(--background-color);
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>'); 
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 40px 40px;
+    opacity: 1;
 }
 
 .story-image img:hover {
