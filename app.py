@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS, ROLES
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS, ROLES, GAME_CONFIG
 
 # Load environment variables
 load_dotenv()
@@ -355,11 +355,11 @@ def refresh():
                 "Jeu réinitialisé automatiquement après inactivité")
         else:
             # Log debug info about auto-reset conditions
-            from game_logic import CONFIG
+            from game_logic import TIMING_CONFIG
             inactive_time = datetime.now() - game_state.last_card_played
             #logger.debug(f"Auto-reset check: story_count={len(game_state.story)}, "
             #           f"cards_inactive_time={inactive_time.total_seconds():.1f}s/"
-            #           f"{CONFIG['AUTO_RESET_TIMEOUT']}s")
+            #           f"{TIMING_CONFIG['AUTO_RESET_TIMEOUT']}s")
 
         return jsonify({
             'story':
@@ -479,6 +479,15 @@ def api_roles():
     except Exception as e:
         logger.error(f"Erreur lors du chargement des rôles: {e}")
         return jsonify({"error": "Impossible de charger les données des rôles"}), 500
+
+@app.route('/api/config')
+def api_config():
+    """API endpoint pour récupérer la configuration du jeu"""
+    try:
+        return jsonify(GAME_CONFIG)
+    except Exception as e:
+        logger.error(f"Erreur lors du chargement de la configuration: {e}")
+        return jsonify({"error": "Impossible de charger la configuration"}), 500
 
 @app.route('/debug/env')
 def debug_env():
