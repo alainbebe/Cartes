@@ -1,0 +1,10 @@
+{
+  "mistral": {
+    "enabled": true,
+    "fallback_text": "L'aventure continue avec des \u00e9v\u00e9nements myst\u00e9rieux..."
+  },
+  "image_generation": {
+    "enabled": true,
+    "fallback_to_original": false
+  }
+}
