@@ -623,13 +623,26 @@ function backToSpecialCards() {
 }
 
 function hideCardSelectionInterface() {
-    var container = document.getElementById('card-selection-container');
-    if (container) container.style.display = 'none';
+    console.log('hideCardSelectionInterface called');
     
-    // Masquer aussi le message d'attente s'il existe
-    var waitingDiv = document.getElementById('waiting-status');
-    if (waitingDiv) {
-        waitingDiv.style.display = 'none';
+    // Ne pas masquer le container, juste masquer les éléments de sélection
+    var rangeSelection = document.getElementById('range-selection');
+    var numberSelection = document.getElementById('number-selection');
+    var specialCardsSelection = document.getElementById('special-cards-selection');
+    var suppressionTargetSelection = document.getElementById('suppression-target-selection');
+    var specialCards = document.querySelector('.special-cards');
+    
+    if (rangeSelection) rangeSelection.style.display = 'none';
+    if (numberSelection) numberSelection.style.display = 'none';
+    if (specialCardsSelection) specialCardsSelection.style.display = 'none';
+    if (suppressionTargetSelection) suppressionTargetSelection.style.display = 'none';
+    if (specialCards) specialCards.style.display = 'none';
+    
+    // Le container reste visible pour afficher le message d'attente
+    var container = document.getElementById('card-selection-container');
+    if (container) {
+        container.style.display = 'block';
+        console.log('Card selection container kept visible for waiting message');
     }
 }
 
@@ -943,16 +956,23 @@ function showGameEndModal(score) {
 }
 
 function showWaitingMessage(playerName, cardNumber) {
+    console.log('showWaitingMessage called with:', playerName, cardNumber);
+    
     var waitingDiv = document.getElementById('waiting-status');
     if (!waitingDiv) {
         waitingDiv = document.createElement('div');
         waitingDiv.id = 'waiting-status';
         waitingDiv.className = 'alert alert-info';
+        waitingDiv.style.margin = '20px 0';
         
         // Insert dans le container de sélection de cartes
         var cardSelectionContainer = document.getElementById('card-selection-container');
         if (cardSelectionContainer) {
             cardSelectionContainer.appendChild(waitingDiv);
+            console.log('Waiting message added to card selection container');
+        } else {
+            console.error('Card selection container not found!');
+            return;
         }
     }
     
@@ -964,7 +984,12 @@ function showWaitingMessage(playerName, cardNumber) {
             '<span><strong>' + playerName + '</strong> joue la carte <strong>' + cardNumber + '</strong>...</span>' +
         '</div>' +
         '<div class="text-center small mt-2">Traitement en cours, veuillez patienter</div>';
+    
     waitingDiv.style.display = 'block';
+    waitingDiv.style.visibility = 'visible';
+    waitingDiv.style.opacity = '1';
+    
+    console.log('Waiting message should now be visible');
 }
 
 function hideWaitingMessage() {
