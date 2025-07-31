@@ -412,17 +412,18 @@ function updateStoryDisplay(story) {
                 console.log('Using generated image URL:', imageUrl);
             }
             
-            var onErrorHandler = 'console.error(\'Failed to load image:\', this.src); this.style.opacity=\'0.5\'; this.title=\'Image non disponible - cliquez pour essayer d\\\'ouvrir dans un nouvel onglet\';';
-            var onLoadHandler = 'console.log(\'Image loaded successfully:\', this.src); this.style.opacity=\'1\';';
+            var imgStyle = 'display: block; width: 100%; height: 120px; object-fit: cover;';
+            var onErrorHandler = 'console.error(\'Failed to load image:\', this.src); this.style.backgroundColor=\'var(--secondary-color)\'; this.style.border=\'2px dashed var(--border-color)\'; this.title=\'Image non disponible - cliquez pour ouvrir dans un nouvel onglet\';';
+            var onLoadHandler = 'console.log(\'Image loaded successfully:\', this.src);';
             
             imageElement = 
                 '<div class="story-image">' +
                     '<a href="' + linkUrl + '" target="_blank" rel="noopener noreferrer" title="Cliquer pour agrandir">' +
                         '<img src="' + imageUrl + '" alt="Image pour ' + entry.player + '" ' +
+                             'style="' + imgStyle + '" ' +
                              'loading="lazy" ' +
                              'onerror="' + onErrorHandler + '" ' +
                              'onload="' + onLoadHandler + '" ' +
-                             'style="opacity: 0.8;" ' +
                              'onclick="window.open(\'' + linkUrl + '\', \'_blank\')">' +
                     '</a>' +
                 '</div>';
