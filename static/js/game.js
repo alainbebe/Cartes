@@ -625,11 +625,23 @@ function backToSpecialCards() {
 function hideCardSelectionInterface() {
     var container = document.getElementById('card-selection-container');
     if (container) container.style.display = 'none';
+    
+    // Masquer aussi le message d'attente s'il existe
+    var waitingDiv = document.getElementById('waiting-status');
+    if (waitingDiv) {
+        waitingDiv.style.display = 'none';
+    }
 }
 
 function showCardSelectionInterface() {
     var container = document.getElementById('card-selection-container');
     if (container) container.style.display = 'block';
+    
+    // Masquer le message d'attente quand on remet l'interface
+    var waitingDiv = document.getElementById('waiting-status');
+    if (waitingDiv) {
+        waitingDiv.style.display = 'none';
+    }
     
     // Reset to default view if no stored state
     if (!gameState.interfaceState.currentView || gameState.interfaceState.currentView === 'range-selection') {
@@ -935,21 +947,23 @@ function showWaitingMessage(playerName, cardNumber) {
     if (!waitingDiv) {
         waitingDiv = document.createElement('div');
         waitingDiv.id = 'waiting-status';
-        waitingDiv.className = 'alert alert-info mt-3';
+        waitingDiv.className = 'alert alert-info';
         
-        var gameContainer = document.querySelector('.container-fluid');
-        if (gameContainer) {
-            gameContainer.insertBefore(waitingDiv, gameContainer.firstChild);
+        // Insert dans le container de sélection de cartes
+        var cardSelectionContainer = document.getElementById('card-selection-container');
+        if (cardSelectionContainer) {
+            cardSelectionContainer.appendChild(waitingDiv);
         }
     }
     
     waitingDiv.innerHTML = 
-        '<div class="d-flex align-items-center">' +
+        '<div class="d-flex align-items-center justify-content-center">' +
             '<div class="spinner-border spinner-border-sm me-2" role="status">' +
                 '<span class="visually-hidden">Loading...</span>' +
             '</div>' +
-            '<span><strong>' + playerName + '</strong> joue la carte <strong>' + cardNumber + '</strong>... Traitement en cours, veuillez patienter</span>' +
-        '</div>';
+            '<span><strong>' + playerName + '</strong> joue la carte <strong>' + cardNumber + '</strong>...</span>' +
+        '</div>' +
+        '<div class="text-center small mt-2">Traitement en cours, veuillez patienter</div>';
     waitingDiv.style.display = 'block';
 }
 
