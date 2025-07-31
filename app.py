@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS, ROLES, GAME_CONFIG
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS, ROLES, GAME_CONFIG, reload_config
 
 # Load environment variables
 load_dotenv()
@@ -488,6 +488,20 @@ def api_config():
     except Exception as e:
         logger.error(f"Erreur lors du chargement de la configuration: {e}")
         return jsonify({"error": "Impossible de charger la configuration"}), 500
+
+@app.route('/api/config/reload', methods=['POST'])
+def api_config_reload():
+    """API endpoint pour recharger la configuration manuellement"""
+    try:
+        new_config = reload_config()
+        return jsonify({
+            "success": True,
+            "message": "Configuration rechargée avec succès",
+            "config": new_config
+        })
+    except Exception as e:
+        logger.error(f"Erreur lors du rechargement de la configuration: {e}")
+        return jsonify({"error": "Impossible de recharger la configuration"}), 500
 
 @app.route('/debug/env')
 def debug_env():

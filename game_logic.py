@@ -87,6 +87,36 @@ EVALUATIONS = load_evaluations()
 ROLES = load_roles()
 GAME_CONFIG = load_config()
 
+
+def reload_config():
+    """Reload configuration from config.json file"""
+    global GAME_CONFIG
+    old_config = GAME_CONFIG.copy()
+    GAME_CONFIG = load_config()
+    
+    # Log configuration changes
+    if old_config != GAME_CONFIG:
+        logger.info("Configuration reloaded with changes:")
+        
+        # Check Mistral changes
+        old_mistral = old_config.get("mistral", {})
+        new_mistral = GAME_CONFIG.get("mistral", {})
+        if old_mistral != new_mistral:
+            logger.info(f"  Mistral: enabled={new_mistral.get('enabled')} (was {old_mistral.get('enabled')})")
+            if old_mistral.get('fallback_text') != new_mistral.get('fallback_text'):
+                logger.info(f"  Mistral fallback text updated")
+        
+        # Check image generation changes
+        old_img = old_config.get("image_generation", {})
+        new_img = GAME_CONFIG.get("image_generation", {})
+        if old_img != new_img:
+            logger.info(f"  Image generation: enabled={new_img.get('enabled')} (was {old_img.get('enabled')})")
+            logger.info(f"  Fallback to original: {new_img.get('fallback_to_original')} (was {old_img.get('fallback_to_original')})")
+    else:
+        logger.info("Configuration reloaded (no changes detected)")
+    
+    return GAME_CONFIG
+
 # Configuration des délais
 TIMING_CONFIG = {
     'REFRESH_INTERVAL': 0.5,  # 0.5 seconde pour les rafraîchissements
@@ -419,7 +449,10 @@ class GameState:
         return should_reset
 
     def reset_game(self):
-        """Reset the game to initial state"""
+        """Reset the game to initial state and reload configuration"""
+        # Reload configuration from config.json
+        reload_config()
+        
         # Preserve active players and reinitialize everything else
         self._initialize_state()
         # Set score based on active players after reset
