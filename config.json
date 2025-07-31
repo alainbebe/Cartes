@@ -1,6 +1,6 @@
 {
   "mistral": {
-    "enabled": true,
+    "enabled": false,
     "fallback_text": "Test mistral..."
   },
   "image_generation": {

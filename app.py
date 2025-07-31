@@ -597,5 +597,50 @@ def serve_result_file(filename):
         return jsonify({'error': 'Erreur lors du chargement de l\'image'}), 500
 
 
+@app.route('/proxy-image/<card_name>')
+def proxy_original_image(card_name):
+    """Proxy images from barbason.be to avoid CORS issues"""
+    try:
+        import requests
+        from unidecode import unidecode
+        
+        # Clean the card name for URL
+        clean_name = unidecode(card_name.lower().replace(' ', '').replace("'", ""))
+        original_url = f"http://www.barbason.be/public/{clean_name}.jpg"
+        
+        logger.info(f"Proxying image from: {original_url}")
+        
+        # Fetch the image from barbason.be
+        response = requests.get(original_url, timeout=10, stream=True)
+        response.raise_for_status()
+        
+        # Create a Flask response with the image data
+        from flask import Response
+        def generate():
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    yield chunk
+        
+        flask_response = Response(
+            generate(),
+            content_type=response.headers.get('content-type', 'image/jpeg'),
+            headers={
+                'Access-Control-Allow-Origin': '*',
+                'Cross-Origin-Resource-Policy': 'cross-origin',
+                'Cache-Control': 'public, max-age=3600',
+                'X-Content-Type-Options': 'nosniff'
+            }
+        )
+        
+        return flask_response
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error proxying image {card_name}: {e}")
+        abort(404)
+    except Exception as e:
+        logger.error(f"Unexpected error proxying image {card_name}: {e}")
+        abort(500)
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
