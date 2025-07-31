@@ -75,8 +75,36 @@ L'endpoint `/api/config` permet de consulter la configuration actuelle :
 curl http://localhost:5000/api/config
 ```
 
+## Rechargement de Configuration
+
+### Automatique lors de la Réinitialisation
+La configuration est automatiquement rechargée à chaque réinitialisation du jeu (bouton "Réinitialiser").
+
+### Rechargement Manuel via API
+```bash
+curl -X POST http://localhost:5000/api/config/reload
+```
+
+### Logs de Changement
+Les modifications de configuration sont automatiquement détectées et loggées :
+```
+INFO:game_logic:Configuration reloaded with changes:
+INFO:game_logic:  Mistral: enabled=True (was False)
+INFO:game_logic:  Mistral fallback text updated
+INFO:game_logic:  Image generation: enabled=True (was False)
+```
+
+## Workflow de Test Rapide
+
+1. **Modifier config.json** (désactiver APIs pour tests)
+2. **Réinitialiser le jeu** (recharge automatiquement)
+3. **Tester les fonctionnalités** (sans coûts d'API)
+4. **Réactiver en production** (modifier config.json + réinitialiser)
+
 ## Notes
 
-- Les modifications de `config.json` nécessitent un redémarrage du serveur
+- **Rechargement automatique** : Configuration rechargée à chaque réinitialisation du jeu
+- **Détection des changements** : Système de logs pour identifier les modifications
+- **Pas de redémarrage requis** : Les changements s'appliquent en temps réel
 - Si le fichier n'existe pas, une configuration par défaut est utilisée
 - Les clés API (MISTRAL_API_KEY, REPLICATE_API_TOKEN) restent dans les variables d'environnement
