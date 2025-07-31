@@ -398,13 +398,25 @@ function updateStoryDisplay(story) {
         var imageElement = '';
         if (entry.image_path) {
             console.log('Image path found:', entry.image_path);
-            console.log('Full image URL:', '/result/' + entry.image_path);
+            
+            var imageUrl, linkUrl;
+            if (entry.is_original_image) {
+                // Original image from barbason.be
+                imageUrl = entry.image_path;
+                linkUrl = entry.image_path;
+                console.log('Using original image URL:', imageUrl);
+            } else {
+                // Generated image from result directory
+                imageUrl = '/result/' + entry.image_path;
+                linkUrl = '/result/' + entry.image_path;
+                console.log('Using generated image URL:', imageUrl);
+            }
             
             imageElement = 
                 '<div class="story-image">' +
-                    '<a href="/result/' + entry.image_path + '" target="_blank" rel="noopener noreferrer">' +
-                        '<img src="/result/' + entry.image_path + '" alt="Image générée pour ' + entry.player + '" ' +
-                             'loading="lazy" onclick="window.open(\'/result/' + entry.image_path + '\', \'_blank\')" ' +
+                    '<a href="' + linkUrl + '" target="_blank" rel="noopener noreferrer">' +
+                        '<img src="' + imageUrl + '" alt="Image pour ' + entry.player + '" ' +
+                             'loading="lazy" onclick="window.open(\'' + linkUrl + '\', \'_blank\')" ' +
                              'onerror="console.error(\'Failed to load image:\', this.src); this.style.display=\'none\';" ' +
                              'onload="console.log(\'Image loaded successfully:\', this.src);">' +
                     '</a>' +
