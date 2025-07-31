@@ -194,7 +194,7 @@ function handleCardPlay() {
                     cardNumberInput.value = '';
                     hideWaitingMessage();
                     showCardSelectionInterface();
-                    refreshGameState();
+                    // refreshGameState(); // Remove this to prevent loop
                 } else {
                     console.error('Error playing card:', data);
                     hideWaitingMessage();
@@ -364,8 +364,10 @@ function updateGameDisplay(data) {
     updateProcessingState(data.processing_player, data.processing_card);
     updateButtonForScore(data.score, data.game_ended);
     
-    // Restore interface state after refresh
-    restoreInterfaceState();
+    // Only restore interface state if not processing
+    if (!data.processing_player) {
+        restoreInterfaceState();
+    }
     
     // No modal needed when game ends - conclusion is shown in story display
 }
@@ -623,8 +625,6 @@ function backToSpecialCards() {
 }
 
 function hideCardSelectionInterface() {
-    console.log('hideCardSelectionInterface called');
-    
     // Ne pas masquer le container, juste masquer les éléments de sélection
     var rangeSelection = document.getElementById('range-selection');
     var numberSelection = document.getElementById('number-selection');
@@ -642,13 +642,10 @@ function hideCardSelectionInterface() {
     var container = document.getElementById('card-selection-container');
     if (container) {
         container.style.display = 'block';
-        console.log('Card selection container kept visible for waiting message');
     }
 }
 
 function showCardSelectionInterface() {
-    console.log('showCardSelectionInterface called');
-    
     var container = document.getElementById('card-selection-container');
     if (container) container.style.display = 'block';
     
@@ -662,7 +659,6 @@ function showCardSelectionInterface() {
     var specialCards = document.querySelector('.special-cards');
     if (specialCards) {
         specialCards.style.display = 'block';
-        console.log('Special cards buttons made visible');
     }
     
     // Reset to default view if no stored state
