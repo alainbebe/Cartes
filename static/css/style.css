@@ -18,6 +18,11 @@ body {
     font-family: 'Times New Roman', serif;
     min-height: 100vh;
     position: relative;
+    /* Mobile Firefox compatibility fixes */
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overflow-x: hidden;
 }
 
 body::before {
@@ -72,6 +77,132 @@ body::before {
 
 .score-display i {
     margin-right: 8px;
+}
+
+/* Mobile-specific improvements for Firefox Android */
+@media screen and (max-width: 768px) {
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .game-header {
+        padding: 15px 10px;
+        margin-bottom: 15px;
+    }
+    
+    .game-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .game-status-bar {
+        padding: 10px;
+    }
+    
+    .score-display {
+        font-size: 0.9rem;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    /* Story display improvements for mobile */
+    .story-entry {
+        margin-bottom: 15px;
+        padding: 10px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        -moz-hyphens: auto;
+    }
+    
+    .story-text {
+        font-size: 14px;
+        line-height: 1.5;
+        text-align: justify;
+        /* Force text rendering for Firefox Android */
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Card selection improvements */
+    .card-option {
+        margin-bottom: 8px;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    /* Button improvements for touch */
+    .btn {
+        min-height: 44px; /* Touch target size */
+        padding: 8px 16px;
+    }
+    
+    /* Speech controls mobile layout */
+    .speech-controls {
+        margin-top: 15px;
+    }
+    
+    .speech-controls .d-flex {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .speech-controls label {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    
+    .form-range {
+        min-width: 80px;
+    }
+}
+
+/* Firefox-specific fixes */
+@-moz-document url-prefix() {
+    .story-text {
+        /* Force Firefox to render text properly */
+        display: block;
+        width: 100%;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+    
+    .story-entry {
+        /* Ensure story entries are visible in Firefox */
+        opacity: 1;
+        visibility: visible;
+        display: block !important;
+    }
+    
+    /* Fix potential flexbox issues in Firefox */
+    .row {
+        display: -moz-box;
+        display: -webkit-flex;
+        display: flex;
+    }
+}
+
+/* Additional mobile story display fixes */
+.story-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+@media screen and (max-width: 480px) {
+    .story-container {
+        max-height: 60vh;
+    }
+    
+    .game-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .game-header .lead {
+        font-size: 0.9rem;
+    }
 }
 
 /* Remove number input arrows */
