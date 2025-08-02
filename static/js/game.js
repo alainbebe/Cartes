@@ -1402,6 +1402,23 @@ function applyFirefoxAndroidFixes() {
             margin-bottom: 8px !important;
             color: var(--accent-color) !important;
         }
+        .firefox-android .story-image {
+            width: 200px !important;
+            height: 280px !important;
+            overflow: hidden !important;
+            border-radius: 8px !important;
+            border: 2px solid var(--border-color) !important;
+            background-color: var(--secondary-color) !important;
+            display: block !important;
+        }
+        .firefox-android .story-image img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            object-position: center !important;
+            display: block !important;
+            aspect-ratio: 5/7 !important;
+        }
     `;
     document.head.appendChild(style);
     
@@ -1436,6 +1453,20 @@ if (navigator.userAgent.toLowerCase().includes('firefox') &&
         setTimeout(applyFirefoxAndroidFixes, 50);
         return result;
     };
+    
+    // Additional periodic fix application for Firefox Android
+    setInterval(function() {
+        var images = document.querySelectorAll('.story-image img');
+        images.forEach(function(img) {
+            if (img.style.width !== '100%' || img.style.height !== '100%') {
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                img.style.display = 'block';
+                console.log('Re-applied Firefox Android image fixes');
+            }
+        });
+    }, 2000);
 }
 
 function saveSpeechConfig() {
