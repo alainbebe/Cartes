@@ -14,17 +14,16 @@ var gameState = {
     }
 };
 
-// Web Speech API configuration
+// Google Cloud Text-to-Speech configuration
 var speechConfig = {
     enabled: localStorage.getItem('speechEnabled') === 'true' || false,
     rate: parseFloat(localStorage.getItem('speechRate')) || 1.0,
-    pitch: parseFloat(localStorage.getItem('speechPitch')) || 1.0,
-    volume: parseFloat(localStorage.getItem('speechVolume')) || 0.8,
-    voice: localStorage.getItem('speechVoice') || null,
+    pitch: parseFloat(localStorage.getItem('speechPitch')) || 0.0,
+    voice_type: localStorage.getItem('speechVoiceType') || 'female',
     autoRead: localStorage.getItem('speechAutoRead') === 'true' || false
 };
 
-var currentUtterance = null;
+var currentAudio = null;
 var availableVoices = [];
 
 // Configuration
@@ -1062,61 +1061,52 @@ window.addEventListener('beforeunload', function() {
 
 // Web Speech API Functions
 function initializeSpeechSynthesis() {
-    if (!('speechSynthesis' in window)) {
-        console.warn('Web Speech API not supported in this browser');
-        // Hide speech controls
-        var speechControls = document.querySelectorAll('.speech-btn, #speech-enable-btn, #speech-autoread-btn, .speech-controls');
-        speechControls.forEach(function(el) {
-            if (el) el.style.display = 'none';
-        });
-        return;
-    }
+    console.log('Initializing Google Cloud Text-to-Speech...');
     
-    console.log('Initializing Speech Synthesis...');
+    // Load available voices from server
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/speech_voices', true);
     
-    // Load available voices
-    function loadVoices() {
-        availableVoices = window.speechSynthesis.getVoices();
-        console.log('Available voices loaded:', availableVoices.length);
-        
-        if (availableVoices.length > 0) {
-            // Find French voices
-            var frenchVoices = availableVoices.filter(function(voice) {
-                return voice.lang.startsWith('fr') || voice.name.toLowerCase().includes('french');
-            });
-            
-            console.log('French voices found:', frenchVoices.length);
-            
-            if (frenchVoices.length > 0 && !speechConfig.voice) {
-                speechConfig.voice = frenchVoices[0].name;
-                console.log('Selected default French voice:', speechConfig.voice);
-                saveSpeechConfig();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        availableVoices = response.voices;
+                        console.log('Available Google TTS voices loaded:', availableVoices.length);
+                        
+                        // Set default voice if not set
+                        if (!speechConfig.voice_type && availableVoices.length > 0) {
+                            speechConfig.voice_type = 'female';
+                            saveSpeechConfig();
+                        }
+                    } else {
+                        console.error('Failed to load voices:', response.error);
+                    }
+                } catch (error) {
+                    console.error('Error parsing voices response:', error);
+                }
+            } else {
+                console.warn('Could not load Google TTS voices (status:', xhr.status, ')');
             }
+            
+            // Update controls regardless of voice loading success
+            updateSpeechControls();
         }
-        
-        // Update controls after voices are loaded
-        updateSpeechControls();
-    }
+    };
     
-    // Load voices immediately and on change
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+    xhr.send();
     
-    // Initialize speech controls after a delay
+    // Initialize speech controls immediately
     setTimeout(function() {
         updateSpeechControls();
-        console.log('Speech synthesis initialized');
+        console.log('Google Cloud TTS initialized');
     }, 100);
 }
 
 function speakText(text) {
     console.log('speakText called with enabled:', speechConfig.enabled, 'text length:', text ? text.length : 0);
-    
-    if (!('speechSynthesis' in window)) {
-        console.error('Web Speech API not supported');
-        alert('La synthèse vocale n\'est pas supportée par votre navigateur');
-        return;
-    }
     
     if (!speechConfig.enabled || !text) {
         console.log('Speech disabled or no text');
@@ -1133,78 +1123,120 @@ function speakText(text) {
         return;
     }
     
-    console.log('Speaking text:', cleanText.substring(0, 100) + '...');
+    console.log('Using Google TTS for text:', cleanText.substring(0, 100) + '...');
     
-    try {
-        currentUtterance = new SpeechSynthesisUtterance(cleanText);
-        
-        // Configure utterance
-        currentUtterance.rate = speechConfig.rate;
-        currentUtterance.pitch = speechConfig.pitch;
-        currentUtterance.volume = speechConfig.volume;
-        currentUtterance.lang = 'fr-FR';
-        
-        // Set voice if available
-        if (speechConfig.voice && availableVoices.length > 0) {
-            var selectedVoice = availableVoices.find(function(voice) {
-                return voice.name === speechConfig.voice;
-            });
-            if (selectedVoice) {
-                currentUtterance.voice = selectedVoice;
-                console.log('Using voice:', selectedVoice.name);
-            }
-        } else if (availableVoices.length > 0) {
-            // Try to find a French voice
-            var frenchVoice = availableVoices.find(function(voice) {
-                return voice.lang.startsWith('fr');
-            });
-            if (frenchVoice) {
-                currentUtterance.voice = frenchVoice;
-                console.log('Using French voice:', frenchVoice.name);
+    // Show loading state
+    updateSpeechButtons(true);
+    
+    // Call Google Cloud Text-to-Speech API
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/synthesize_speech', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success && response.audio_content) {
+                        console.log('✓ Google TTS synthesis successful');
+                        playAudioFromBase64(response.audio_content, response.audio_format);
+                    } else {
+                        console.error('✗ TTS API error:', response.error || 'Unknown error');
+                        alert('Erreur de synthèse vocale: ' + (response.error || 'Erreur inconnue'));
+                        updateSpeechButtons(false);
+                    }
+                } catch (error) {
+                    console.error('✗ Error parsing TTS response:', error);
+                    alert('Erreur lors du traitement de la réponse vocale');
+                    updateSpeechButtons(false);
+                }
+            } else {
+                console.error('✗ TTS API HTTP error:', xhr.status);
+                alert('Erreur de connexion à l\'API vocale (HTTP ' + xhr.status + ')');
+                updateSpeechButtons(false);
             }
         }
+    };
+    
+    // Send request with speech parameters
+    var requestData = {
+        text: cleanText,
+        voice_type: speechConfig.voice_type,
+        rate: speechConfig.rate,
+        pitch: speechConfig.pitch
+    };
+    
+    xhr.send(JSON.stringify(requestData));
+}
+
+function playAudioFromBase64(audioBase64, format) {
+    try {
+        // Create audio blob from base64
+        var binaryString = atob(audioBase64);
+        var bytes = new Uint8Array(binaryString.length);
+        for (var i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
         
-        // Event handlers
-        currentUtterance.onstart = function() {
-            console.log('✓ Speech started');
-            updateSpeechButtons(true);
+        var blob = new Blob([bytes], { type: 'audio/' + format });
+        var audioUrl = URL.createObjectURL(blob);
+        
+        // Create and play audio element
+        currentAudio = new Audio(audioUrl);
+        
+        currentAudio.onloadstart = function() {
+            console.log('✓ Audio loading started');
         };
         
-        currentUtterance.onend = function() {
-            console.log('✓ Speech ended');
+        currentAudio.oncanplay = function() {
+            console.log('✓ Audio ready to play');
+        };
+        
+        currentAudio.onplay = function() {
+            console.log('✓ Audio playback started');
+        };
+        
+        currentAudio.onended = function() {
+            console.log('✓ Audio playback ended');
             updateSpeechButtons(false);
-            currentUtterance = null;
+            URL.revokeObjectURL(audioUrl);
+            currentAudio = null;
         };
         
-        currentUtterance.onerror = function(event) {
-            console.error('✗ Speech error:', event.error);
-            alert('Erreur de lecture vocale: ' + event.error);
+        currentAudio.onerror = function(e) {
+            console.error('✗ Audio playback error:', e);
+            alert('Erreur lors de la lecture audio');
             updateSpeechButtons(false);
-            currentUtterance = null;
+            URL.revokeObjectURL(audioUrl);
+            currentAudio = null;
         };
         
-        // Start speaking
-        window.speechSynthesis.speak(currentUtterance);
-        console.log('✓ Speech command sent');
+        // Start playing
+        currentAudio.play().catch(function(error) {
+            console.error('✗ Audio play failed:', error);
+            alert('Impossible de lire l\'audio. Veuillez interagir avec la page d\'abord.');
+            updateSpeechButtons(false);
+        });
         
     } catch (error) {
-        console.error('Error in speakText:', error);
-        alert('Erreur lors de l\'initialisation de la synthèse vocale: ' + error.message);
+        console.error('✗ Error creating audio from base64:', error);
+        alert('Erreur lors de la création de l\'audio');
+        updateSpeechButtons(false);
     }
 }
 
 function stopSpeech() {
     try {
-        if (window.speechSynthesis && window.speechSynthesis.speaking) {
-            window.speechSynthesis.cancel();
-            console.log('Speech stopped');
-        }
-        if (currentUtterance) {
-            currentUtterance = null;
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio = null;
+            console.log('Audio stopped');
         }
         updateSpeechButtons(false);
     } catch (error) {
-        console.error('Error stopping speech:', error);
+        console.error('Error stopping audio:', error);
     }
 }
 
@@ -1259,9 +1291,14 @@ function updateSpeechControls() {
     var enableBtn = document.getElementById('speech-enable-btn');
     var autoReadBtn = document.getElementById('speech-autoread-btn');
     var rateSlider = document.getElementById('speech-rate-slider');
+    var pitchSlider = document.getElementById('speech-pitch-slider');
     var speechControlsDiv = document.querySelector('.speech-controls');
-    var valueSpan = document.getElementById('speech-rate-value');
+    var rateValueSpan = document.getElementById('speech-rate-value');
+    var pitchValueSpan = document.getElementById('speech-pitch-value');
+    var femaleRadio = document.getElementById('voice-female');
+    var maleRadio = document.getElementById('voice-male');
     
+    // Update enable button
     if (enableBtn) {
         enableBtn.innerHTML = speechConfig.enabled ? 
             '<i class="fas fa-volume-up"></i> Activé' : 
@@ -1271,6 +1308,7 @@ function updateSpeechControls() {
             'btn btn-outline-secondary btn-sm';
     }
     
+    // Update auto-read button
     if (autoReadBtn) {
         autoReadBtn.innerHTML = speechConfig.autoRead ? 
             '<i class="fas fa-play"></i> Auto' : 
@@ -1281,29 +1319,80 @@ function updateSpeechControls() {
         autoReadBtn.style.display = speechConfig.enabled ? 'inline-block' : 'none';
     }
     
+    // Show/hide speech controls
     if (speechControlsDiv) {
         speechControlsDiv.style.display = speechConfig.enabled ? 'block' : 'none';
     }
     
+    // Update rate slider and value
     if (rateSlider) {
         rateSlider.value = speechConfig.rate;
     }
+    if (rateValueSpan) {
+        rateValueSpan.textContent = speechConfig.rate + 'x';
+    }
     
-    if (valueSpan) {
-        valueSpan.textContent = speechConfig.rate + 'x';
+    // Update pitch slider and value
+    if (pitchSlider) {
+        pitchSlider.value = speechConfig.pitch;
+    }
+    if (pitchValueSpan) {
+        pitchValueSpan.textContent = speechConfig.pitch;
+    }
+    
+    // Update voice type radio buttons
+    if (femaleRadio && maleRadio) {
+        femaleRadio.checked = (speechConfig.voice_type === 'female');
+        maleRadio.checked = (speechConfig.voice_type === 'male');
     }
 }
 
 function saveSpeechConfig() {
     if (typeof Storage !== 'undefined') {
-        Object.keys(speechConfig).forEach(function(key) {
-            localStorage.setItem('speech' + key.charAt(0).toUpperCase() + key.slice(1), speechConfig[key]);
-        });
+        localStorage.setItem('speechEnabled', speechConfig.enabled.toString());
+        localStorage.setItem('speechRate', speechConfig.rate.toString());
+        localStorage.setItem('speechPitch', speechConfig.pitch.toString());
+        localStorage.setItem('speechVoiceType', speechConfig.voice_type || 'female');
+        localStorage.setItem('speechAutoRead', speechConfig.autoRead.toString());
         console.log('Speech config saved:', speechConfig);
     }
 }
 
 // Test function for speech synthesis
 function testSpeech() {
-    speakText('Bonjour ! Ceci est un test de la synthèse vocale française.');
+    speakText('Bonjour ! Ceci est un test de la synthèse vocale française avec Google Cloud.');
+}
+
+// Voice control functions
+function updateSpeechRate(value) {
+    speechConfig.rate = parseFloat(value);
+    var valueElement = document.getElementById('speech-rate-value');
+    if (valueElement) {
+        valueElement.textContent = speechConfig.rate + 'x';
+    }
+    saveSpeechConfig();
+}
+
+function updateSpeechPitch(value) {
+    speechConfig.pitch = parseFloat(value);
+    var valueElement = document.getElementById('speech-pitch-value');
+    if (valueElement) {
+        valueElement.textContent = value;
+    }
+    saveSpeechConfig();
+}
+
+function updateVoiceType(type) {
+    speechConfig.voice_type = type;
+    console.log('Voice type changed to:', type);
+    saveSpeechConfig();
+    
+    // Update UI to reflect selection
+    var femaleRadio = document.getElementById('voice-female');
+    var maleRadio = document.getElementById('voice-male');
+    
+    if (femaleRadio && maleRadio) {
+        femaleRadio.checked = (type === 'female');
+        maleRadio.checked = (type === 'male');
+    }
 }
