@@ -182,6 +182,88 @@ body::before {
         display: -webkit-flex;
         display: flex;
     }
+    
+    /* Force image aspect ratio in Firefox */
+    .story-image img {
+        aspect-ratio: 5/7 !important; /* Portrait ratio */
+        object-fit: contain !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 140px !important;
+    }
+}
+
+/* Additional Firefox Android specific fixes */
+@supports (-moz-appearance: none) {
+    /* Firefox Android specific CSS */
+    .story-image {
+        width: 100px !important;
+        height: 140px !important;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 2px solid var(--border-color);
+        background-color: var(--secondary-color);
+    }
+    
+    .story-image img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+        object-position: center !important;
+        display: block !important;
+    }
+}
+
+/* Mobile Firefox specific media query */
+@media screen and (max-width: 768px) and (-moz-appearance: none) {
+    .story-image {
+        width: 200px !important;
+        height: 280px !important;
+        max-width: 200px !important;
+    }
+    
+    .story-image img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+    }
+}
+
+/* Ultimate fallback for Firefox Android using user-agent detection */
+@media screen and (max-device-width: 768px) {
+    .story-image {
+        display: block !important;
+        width: 200px !important;
+        height: 280px !important;
+        max-width: 200px !important;
+        max-height: 280px !important;
+        overflow: hidden !important;
+        background: var(--secondary-color) !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 8px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .story-image img {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain !important;
+        object-position: center !important;
+        display: block !important;
+        border-radius: 6px !important;
+    }
+    
+    /* Simplified approach for Firefox Android */
+    .story-content {
+        flex-direction: column !important;
+    }
+    
+    .story-image {
+        align-self: center !important;
+        margin: 10px 0 !important;
+    }
 }
 
 /* Additional mobile story display fixes */
