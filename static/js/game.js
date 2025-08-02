@@ -1347,6 +1347,97 @@ function updateSpeechControls() {
     }
 }
 
+// Firefox Android specific fixes - Apply on load
+function applyFirefoxAndroidFixes() {
+    console.log('Applying Firefox Android compatibility fixes...');
+    
+    // Force story container to be visible
+    var storyContainer = document.getElementById('story-container');
+    if (storyContainer) {
+        storyContainer.style.display = 'block';
+        storyContainer.style.visibility = 'visible';
+        storyContainer.style.opacity = '1';
+        
+        // Force reflow
+        storyContainer.offsetHeight;
+        console.log('Story container visibility forced');
+    }
+    
+    // Add specific CSS class for Firefox Android
+    document.body.classList.add('firefox-android');
+    
+    // Force text rendering with dynamic styles
+    var style = document.createElement('style');
+    style.id = 'firefox-android-fixes';
+    style.textContent = `
+        .firefox-android .story-text {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            font-weight: normal !important;
+            text-rendering: optimizeLegibility !important;
+            line-height: 1.6 !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+        }
+        .firefox-android .story-entry {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            margin-bottom: 15px !important;
+            padding: 10px !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 5px !important;
+            background: var(--card-background) !important;
+        }
+        .firefox-android #story-container {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            min-height: 200px !important;
+        }
+        .firefox-android .story-header {
+            display: block !important;
+            font-weight: bold !important;
+            margin-bottom: 8px !important;
+            color: var(--accent-color) !important;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Force re-render of story entries after a short delay
+    setTimeout(function() {
+        var storyEntries = document.querySelectorAll('.story-entry');
+        storyEntries.forEach(function(entry) {
+            entry.style.display = 'none';
+            entry.offsetHeight; // Force reflow
+            entry.style.display = 'block';
+        });
+        console.log('Firefox Android fixes applied to', storyEntries.length, 'story entries');
+    }, 100);
+}
+
+// Check for Firefox Android and apply fixes
+if (navigator.userAgent.toLowerCase().includes('firefox') && 
+    navigator.userAgent.toLowerCase().includes('mobile')) {
+    console.log('Firefox Android detected');
+    
+    // Apply fixes when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyFirefoxAndroidFixes);
+    } else {
+        applyFirefoxAndroidFixes();
+    }
+    
+    // Also apply fixes when story is updated
+    var originalUpdateStoryDisplay = updateStoryDisplay;
+    updateStoryDisplay = function(storyData) {
+        var result = originalUpdateStoryDisplay.call(this, storyData);
+        setTimeout(applyFirefoxAndroidFixes, 50);
+        return result;
+    };
+}
+
 function saveSpeechConfig() {
     if (typeof Storage !== 'undefined') {
         localStorage.setItem('speechEnabled', speechConfig.enabled.toString());
