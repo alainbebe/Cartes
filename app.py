@@ -3,10 +3,12 @@ import json
 import logging
 import time
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, Response
 from dotenv import load_dotenv
 import requests
-from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS, ROLES
+from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS, ROLES, GAME_CONFIG, reload_config
+from speech_service import tts_service
+import base64
 
 # Load environment variables
 load_dotenv()
@@ -266,12 +268,20 @@ def envoyer():
         if image_result and 'success' in image_result and image_result['success']:
             images = image_result.get('images', [])
             if images:
-                # Extract just the filename from the full path
-                full_filename = images[0].get('filename', '')
-                if full_filename.startswith('result/'):
-                    story_entry['image_path'] = full_filename[7:]  # Remove 'result/' prefix
+                image_info = images[0]
+                
+                # Handle original images (fallback to barbason.be)
+                if image_info.get('is_original', False):
+                    story_entry['image_path'] = image_info.get('url', '')
+                    story_entry['is_original_image'] = True
                 else:
-                    story_entry['image_path'] = full_filename
+                    # Handle generated images from Replicate
+                    full_filename = image_info.get('filename', '')
+                    if full_filename.startswith('result/'):
+                        story_entry['image_path'] = full_filename[7:]  # Remove 'result/' prefix
+                    else:
+                        story_entry['image_path'] = full_filename
+                    story_entry['is_original_image'] = False
 
         game_state.story.append(story_entry)
 
@@ -355,11 +365,11 @@ def refresh():
                 "Jeu réinitialisé automatiquement après inactivité")
         else:
             # Log debug info about auto-reset conditions
-            from game_logic import CONFIG
+            from game_logic import TIMING_CONFIG
             inactive_time = datetime.now() - game_state.last_card_played
             #logger.debug(f"Auto-reset check: story_count={len(game_state.story)}, "
             #           f"cards_inactive_time={inactive_time.total_seconds():.1f}s/"
-            #           f"{CONFIG['AUTO_RESET_TIMEOUT']}s")
+            #           f"{TIMING_CONFIG['AUTO_RESET_TIMEOUT']}s")
 
         return jsonify({
             'story':
@@ -480,6 +490,29 @@ def api_roles():
         logger.error(f"Erreur lors du chargement des rôles: {e}")
         return jsonify({"error": "Impossible de charger les données des rôles"}), 500
 
+@app.route('/api/config')
+def api_config():
+    """API endpoint pour récupérer la configuration du jeu"""
+    try:
+        return jsonify(GAME_CONFIG)
+    except Exception as e:
+        logger.error(f"Erreur lors du chargement de la configuration: {e}")
+        return jsonify({"error": "Impossible de charger la configuration"}), 500
+
+@app.route('/api/config/reload', methods=['POST'])
+def api_config_reload():
+    """API endpoint pour recharger la configuration manuellement"""
+    try:
+        new_config = reload_config()
+        return jsonify({
+            "success": True,
+            "message": "Configuration rechargée avec succès",
+            "config": new_config
+        })
+    except Exception as e:
+        logger.error(f"Erreur lors du rechargement de la configuration: {e}")
+        return jsonify({"error": "Impossible de recharger la configuration"}), 500
+
 @app.route('/debug/env')
 def debug_env():
     """Debug endpoint for environment variables"""
@@ -564,6 +597,103 @@ def serve_result_file(filename):
     except Exception as e:
         logger.error(f"Error serving image {filename}: {e}")
         return jsonify({'error': 'Erreur lors du chargement de l\'image'}), 500
+
+
+@app.route('/proxy-image/<card_name>')
+def proxy_original_image(card_name):
+    """Proxy images from barbason.be to avoid CORS issues"""
+    try:
+        import requests
+        from unidecode import unidecode
+        
+        # Clean the card name for URL
+        clean_name = unidecode(card_name.lower().replace(' ', '').replace("'", ""))
+        original_url = f"http://www.barbason.be/public/{clean_name}.jpg"
+        
+        logger.info(f"Proxying image from: {original_url}")
+        
+        # Fetch the image from barbason.be
+        response = requests.get(original_url, timeout=10, stream=True)
+        response.raise_for_status()
+        
+        # Create a Flask response with the image data
+        from flask import Response
+        def generate():
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    yield chunk
+        
+        flask_response = Response(
+            generate(),
+            content_type=response.headers.get('content-type', 'image/jpeg'),
+            headers={
+                'Access-Control-Allow-Origin': '*',
+                'Cross-Origin-Resource-Policy': 'cross-origin',
+                'Cache-Control': 'public, max-age=3600',
+                'X-Content-Type-Options': 'nosniff'
+            }
+        )
+        
+        return flask_response
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error proxying image {card_name}: {e}")
+        abort(404)
+    except Exception as e:
+        logger.error(f"Unexpected error proxying image {card_name}: {e}")
+        abort(500)
+
+
+@app.route('/synthesize_speech', methods=['POST'])
+def synthesize_speech():
+    """Synthesize speech using Google Cloud Text-to-Speech API"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        text = data.get('text', '').strip()
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+        
+        # Get optional parameters
+        voice_type = data.get('voice_type', 'female')  # 'female' or 'male'
+        rate = float(data.get('rate', 1.0))  # Speaking rate
+        pitch = float(data.get('pitch', 0.0))  # Pitch adjustment
+        
+        # Call Google TTS service
+        result = tts_service.synthesize_speech(text, voice_type, rate, pitch)
+        
+        if 'error' in result:
+            logger.error(f"TTS synthesis error: {result['error']}")
+            return jsonify(result), 500
+        
+        # Return audio data as base64
+        return jsonify({
+            'success': True,
+            'audio_content': result['audio_content'],
+            'audio_format': result['audio_format'],
+            'text_length': result['text_length']
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in synthesize_speech: {str(e)}")
+        return jsonify({'error': f'Speech synthesis failed: {str(e)}'}), 500
+
+
+@app.route('/speech_voices', methods=['GET'])
+def get_speech_voices():
+    """Get available speech voices"""
+    try:
+        voices = tts_service.get_available_voices()
+        return jsonify({
+            'success': True,
+            'voices': voices
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in get_speech_voices: {str(e)}")
+        return jsonify({'error': f'Failed to get voices: {str(e)}'}), 500
 
 
 if __name__ == '__main__':

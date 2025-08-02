@@ -1,0 +1,10 @@
+{
+  "mistral": {
+    "enabled": false,
+    "fallback_text": "Une ombre plane sur le champ de bataille."
+  },
+  "image_generation": {
+    "enabled": false,
+    "fallback_to_original": true
+  }
+}

@@ -76,11 +76,95 @@
                                     </select>
                                     <div id="role-description" class="form-text text-muted" style="display: none;"></div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="card-number" class="form-label">Numéro de carte (ou 0 pour conclusion)</label>
-                                    <input type="text" class="form-control no-arrows" id="card-number" placeholder="Ex: 12, 100, 101 5">
+                                <!-- Card Selection Interface -->
+                                <div id="card-selection-container">
+                                    <!-- Range Selection (Initial State) -->
+                                    <div id="range-selection" class="mb-3">
+                                        <label class="form-label">Choisir une carte</label>
+                                        <div class="card-ranges">
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(1, 10)">1-10</button></div>
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(11, 20)">11-20</button></div>
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(21, 30)">21-30</button></div>
+                                            </div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(31, 40)">31-40</button></div>
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(41, 50)">41-50</button></div>
+                                                <div class="col-4"><button type="button" class="btn btn-outline-primary w-100" onclick="selectRange(51, 55)">51-55</button></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Number Selection (Hidden by default) -->
+                                    <div id="number-selection" class="mb-3" style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goBackToRanges()">
+                                                <i class="fas fa-arrow-left"></i> Retour
+                                            </button>
+                                            <span id="current-range" class="text-muted small"></span>
+                                        </div>
+                                        <div id="number-buttons" class="card-numbers">
+                                            <!-- Numbers will be populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Special Cards and Conclusion (Always visible) -->
+                                    <div class="special-cards mb-3">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-warning w-100" onclick="showSpecialCards()">
+                                                    <i class="fas fa-star"></i> Cartes Spéciales
+                                                </button>
+                                            </div>
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-success w-100" onclick="selectCard(0)" id="conclusion-button">
+                                                    <i class="fas fa-flag-checkered"></i> Conclusion
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Special Cards Selection (Hidden by default) -->
+                                    <div id="special-cards-selection" class="mb-3" style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="hideSpecialCards()">
+                                                <i class="fas fa-arrow-left"></i> Retour
+                                            </button>
+                                            <span class="text-muted small">Cartes Spéciales</span>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-primary w-100" onclick="selectCard(100)">
+                                                    100: Inversion
+                                                </button>
+                                            </div>
+                                            <div class="col-6">
+                                                <button type="button" class="btn btn-outline-primary w-100" onclick="showSuppressionTarget()">
+                                                    101: Suppression
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Suppression Target Selection (Hidden by default) -->
+                                    <div id="suppression-target-selection" class="mb-3" style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="backToSpecialCards()">
+                                                <i class="fas fa-arrow-left"></i> Retour
+                                            </button>
+                                            <span class="text-muted small">Carte à supprimer</span>
+                                        </div>
+                                        <div id="suppression-targets" class="card-numbers">
+                                            <!-- Played cards will be populated by JavaScript -->
+                                        </div>
+                                    </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary w-100" id="play-button">
+                                
+                                <!-- Hidden input for form submission -->
+                                <input type="hidden" id="card-number" name="card-number">
+                                
+                                <!-- Submit button (hidden during selection) -->
+                                <button type="submit" class="btn btn-primary w-100" id="play-button" style="display: none;">
                                     <i class="fas fa-play"></i> Jouer la carte
                                 </button>
                             </form>
@@ -134,6 +218,54 @@
                     <button class="btn btn-outline-success" onclick="saveGame()">
                         <i class="fas fa-save"></i> Sauvegarder
                     </button>
+                    
+                    <!-- Speech Controls -->
+                    <div class="btn-group ms-2" role="group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="speech-enable-btn" onclick="toggleSpeech()" title="Activer/Désactiver la lecture vocale">
+                            <i class="fas fa-volume-mute"></i> Désactivé
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="speech-autoread-btn" onclick="toggleAutoRead()" title="Lecture automatique des nouveaux textes" style="display: none;">
+                            <i class="fas fa-play"></i> Auto
+                        </button>
+                    </div>
+                    
+                    <!-- Google TTS Controls -->
+                    <div class="speech-controls mt-2" style="display: none;">
+                        <!-- Voice Type Selection -->
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <label class="form-label me-2 mb-0 small">Voix:</label>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <input type="radio" class="btn-check" name="voice-type" id="voice-female" value="female" checked onchange="updateVoiceType('female')">
+                                <label class="btn btn-outline-primary" for="voice-female">Féminine</label>
+                                
+                                <input type="radio" class="btn-check" name="voice-type" id="voice-male" value="male" onchange="updateVoiceType('male')">
+                                <label class="btn btn-outline-primary" for="voice-male">Masculine</label>
+                            </div>
+                        </div>
+                        
+                        <!-- Speed Control -->
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <label for="speech-rate-slider" class="form-label me-2 mb-0 small">Vitesse:</label>
+                            <input type="range" class="form-range" id="speech-rate-slider" min="0.25" max="4" step="0.25" value="1.0" 
+                                   oninput="updateSpeechRate(this.value)" style="width: 100px;">
+                            <span class="ms-2 small text-muted" id="speech-rate-value">1.0x</span>
+                        </div>
+                        
+                        <!-- Pitch Control -->
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <label for="speech-pitch-slider" class="form-label me-2 mb-0 small">Tonalité:</label>
+                            <input type="range" class="form-range" id="speech-pitch-slider" min="-20" max="20" step="1" value="0" 
+                                   oninput="updateSpeechPitch(this.value)" style="width: 100px;">
+                            <span class="ms-2 small text-muted" id="speech-pitch-value">0</span>
+                        </div>
+                        
+                        <!-- Test button -->
+                        <div class="text-center">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="testSpeech()">
+                                <i class="fas fa-play"></i> Test vocal
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

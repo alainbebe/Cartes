@@ -48,13 +48,77 @@ def load_roles() -> List:
         return []
 
 
+def load_config() -> Dict:
+    """Load configuration from JSON file"""
+    try:
+        with open('config.json', 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        logger.info("Loaded configuration from config.json")
+        return config
+    except FileNotFoundError:
+        logger.warning("config.json file not found, using default configuration")
+        return {
+            "mistral": {
+                "enabled": True,
+                "fallback_text": "L'aventure continue avec des événements mystérieux..."
+            },
+            "image_generation": {
+                "enabled": True,
+                "fallback_to_original": False
+            }
+        }
+    except json.JSONDecodeError as e:
+        logger.error(f"Error parsing config.json: {e}, using default configuration")
+        return {
+            "mistral": {
+                "enabled": True,
+                "fallback_text": "L'aventure continue avec des événements mystérieux..."
+            },
+            "image_generation": {
+                "enabled": True,
+                "fallback_to_original": False
+            }
+        }
+
+
 # Load data at module level
 CARD_DECK = load_card_deck()
 EVALUATIONS = load_evaluations()
 ROLES = load_roles()
+GAME_CONFIG = load_config()
+
+
+def reload_config():
+    """Reload configuration from config.json file"""
+    global GAME_CONFIG
+    old_config = GAME_CONFIG.copy()
+    GAME_CONFIG = load_config()
+    
+    # Log configuration changes
+    if old_config != GAME_CONFIG:
+        logger.info("Configuration reloaded with changes:")
+        
+        # Check Mistral changes
+        old_mistral = old_config.get("mistral", {})
+        new_mistral = GAME_CONFIG.get("mistral", {})
+        if old_mistral != new_mistral:
+            logger.info(f"  Mistral: enabled={new_mistral.get('enabled')} (was {old_mistral.get('enabled')})")
+            if old_mistral.get('fallback_text') != new_mistral.get('fallback_text'):
+                logger.info(f"  Mistral fallback text updated")
+        
+        # Check image generation changes
+        old_img = old_config.get("image_generation", {})
+        new_img = GAME_CONFIG.get("image_generation", {})
+        if old_img != new_img:
+            logger.info(f"  Image generation: enabled={new_img.get('enabled')} (was {old_img.get('enabled')})")
+            logger.info(f"  Fallback to original: {new_img.get('fallback_to_original')} (was {old_img.get('fallback_to_original')})")
+    else:
+        logger.info("Configuration reloaded (no changes detected)")
+    
+    return GAME_CONFIG
 
 # Configuration des délais
-CONFIG = {
+TIMING_CONFIG = {
     'REFRESH_INTERVAL': 0.5,  # 0.5 seconde pour les rafraîchissements
     'PLAYER_TIMEOUT': 2.0,  # 2 secondes pour les joueurs connectés
     'AUTO_RESET_TIMEOUT':
@@ -332,16 +396,18 @@ class GameState:
 
     def update_player_activity(self, player_name: str, player_role: str):
         """Update player activity timestamp"""
-        self.active_players[player_name] = {
-            'role': player_role,
-            'last_seen': datetime.now()
-        }
-        self.last_activity = datetime.now()
+        # Only update if both name and role are valid (non-empty strings)
+        if player_name and player_name.strip() and player_role and player_role.strip():
+            self.active_players[player_name] = {
+                'role': player_role,
+                'last_seen': datetime.now()
+            }
+            self.last_activity = datetime.now()
 
     def get_active_players(self) -> List[Dict]:
         """Get list of active players (seen within configured timeout)"""
         cutoff_time = datetime.now() - timedelta(
-            seconds=CONFIG['PLAYER_TIMEOUT'])
+            seconds=TIMING_CONFIG['PLAYER_TIMEOUT'])
         active = []
 
         # Create a copy of the keys to avoid modifying dict during iteration
@@ -350,11 +416,14 @@ class GameState:
         for player_name in player_names:
             player_info = self.active_players[player_name]
             if player_info['last_seen'] > cutoff_time:
-                active.append({
-                    'name': player_name,
-                    'role': player_info['role'],
-                    'last_seen': player_info['last_seen'].isoformat()
-                })
+                # Only add player if both name and role are valid (non-empty strings)
+                if (player_name and player_name.strip() and 
+                    player_info.get('role') and player_info['role'].strip()):
+                    active.append({
+                        'name': player_name,
+                        'role': player_info['role'],
+                        'last_seen': player_info['last_seen'].isoformat()
+                    })
             else:
                 # Remove inactive players from the stored list
                 del self.active_players[player_name]
@@ -370,17 +439,20 @@ class GameState:
         # Auto-reset after configured timeout since last card played
         inactive_time = datetime.now() - self.last_card_played
         should_reset = inactive_time > timedelta(
-            seconds=CONFIG['AUTO_RESET_TIMEOUT'])
+            seconds=TIMING_CONFIG['AUTO_RESET_TIMEOUT'])
 
         if should_reset:
             logger.info(
-                f"Auto-reset triggered: no cards played for {inactive_time.total_seconds():.1f}s (limit: {CONFIG['AUTO_RESET_TIMEOUT']}s)"
+                f"Auto-reset triggered: no cards played for {inactive_time.total_seconds():.1f}s (limit: {TIMING_CONFIG['AUTO_RESET_TIMEOUT']}s)"
             )
 
         return should_reset
 
     def reset_game(self):
-        """Reset the game to initial state"""
+        """Reset the game to initial state and reload configuration"""
+        # Reload configuration from config.json
+        reload_config()
+        
         # Preserve active players and reinitialize everything else
         self._initialize_state()
         # Set score based on active players after reset
@@ -527,7 +599,47 @@ Je ne veux que le prompt en retour. Il ne faut pas d'explication en plus."""
 
 
 def generate_card_image_with_replicate(prompt: str, player_name: str, card_number: int, card_name: str = "") -> dict:
-    """Generate an actual image using Replicate API based on the Mistral-generated prompt"""
+    """Generate an actual image using Replicate API or return original image based on configuration"""
+    
+    # Check if image generation is enabled in configuration
+    if not GAME_CONFIG.get("image_generation", {}).get("enabled", True):
+        logger.info("Image generation disabled in configuration")
+        
+        # If fallback_to_original is enabled, try to get the original card image
+        if GAME_CONFIG.get("image_generation", {}).get("fallback_to_original", False) and card_name:
+            try:
+                import requests
+                from unidecode import unidecode
+                
+                # Get card name for original image URL
+                clean_card_name = unidecode(card_name.lower().replace(' ', '').replace("'", ""))
+                original_url = f"http://www.barbason.be/public/{clean_card_name}.jpg"
+                
+                # Check if original image exists
+                response = requests.head(original_url, timeout=5)
+                if response.status_code == 200:
+                    logger.info(f"Using original image fallback via proxy: {original_url}")
+                    proxy_url = f"/proxy-image/{clean_card_name}"
+                    return {
+                        "success": True, 
+                        "images": [{
+                            "filename": f"original_{clean_card_name}.jpg",
+                            "url": proxy_url,
+                            "original_url": original_url,
+                            "is_original": True
+                        }],
+                        "fallback": True,
+                        "message": "Image generation disabled, using original image via proxy"
+                    }
+            except Exception as e:
+                logger.warning(f"Could not get original image: {e}")
+        
+        return {
+            "success": False, 
+            "error": "Image generation disabled in configuration",
+            "fallback_mode": True
+        }
+    
     try:
         # Import the image generator module
         from image_generator import generate_card_image
@@ -537,13 +649,69 @@ def generate_card_image_with_replicate(prompt: str, player_name: str, card_numbe
         
         if result.get("success"):
             logger.info(f"Image generation successful: {len(result.get('images', []))} images created")
+            return result
         else:
             logger.error(f"Image generation failed: {result.get('error')}")
             
-        return result
+            # Fallback to original image if enabled and API fails
+            if GAME_CONFIG.get("image_generation", {}).get("fallback_to_original", False) and card_name:
+                try:
+                    import requests
+                    from unidecode import unidecode
+                    
+                    clean_card_name = unidecode(card_name.lower().replace(' ', '').replace("'", ""))
+                    original_url = f"http://www.barbason.be/public/{clean_card_name}.jpg"
+                    
+                    response = requests.head(original_url, timeout=5)
+                    if response.status_code == 200:
+                        logger.info(f"API failed, using original image fallback via proxy: {original_url}")
+                        proxy_url = f"/proxy-image/{clean_card_name}"
+                        return {
+                            "success": True,
+                            "images": [{
+                                "filename": f"original_{clean_card_name}.jpg",
+                                "url": proxy_url,
+                                "original_url": original_url,
+                                "is_original": True
+                            }],
+                            "fallback": True,
+                            "api_error": result.get('error')
+                        }
+                except Exception as fallback_e:
+                    logger.warning(f"Original image fallback also failed: {fallback_e}")
+            
+            return result
         
     except ImportError as e:
         logger.error(f"Image generator module not available: {e}")
+        
+        # Fallback to original image if enabled
+        if GAME_CONFIG.get("image_generation", {}).get("fallback_to_original", False) and card_name:
+            try:
+                import requests
+                from unidecode import unidecode
+                
+                clean_card_name = unidecode(card_name.lower().replace(' ', '').replace("'", ""))
+                original_url = f"http://www.barbason.be/public/{clean_card_name}.jpg"
+                
+                response = requests.head(original_url, timeout=5)
+                if response.status_code == 200:
+                    logger.info(f"Module unavailable, using original image fallback via proxy: {original_url}")
+                    proxy_url = f"/proxy-image/{clean_card_name}"
+                    return {
+                        "success": True,
+                        "images": [{
+                            "filename": f"original_{clean_card_name}.jpg",
+                            "url": proxy_url,
+                            "original_url": original_url,
+                            "is_original": True
+                        }],
+                        "fallback": True,
+                        "module_error": str(e)
+                    }
+            except Exception as fallback_e:
+                logger.warning(f"Original image fallback failed: {fallback_e}")
+        
         return {"success": False, "error": "Image generator module not available"}
     except Exception as e:
         logger.error(f"Error in generate_card_image_with_replicate: {e}")
@@ -551,15 +719,21 @@ def generate_card_image_with_replicate(prompt: str, player_name: str, card_numbe
 
 
 def call_mistral_ai(prompt: str) -> str:
-    """Call Mistral AI API to generate text"""
+    """Call Mistral AI API to generate text or return fallback text based on configuration"""
+    
+    # Check if Mistral is enabled in configuration
+    if not GAME_CONFIG.get("mistral", {}).get("enabled", True):
+        logger.info("Mistral AI disabled in configuration, using fallback text")
+        return GAME_CONFIG.get("mistral", {}).get("fallback_text", "L'aventure continue avec des événements mystérieux...")
+    
     import os
 
     MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY')
     MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 
     if not MISTRAL_API_KEY:
-        logger.warning("MISTRAL_API_KEY not found")
-        return "La clé API Mistral n'est pas configurée..."
+        logger.warning("MISTRAL_API_KEY not found, using fallback text")
+        return GAME_CONFIG.get("mistral", {}).get("fallback_text", "La clé API Mistral n'est pas configurée...")
 
     headers = {
         "Authorization": f"Bearer {MISTRAL_API_KEY}",
