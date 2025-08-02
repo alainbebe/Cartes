@@ -1288,6 +1288,16 @@ function updateSpeechButtons(speaking) {
 }
 
 function updateSpeechControls() {
+    // Check if current player is admin
+    var playerName = localStorage.getItem('playerName');
+    var isAdmin = (playerName === 'Alain');
+    
+    // Show/hide admin voice panel
+    var adminPanel = document.getElementById('admin-voice-panel');
+    if (adminPanel) {
+        adminPanel.style.display = isAdmin ? 'block' : 'none';
+    }
+    
     var enableBtn = document.getElementById('speech-enable-btn');
     var autoReadBtn = document.getElementById('speech-autoread-btn');
     var rateSlider = document.getElementById('speech-rate-slider');
@@ -1517,4 +1527,10 @@ function updateVoiceType(type) {
         femaleRadio.checked = (type === 'female');
         maleRadio.checked = (type === 'male');
     }
+}
+
+// Test speech functionality
+function testSpeech() {
+    var testText = "Bonjour ! Ceci est un test de la synthèse vocale. Les réglages actuels sont appliqués.";
+    speakText(testText);
 }
