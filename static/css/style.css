@@ -906,6 +906,39 @@ body::before {
     border-radius: 50%;
 }
 
+/* Admin voice panel styling */
+#admin-voice-panel {
+    border: 2px solid var(--accent-color);
+    background: linear-gradient(135deg, rgba(218, 165, 32, 0.1), var(--card-background));
+}
+
+#admin-voice-panel .card-header {
+    background: linear-gradient(135deg, var(--accent-color), rgba(218, 165, 32, 0.8));
+    color: var(--text-color);
+    border-bottom: 1px solid var(--accent-color);
+    font-weight: bold;
+}
+
+#admin-voice-panel .card-header h6 {
+    margin: 0;
+    color: var(--background-color);
+}
+
+#admin-voice-panel .form-label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+#admin-voice-panel .btn-group .btn {
+    font-size: 0.9rem;
+}
+
+#admin-voice-panel .speech-controls {
+    background: rgba(218, 165, 32, 0.05);
+    border: 1px solid rgba(218, 165, 32, 0.3);
+}
+
 /* Rules Modal Styling */
 .rules-content h6 {
     color: var(--accent-color);
