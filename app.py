@@ -3,10 +3,12 @@ import json
 import logging
 import time
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, Response
 from dotenv import load_dotenv
 import requests
 from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS, ROLES, GAME_CONFIG, reload_config
+from speech_service import tts_service
+import base64
 
 # Load environment variables
 load_dotenv()
@@ -640,6 +642,58 @@ def proxy_original_image(card_name):
     except Exception as e:
         logger.error(f"Unexpected error proxying image {card_name}: {e}")
         abort(500)
+
+
+@app.route('/synthesize_speech', methods=['POST'])
+def synthesize_speech():
+    """Synthesize speech using Google Cloud Text-to-Speech API"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        text = data.get('text', '').strip()
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+        
+        # Get optional parameters
+        voice_type = data.get('voice_type', 'female')  # 'female' or 'male'
+        rate = float(data.get('rate', 1.0))  # Speaking rate
+        pitch = float(data.get('pitch', 0.0))  # Pitch adjustment
+        
+        # Call Google TTS service
+        result = tts_service.synthesize_speech(text, voice_type, rate, pitch)
+        
+        if 'error' in result:
+            logger.error(f"TTS synthesis error: {result['error']}")
+            return jsonify(result), 500
+        
+        # Return audio data as base64
+        return jsonify({
+            'success': True,
+            'audio_content': result['audio_content'],
+            'audio_format': result['audio_format'],
+            'text_length': result['text_length']
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in synthesize_speech: {str(e)}")
+        return jsonify({'error': f'Speech synthesis failed: {str(e)}'}), 500
+
+
+@app.route('/speech_voices', methods=['GET'])
+def get_speech_voices():
+    """Get available speech voices"""
+    try:
+        voices = tts_service.get_available_voices()
+        return jsonify({
+            'success': True,
+            'voices': voices
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in get_speech_voices: {str(e)}")
+        return jsonify({'error': f'Failed to get voices: {str(e)}'}), 500
 
 
 if __name__ == '__main__':
