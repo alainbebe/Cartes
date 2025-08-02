@@ -3,7 +3,7 @@ import json
 import logging
 import time
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, jsonify, send_from_directory, Response
+from flask import Flask, render_template, request, jsonify, send_from_directory, Response, abort
 from dotenv import load_dotenv
 import requests
 from game_logic import GameState, evaluate_card_effect, get_story_prompt, call_mistral_ai, generate_game_conclusion, generate_image_prompt, generate_card_image_with_replicate, CARD_DECK, EVALUATIONS, ROLES, GAME_CONFIG, reload_config
@@ -519,15 +519,47 @@ def debug_env():
     try:
         mistral_key = os.environ.get('MISTRAL_API_KEY')
         replicate_key = os.environ.get('REPLICATE_API_TOKEN')
+        google_key = os.environ.get('GOOGLE_API_KEY')
         
         return jsonify({
             'mistral_api_key': 'Present (' + str(len(mistral_key)) + ' chars)' if mistral_key else 'MISSING',
             'replicate_api_token': 'Present (' + str(len(replicate_key)) + ' chars)' if replicate_key else 'MISSING',
+            'google_api_key': 'Present (' + str(len(google_key)) + ' chars)' if google_key else 'MISSING',
             'game_players': len(game_state.active_players),
             'cards_played': len(game_state.played_cards),
             'current_score': game_state.score
         })
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/debug/story')
+def debug_story():
+    """Debug endpoint specifically for story display issues"""
+    try:
+        story_data = []
+        for i, entry in enumerate(game_state.story):
+            story_data.append({
+                'index': i,
+                'player': entry.get('player', 'Unknown'),
+                'role': entry.get('role', 'Unknown'),
+                'text': entry.get('text', '')[:100] + '...' if len(entry.get('text', '')) > 100 else entry.get('text', ''),
+                'full_text_length': len(entry.get('text', '')),
+                'has_image': bool(entry.get('image_path')),
+                'timestamp': entry.get('timestamp', 'Unknown')
+            })
+        
+        return jsonify({
+            'story_entries_count': len(game_state.story),
+            'story_data': story_data,
+            'game_status': {
+                'ended': game_state.game_ended,
+                'score': game_state.score,
+                'cards_played': len(game_state.played_cards),
+                'active_players': len(game_state.active_players)
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error in debug_story: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/debug')
