@@ -939,6 +939,13 @@ body::before {
     border: 1px solid rgba(218, 165, 32, 0.3);
 }
 
+/* Style for player not ready message */
+.player-not-ready-message {
+    margin: 20px;
+    padding: 20px;
+    border-radius: 8px;
+}
+
 /* Rules Modal Styling */
 .rules-content h6 {
     color: var(--accent-color);

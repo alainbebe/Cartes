@@ -94,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('playerName', name);
             }
             console.log('Player name updated to:', name);
+            updateCardSelectionVisibility();
         });
     }
     
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('playerRole', role);
             }
             console.log('Player role updated to:', role);
+            updateCardSelectionVisibility();
         });
     }
     
@@ -113,6 +115,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize speech synthesis
     initializeSpeechSynthesis();
+    
+    // Check card selection visibility on initial load
+    setTimeout(function() {
+        updateCardSelectionVisibility();
+    }, 100);
     
     // Start refresh cycle
     refreshGameState();
@@ -144,6 +151,9 @@ function loadStoredPlayerData() {
             }
         }
     }
+    
+    // Check if player is ready and update card selection visibility
+    updateCardSelectionVisibility();
 }
 
 function savePlayerInfo() {
@@ -163,8 +173,77 @@ function savePlayerInfo() {
         localStorage.setItem('playerRole', role);
     }
     
+    // Update card selection visibility now that player info is complete
+    updateCardSelectionVisibility();
+    
     startRefreshInterval();
     refreshGameState();
+}
+
+function updateCardSelectionVisibility() {
+    var container = document.getElementById('card-selection-container');
+    if (!container) {
+        console.log('Card selection container not found');
+        return;
+    }
+    
+    var name = gameState.playerName || (playerNameInput ? playerNameInput.value.trim() : '');
+    var role = gameState.playerRole || (playerRoleSelect ? playerRoleSelect.value : '');
+    
+    console.log('updateCardSelectionVisibility called - name:', name, 'role:', role);
+    
+    // Get internal card selection elements
+    var rangeSelection = document.getElementById('range-selection');
+    var numberSelection = document.getElementById('number-selection');
+    var specialCardsSelection = document.getElementById('special-cards-selection');
+    var suppressionTargetSelection = document.getElementById('suppression-target-selection');
+    var specialCards = document.querySelector('.special-cards');
+    var cardNumber = document.getElementById('card-number');
+    var playButton = document.getElementById('play-button');
+    
+    if (name && role) {
+        console.log('Player is ready - showing card selection');
+        // Player is ready - show card selection elements
+        container.style.display = 'block';
+        
+        // Remove the not-ready message if it exists
+        var notReadyMsg = container.querySelector('.player-not-ready-message');
+        if (notReadyMsg) {
+            notReadyMsg.remove();
+        }
+        
+        // Show the range selection by default if no other view is active
+        if (rangeSelection && rangeSelection.style.display === 'none' && 
+            numberSelection && numberSelection.style.display === 'none' && 
+            specialCardsSelection && specialCardsSelection.style.display === 'none' &&
+            suppressionTargetSelection && suppressionTargetSelection.style.display === 'none') {
+            rangeSelection.style.display = 'block';
+        }
+        
+        // Show special cards buttons
+        if (specialCards) specialCards.style.display = 'block';
+    } else {
+        console.log('Player not ready - hiding card selection content');
+        // Player not ready - hide all selection interfaces
+        if (rangeSelection) rangeSelection.style.display = 'none';
+        if (numberSelection) numberSelection.style.display = 'none';
+        if (specialCardsSelection) specialCardsSelection.style.display = 'none';
+        if (suppressionTargetSelection) suppressionTargetSelection.style.display = 'none';
+        if (specialCards) specialCards.style.display = 'none';
+        if (playButton) playButton.style.display = 'none';
+        
+        // Add a message if it doesn't exist
+        var notReadyMsg = container.querySelector('.player-not-ready-message');
+        if (!notReadyMsg) {
+            notReadyMsg = document.createElement('div');
+            notReadyMsg.className = 'player-not-ready-message alert alert-info text-center mb-3';
+            notReadyMsg.innerHTML = '<i class="fas fa-user-plus"></i> Veuillez d\'abord saisir votre nom et choisir votre rôle pour accéder aux cartes.';
+            container.insertBefore(notReadyMsg, container.firstChild);
+        }
+        
+        // Keep container visible to show the message
+        container.style.display = 'block';
+    }
 }
 
 function saveInterfaceState() {
@@ -510,10 +589,11 @@ function updateActivePlayersDisplay(players) {
     var html = '';
     for (var i = 0; i < players.length; i++) {
         var player = players[i];
+        var roleBadge = getRoleBadge(player.role);
         html += '<div class="player-item">' +
             '<div>' +
                 '<div class="player-name">' + player.name + '</div>' +
-                '<div class="player-role">' + player.role + '</div>' +
+                '<div class="player-role">' + roleBadge + '</div>' +
             '</div>' +
         '</div>';
     }
