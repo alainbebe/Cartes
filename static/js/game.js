@@ -479,10 +479,14 @@ function updateStoryDisplay(story) {
         var storyEntry = document.createElement('div');
         storyEntry.className = 'story-entry';
         
+        console.log('Story entry effect:', entry.effect, 'for player:', entry.player);
+        
         if (entry.effect === '+') {
             storyEntry.classList.add('positive');
+            console.log('Added positive class to entry');
         } else if (entry.effect === '-') {
             storyEntry.classList.add('negative');
+            console.log('Added negative class to entry');
         }
         
         var roleBadge = getRoleBadge(entry.role);
