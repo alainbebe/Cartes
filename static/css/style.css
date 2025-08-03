@@ -939,6 +939,11 @@ body::before {
     border: 1px solid rgba(218, 165, 32, 0.3);
 }
 
+/* Hide card selection until player info is complete */
+#card-selection-container {
+    display: none;
+}
+
 /* Rules Modal Styling */
 .rules-content h6 {
     color: var(--accent-color);

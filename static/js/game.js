@@ -94,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('playerName', name);
             }
             console.log('Player name updated to:', name);
+            updateCardSelectionVisibility();
         });
     }
     
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('playerRole', role);
             }
             console.log('Player role updated to:', role);
+            updateCardSelectionVisibility();
         });
     }
     
@@ -144,6 +146,9 @@ function loadStoredPlayerData() {
             }
         }
     }
+    
+    // Check if player is ready and update card selection visibility
+    updateCardSelectionVisibility();
 }
 
 function savePlayerInfo() {
@@ -163,8 +168,27 @@ function savePlayerInfo() {
         localStorage.setItem('playerRole', role);
     }
     
+    // Update card selection visibility now that player info is complete
+    updateCardSelectionVisibility();
+    
     startRefreshInterval();
     refreshGameState();
+}
+
+function updateCardSelectionVisibility() {
+    var container = document.getElementById('card-selection-container');
+    if (!container) return;
+    
+    var name = gameState.playerName || (playerNameInput ? playerNameInput.value.trim() : '');
+    var role = gameState.playerRole || (playerRoleSelect ? playerRoleSelect.value : '');
+    
+    if (name && role) {
+        // Player is ready - show card selection
+        container.style.display = 'block';
+    } else {
+        // Player not ready - hide card selection
+        container.style.display = 'none';
+    }
 }
 
 function saveInterfaceState() {
