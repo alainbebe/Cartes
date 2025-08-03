@@ -182,73 +182,6 @@
             <!-- Story Panel -->
             <div class="col-md-8">
                 <!-- Admin Voice Controls Panel (visible only for admin "Alain") -->
-                <div id="admin-voice-panel" class="card mb-3" style="display: none;">
-                    <div class="card-header">
-                        <h6><i class="fas fa-microphone-alt"></i> Contrôles Vocaux (Administrateur)</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <!-- Enable/Disable Speech -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Activation</label>
-                                <div class="d-flex gap-2">
-                                    <button type="button" id="speech-enable-btn" class="btn btn-outline-secondary btn-sm" onclick="toggleSpeech()">
-                                        <i class="fas fa-volume-mute"></i> Désactivé
-                                    </button>
-                                    <button type="button" id="speech-autoread-btn" class="btn btn-outline-secondary btn-sm" onclick="toggleAutoRead()" style="display: none;">
-                                        <i class="fas fa-pause"></i> Manuel
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Voice Selection -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Type de voix</label>
-                                <div class="btn-group w-100" role="group">
-                                    <input type="radio" class="btn-check" name="voice-type" id="voice-female" onchange="updateVoiceType('female')">
-                                    <label class="btn btn-outline-primary" for="voice-female">
-                                        <i class="fas fa-female"></i> Féminine
-                                    </label>
-                                    <input type="radio" class="btn-check" name="voice-type" id="voice-male" onchange="updateVoiceType('male')">
-                                    <label class="btn btn-outline-primary" for="voice-male">
-                                        <i class="fas fa-male"></i> Masculine
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="speech-controls" style="display: none;">
-                            <div class="row">
-                                <!-- Speech Rate -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="speech-rate-slider" class="form-label">
-                                        Vitesse: <span id="speech-rate-value">1.0x</span>
-                                    </label>
-                                    <input type="range" class="form-range" id="speech-rate-slider" 
-                                           min="0.5" max="2.0" step="0.1" value="1.0" 
-                                           oninput="updateSpeechRate(this.value)">
-                                </div>
-                                
-                                <!-- Speech Pitch -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="speech-pitch-slider" class="form-label">
-                                        Tonalité: <span id="speech-pitch-value">0</span>
-                                    </label>
-                                    <input type="range" class="form-range" id="speech-pitch-slider" 
-                                           min="-5" max="5" step="1" value="0" 
-                                           oninput="updateSpeechPitch(this.value)">
-                                </div>
-                            </div>
-                            
-                            <!-- Test Speech -->
-                            <div class="text-center">
-                                <button type="button" class="btn btn-outline-info btn-sm" onclick="testSpeech()">
-                                    <i class="fas fa-play"></i> Tester la voix
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="story-panel">
                     <div class="card">
@@ -269,6 +202,73 @@
                 <div class="card-body">
                     <div id="active-players">
                         <p class="text-muted">Aucun joueur actif</p>
+                    </div>
+                </div>
+            </div>
+            <div id="admin-voice-panel" class="card mb-3" style="display: none;">
+                <div class="card-header">
+                    <h6><i class="fas fa-microphone-alt"></i> Contrôles Vocaux (Administrateur)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Enable/Disable Speech -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Activation</label>
+                            <div class="d-flex gap-2">
+                                <button type="button" id="speech-enable-btn" class="btn btn-outline-secondary btn-sm" onclick="toggleSpeech()">
+                                    <i class="fas fa-volume-mute"></i> Désactivé
+                                </button>
+                                <button type="button" id="speech-autoread-btn" class="btn btn-outline-secondary btn-sm" onclick="toggleAutoRead()" style="display: none;">
+                                    <i class="fas fa-pause"></i> Manuel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Voice Selection -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Type de voix</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="voice-type" id="voice-female" onchange="updateVoiceType('female')">
+                                <label class="btn btn-outline-primary" for="voice-female">
+                                    <i class="fas fa-female"></i> Féminine
+                                </label>
+                                <input type="radio" class="btn-check" name="voice-type" id="voice-male" onchange="updateVoiceType('male')">
+                                <label class="btn btn-outline-primary" for="voice-male">
+                                    <i class="fas fa-male"></i> Masculine
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="speech-controls" style="display: none;">
+                        <div class="row">
+                            <!-- Speech Rate -->
+                            <div class="col-md-6 mb-3">
+                                <label for="speech-rate-slider" class="form-label">
+                                    Vitesse: <span id="speech-rate-value">1.0x</span>
+                                </label>
+                                <input type="range" class="form-range" id="speech-rate-slider" 
+                                       min="0.5" max="2.0" step="0.1" value="1.0" 
+                                       oninput="updateSpeechRate(this.value)">
+                            </div>
+
+                            <!-- Speech Pitch -->
+                            <div class="col-md-6 mb-3">
+                                <label for="speech-pitch-slider" class="form-label">
+                                    Tonalité: <span id="speech-pitch-value">0</span>
+                                </label>
+                                <input type="range" class="form-range" id="speech-pitch-slider" 
+                                       min="-5" max="5" step="1" value="0" 
+                                       oninput="updateSpeechPitch(this.value)">
+                            </div>
+                        </div>
+
+                        <!-- Test Speech -->
+                        <div class="text-center">
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="testSpeech()">
+                                <i class="fas fa-play"></i> Tester la voix
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
