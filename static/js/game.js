@@ -182,12 +182,48 @@ function updateCardSelectionVisibility() {
     var name = gameState.playerName || (playerNameInput ? playerNameInput.value.trim() : '');
     var role = gameState.playerRole || (playerRoleSelect ? playerRoleSelect.value : '');
     
+    // Get internal card selection elements
+    var rangeSelection = document.getElementById('range-selection');
+    var numberSelection = document.getElementById('number-selection');
+    var specialCardsSelection = document.getElementById('special-cards-selection');
+    var suppressionTargetSelection = document.getElementById('suppression-target-selection');
+    var specialCards = document.querySelector('.special-cards');
+    var cardSelectionHeader = container.querySelector('.card-header');
+    var cardSelectionBody = container.querySelector('.card-body');
+    
     if (name && role) {
-        // Player is ready - show card selection
+        // Player is ready - show card selection elements
         container.style.display = 'block';
+        if (cardSelectionHeader) cardSelectionHeader.style.display = 'block';
+        if (cardSelectionBody) cardSelectionBody.style.display = 'block';
+        if (specialCards) specialCards.style.display = 'block';
+        
+        // Remove the not-ready message if it exists
+        var notReadyMsg = container.querySelector('.player-not-ready-message');
+        if (notReadyMsg) {
+            notReadyMsg.remove();
+        }
     } else {
-        // Player not ready - hide card selection
-        container.style.display = 'none';
+        // Player not ready - keep container visible but hide content and show message
+        container.style.display = 'block';
+        if (cardSelectionHeader) cardSelectionHeader.style.display = 'none';
+        if (cardSelectionBody) cardSelectionBody.style.display = 'none';
+        if (specialCards) specialCards.style.display = 'none';
+        
+        // Hide all selection interfaces
+        if (rangeSelection) rangeSelection.style.display = 'none';
+        if (numberSelection) numberSelection.style.display = 'none';
+        if (specialCardsSelection) specialCardsSelection.style.display = 'none';
+        if (suppressionTargetSelection) suppressionTargetSelection.style.display = 'none';
+        
+        // Add a message if it doesn't exist
+        var notReadyMsg = container.querySelector('.player-not-ready-message');
+        if (!notReadyMsg) {
+            notReadyMsg = document.createElement('div');
+            notReadyMsg.className = 'player-not-ready-message alert alert-info text-center';
+            notReadyMsg.innerHTML = '<i class="fas fa-user-plus"></i> Veuillez d\'abord saisir votre nom et choisir votre rôle pour accéder aux cartes.';
+            container.appendChild(notReadyMsg);
+        }
     }
 }
 
