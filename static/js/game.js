@@ -116,6 +116,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize speech synthesis
     initializeSpeechSynthesis();
     
+    // Check card selection visibility on initial load
+    setTimeout(function() {
+        updateCardSelectionVisibility();
+    }, 100);
+    
     // Start refresh cycle
     refreshGameState();
     startRefreshInterval();
@@ -177,10 +182,15 @@ function savePlayerInfo() {
 
 function updateCardSelectionVisibility() {
     var container = document.getElementById('card-selection-container');
-    if (!container) return;
+    if (!container) {
+        console.log('Card selection container not found');
+        return;
+    }
     
     var name = gameState.playerName || (playerNameInput ? playerNameInput.value.trim() : '');
     var role = gameState.playerRole || (playerRoleSelect ? playerRoleSelect.value : '');
+    
+    console.log('updateCardSelectionVisibility called - name:', name, 'role:', role);
     
     // Get internal card selection elements
     var rangeSelection = document.getElementById('range-selection');
@@ -192,6 +202,7 @@ function updateCardSelectionVisibility() {
     var cardSelectionBody = container.querySelector('.card-body');
     
     if (name && role) {
+        console.log('Player is ready - showing card selection');
         // Player is ready - show card selection elements
         container.style.display = 'block';
         if (cardSelectionHeader) cardSelectionHeader.style.display = 'block';
@@ -204,6 +215,7 @@ function updateCardSelectionVisibility() {
             notReadyMsg.remove();
         }
     } else {
+        console.log('Player not ready - hiding card selection content');
         // Player not ready - keep container visible but hide content and show message
         container.style.display = 'block';
         if (cardSelectionHeader) cardSelectionHeader.style.display = 'none';
