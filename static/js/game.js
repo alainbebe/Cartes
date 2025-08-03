@@ -198,44 +198,51 @@ function updateCardSelectionVisibility() {
     var specialCardsSelection = document.getElementById('special-cards-selection');
     var suppressionTargetSelection = document.getElementById('suppression-target-selection');
     var specialCards = document.querySelector('.special-cards');
-    var cardSelectionHeader = container.querySelector('.card-header');
-    var cardSelectionBody = container.querySelector('.card-body');
+    var cardNumber = document.getElementById('card-number');
+    var playButton = document.getElementById('play-button');
     
     if (name && role) {
         console.log('Player is ready - showing card selection');
         // Player is ready - show card selection elements
         container.style.display = 'block';
-        if (cardSelectionHeader) cardSelectionHeader.style.display = 'block';
-        if (cardSelectionBody) cardSelectionBody.style.display = 'block';
-        if (specialCards) specialCards.style.display = 'block';
         
         // Remove the not-ready message if it exists
         var notReadyMsg = container.querySelector('.player-not-ready-message');
         if (notReadyMsg) {
             notReadyMsg.remove();
         }
+        
+        // Show the range selection by default if no other view is active
+        if (rangeSelection && rangeSelection.style.display === 'none' && 
+            numberSelection && numberSelection.style.display === 'none' && 
+            specialCardsSelection && specialCardsSelection.style.display === 'none' &&
+            suppressionTargetSelection && suppressionTargetSelection.style.display === 'none') {
+            rangeSelection.style.display = 'block';
+        }
+        
+        // Show special cards buttons
+        if (specialCards) specialCards.style.display = 'block';
     } else {
         console.log('Player not ready - hiding card selection content');
-        // Player not ready - keep container visible but hide content and show message
-        container.style.display = 'block';
-        if (cardSelectionHeader) cardSelectionHeader.style.display = 'none';
-        if (cardSelectionBody) cardSelectionBody.style.display = 'none';
-        if (specialCards) specialCards.style.display = 'none';
-        
-        // Hide all selection interfaces
+        // Player not ready - hide all selection interfaces
         if (rangeSelection) rangeSelection.style.display = 'none';
         if (numberSelection) numberSelection.style.display = 'none';
         if (specialCardsSelection) specialCardsSelection.style.display = 'none';
         if (suppressionTargetSelection) suppressionTargetSelection.style.display = 'none';
+        if (specialCards) specialCards.style.display = 'none';
+        if (playButton) playButton.style.display = 'none';
         
         // Add a message if it doesn't exist
         var notReadyMsg = container.querySelector('.player-not-ready-message');
         if (!notReadyMsg) {
             notReadyMsg = document.createElement('div');
-            notReadyMsg.className = 'player-not-ready-message alert alert-info text-center';
+            notReadyMsg.className = 'player-not-ready-message alert alert-info text-center mb-3';
             notReadyMsg.innerHTML = '<i class="fas fa-user-plus"></i> Veuillez d\'abord saisir votre nom et choisir votre rôle pour accéder aux cartes.';
-            container.appendChild(notReadyMsg);
+            container.insertBefore(notReadyMsg, container.firstChild);
         }
+        
+        // Keep container visible to show the message
+        container.style.display = 'block';
     }
 }
 
@@ -582,10 +589,11 @@ function updateActivePlayersDisplay(players) {
     var html = '';
     for (var i = 0; i < players.length; i++) {
         var player = players[i];
+        var roleBadge = getRoleBadge(player.role);
         html += '<div class="player-item">' +
             '<div>' +
                 '<div class="player-name">' + player.name + '</div>' +
-                '<div class="player-role">' + player.role + '</div>' +
+                '<div class="player-role">' + roleBadge + '</div>' +
             '</div>' +
         '</div>';
     }
