@@ -484,9 +484,15 @@ function updateStoryDisplay(story) {
         if (entry.effect === '+') {
             storyEntry.classList.add('positive');
             console.log('Added positive class to entry');
+            // Force inline styles for Firefox Android compatibility
+            storyEntry.style.borderLeft = '5px solid #22C55E';
+            storyEntry.style.backgroundColor = 'rgba(34, 197, 94, 0.15)';
         } else if (entry.effect === '-') {
             storyEntry.classList.add('negative');
             console.log('Added negative class to entry');
+            // Force inline styles for Firefox Android compatibility
+            storyEntry.style.borderLeft = '5px solid #EF4444';
+            storyEntry.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
         }
         
         var roleBadge = getRoleBadge(entry.role);
